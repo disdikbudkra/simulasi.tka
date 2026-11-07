@@ -1,0 +1,56 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --brand-primary: #1d4ed8;
+}
+
+body {
+  font-family: 'Plus Jakarta Sans', Inter, system-ui, sans-serif;
+}
+
+/* MathLive styling enhancements */
+math-field {
+  display: block;
+  font-size: 1.15rem;
+  padding: 0.65rem 0.85rem;
+  border-radius: 0.5rem;
+  background-color: #ffffff;
+  border: 1px solid #cbd5e1;
+  transition: all 0.2s ease-in-out;
+  outline: none;
+}
+
+math-field:focus-within {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25);
+}
+
+math-field::part(virtual-keyboard-toggle) {
+  opacity: 0.8;
+  color: #2563eb;
+}
+
+math-field::part(virtual-keyboard-toggle):hover {
+  opacity: 1;
+}
+
+/* Readonly math rendered output */
+.math-display {
+  display: inline-block;
+  font-size: 1.1rem;
+}
+
+/* Print styling for student report card */
+@media print {
+  body {
+    background: white !important;
+  }
+  .no-print {
+    display: none !important;
+  }
+  .print-only {
+    display: block !important;
+  }
+}
