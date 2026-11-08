@@ -1,5 +1,4 @@
 import { supabase } from '../supabase.js'
-import { SMP_MATEMATIKA_PAKET_1, SMP_MATEMATIKA_PAKET_2 } from './seedQuestions.js'
 
 // 1. App Settings & Autopilot Dynamic Token (1 Jam)
 export async function getAppSettings() {
@@ -130,13 +129,7 @@ export async function getSoalList(jenjang, mapel, paket) {
     // Kembalikan data dari database langsung (walaupun kosong [] setelah dihapus)
     return data || []
   } catch (err) {
-    console.warn('Gagal memuat soal dari Supabase (offline), memuat bibit lokal:', err)
-    if (jenjang === 'SMP' && mapel === 'Matematika') {
-      if (paket === 'Paket 2') {
-        return SMP_MATEMATIKA_PAKET_2
-      }
-      return SMP_MATEMATIKA_PAKET_1
-    }
+    console.warn('Gagal memuat soal dari Supabase:', err)
     return []
   }
 }

@@ -26,7 +26,7 @@
               type="text" 
               required 
               placeholder="Masukkan username penulis"
-              class="w-full border-gray-300 rounded-lg p-2.5 text-sm font-mono focus:ring-blue-500 focus:border-blue-500 bg-white"
+              class="w-full border-gray-300 rounded-lg p-2.5 text-sm font-mono focus:ring-blue-500 focus:border-blue-500 bg-white" 
             />
           </div>
 
@@ -38,7 +38,7 @@
                 :type="showPassword ? 'text' : 'password'" 
                 required 
                 placeholder="Masukkan kata sandi"
-                class="w-full border-gray-300 rounded-lg p-2.5 text-sm focus:ring-blue-500 focus:border-blue-500 pr-10 bg-white"
+                class="w-full border-gray-300 rounded-lg p-2.5 text-sm focus:ring-blue-500 focus:border-blue-500 pr-10 bg-white" 
               />
               <button 
                 type="button" 
@@ -109,7 +109,7 @@
         </div>
       </div>
 
-      <!-- TAB MENU: 1. UPLOAD WORD (.DOCX) | 2. WEB STUDIO PENULISAN SOAL -->
+      <!-- TAB MENU: 1. STUDIO EDITOR SOAL | 2. BULK IMPORT DOCX -->
       <div class="flex items-center gap-2 border-b border-gray-200">
         <button
           @click="activeTab = 'editor'"
@@ -117,7 +117,7 @@
           :class="activeTab === 'editor' ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700'"
         >
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
-          <span>Studio Form Penulisan Soal ({{ soalList.length }} Soal)</span>
+          <span>Studio Penulisan Soal ({{ soalList.length }} Butir Terdaftar)</span>
         </button>
 
         <button
@@ -126,7 +126,7 @@
           :class="activeTab === 'upload' ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700'"
         >
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
-          <span>Bulk Import File Word (.docx)</span>
+          <span>Import Naskah Word (.docx)</span>
         </button>
       </div>
 
@@ -138,14 +138,13 @@
           <div class="w-16 h-16 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center mx-auto">
             <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
           </div>
-          <h3 class="text-lg font-bold text-gray-800">Unggah File Naskah Soal Microsoft Word (.docx)</h3>
+          <h3 class="text-lg font-bold text-gray-800">Import Naskah Soal dari File Word (.docx)</h3>
           <p class="text-xs text-gray-500 leading-relaxed">
-            Sistem secara otomatis mengekstrak seluruh teks butir soal, rumus matematika, kunci jawaban, dan <strong>semua gambar</strong> dari file Word Anda langsung ke database tanpa perlu mengunggah gambar satu per satu.
+            Sistem secara otomatis mengekstrak naskah soal, formula rumus, dan gambar diagram dari berkas Word (.docx) ke dalam format CBT simulasi TKA.
           </p>
 
-          <!-- Dropzone -->
           <div 
-            class="border-2 border-dashed border-blue-300 hover:border-blue-500 rounded-2xl p-8 transition-colors bg-blue-50/20 cursor-pointer"
+            class="border-2 border-dashed border-blue-200 hover:border-blue-400 bg-blue-50/40 rounded-2xl p-8 cursor-pointer transition-all mt-4"
             @click="$refs.fileInput.click()"
             @dragover.prevent
             @drop.prevent="handleDocxDrop"
@@ -158,7 +157,7 @@
               @change="handleDocxSelect"
             />
             <p class="font-bold text-blue-700 text-sm">Klik atau Seret File .docx ke Sini</p>
-            <span class="text-xs text-gray-400 mt-1 block">Mendukung format naskah kartu soal standar Disdikbud</span>
+            <span class="text-xs text-gray-400 mt-1 block">Mendukung naskah naskah soal resmi Disdikbud</span>
           </div>
 
           <div v-if="uploadStatus" class="p-3 bg-green-50 border border-green-200 rounded-xl text-xs text-green-800 font-semibold">
@@ -167,9 +166,9 @@
         </div>
       </div>
 
-      <!-- ============================================== -->
-      <!-- TAB 2: WEB STUDIO PENULISAN SOAL INTERAKTIF    -->
-      <!-- ============================================== -->
+      <!-- ======================================================== -->
+      <!-- TAB 2: WEB STUDIO PENULISAN SOAL (SIAP PUSMENDIK STYLE)  -->
+      <!-- ======================================================== -->
       <div v-else class="space-y-6">
         
         <!-- Header Aksi & Reset Seluruh Paket -->
@@ -177,12 +176,12 @@
           <div class="flex items-center gap-2">
             <button 
               @click="initNewQuestion"
-              class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg text-xs shadow flex items-center gap-1.5"
+              class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg text-xs shadow flex items-center gap-1.5 transition-colors"
             >
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
-              <span>Tambah Butir Soal Baru</span>
+              <span>+ Tambah Butir Soal Baru</span>
             </button>
-            <span class="text-xs text-gray-500 font-medium">Total: {{ soalList.length }} Soal Terdaftar</span>
+            <span class="text-xs text-gray-500 font-medium">Paket Aktif: <strong>{{ activePaket }}</strong> ({{ soalList.length }} Butir Terdaftar)</span>
           </div>
 
           <!-- Tombol Hapus Seluruh Paket -->
@@ -191,21 +190,28 @@
             class="px-3.5 py-1.5 bg-red-50 hover:bg-red-100 text-red-700 font-bold rounded-lg text-xs border border-red-200 flex items-center gap-1.5 transition-colors"
           >
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-            <span>Hapus / Reset Seluruh Soal {{ activePaket }}</span>
+            <span>Hapus / Kosongkan Seluruh Soal {{ activePaket }}</span>
           </button>
         </div>
 
         <!-- FORM EDITOR SOAL & LIVE CBT PREVIEW (SPLIT SCREEN) -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
           
-          <!-- SISI KIRI: FORM BUILDER SOAL -->
-          <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 space-y-5">
+          <!-- SISI KIRI: FORM BUILDER SOAL (7 Kolom) -->
+          <div class="lg:col-span-7 bg-white rounded-2xl shadow-sm border border-gray-200 p-5 sm:p-6 space-y-6">
+            
+            <!-- Header Kartu Editor -->
             <div class="flex items-center justify-between pb-3 border-b">
-              <h3 class="text-base font-bold text-gray-800">
-                {{ isEditing ? 'Edit Soal Nomor ' + formSoal.nomor_soal : 'Buat Soal Nomor ' + formSoal.nomor_soal }}
-              </h3>
+              <div class="flex items-center gap-2">
+                <span class="w-7 h-7 rounded-lg bg-blue-600 text-white font-black text-sm flex items-center justify-center">
+                  {{ formSoal.nomor_soal }}
+                </span>
+                <h3 class="text-base font-bold text-gray-800">
+                  {{ isEditing ? 'Edit Soal Nomor ' + formSoal.nomor_soal : 'Buat Soal Nomor ' + formSoal.nomor_soal }}
+                </h3>
+              </div>
               
-              <!-- Tombol Hapus Butir Soal Ini (Hanya muncul saat mengedit) -->
+              <!-- Tombol Hapus Butir Soal Ini -->
               <div class="flex items-center gap-2">
                 <button
                   v-if="isEditing"
@@ -225,187 +231,376 @@
             <!-- Nomor & Tipe Soal -->
             <div class="grid grid-cols-2 gap-4">
               <div>
-                <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Nomor Soal</label>
+                <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Nomor Butir Soal</label>
                 <input 
                   v-model.number="formSoal.nomor_soal" 
                   type="number" 
                   min="1" 
                   required 
-                  class="w-full border-gray-300 rounded-lg p-2 text-sm font-bold focus:ring-blue-500 focus:border-blue-500 bg-white" 
+                  class="w-full border border-gray-300 rounded-lg p-2 text-sm font-bold focus:ring-blue-500 focus:border-blue-500 bg-white" 
                 />
               </div>
 
               <div>
                 <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Bentuk / Tipe Soal</label>
-                <select v-model="formSoal.tipe_soal" class="w-full border-gray-300 rounded-lg p-2 text-xs font-semibold focus:ring-blue-500 focus:border-blue-500 bg-white">
-                  <option value="1">1. Pilihan Ganda Biasa</option>
-                  <option value="2">2. Pilihan Ganda Kompleks (MCMA)</option>
-                  <option value="3">3. Tabel Matriks Benar/Salah</option>
-                  <option value="5">5. Menjodohkan (Matching Pairs)</option>
+                <select v-model="formSoal.tipe_soal" class="w-full border border-gray-300 rounded-lg p-2 text-xs font-semibold focus:ring-blue-500 focus:border-blue-500 bg-white">
+                  <option value="1">1. Pilihan Ganda Biasa (1 Kunci)</option>
+                  <option value="2">2. Pilihan Ganda Kompleks (MCMA - Centang > 1)</option>
+                  <option value="3">3. Tabel Matriks (Benar / Salah)</option>
+                  <option value="5">5. Menjodohkan (Pasangan Kiri & Kanan)</option>
                 </select>
               </div>
             </div>
 
-            <!-- Virtual Toolbar MathLive (Rumus Cepat) -->
-            <div class="bg-blue-50/60 p-3 rounded-xl border border-blue-100 space-y-1.5">
-              <span class="text-[11px] font-bold text-blue-900 block">Sisipkan Rumus Matematika (LaTeX):</span>
-              <div class="flex flex-wrap gap-1.5">
-                <button type="button" @click="insertMathFormula('\\frac{a}{b}')" class="px-2 py-1 bg-white border border-blue-200 rounded text-xs font-mono font-bold hover:bg-blue-100">Pecahan \frac{a}{b}</button>
-                <button type="button" @click="insertMathFormula('\\sqrt{x}')" class="px-2 py-1 bg-white border border-blue-200 rounded text-xs font-mono font-bold hover:bg-blue-100">Akar \sqrt{x}</button>
-                <button type="button" @click="insertMathFormula('x^2')" class="px-2 py-1 bg-white border border-blue-200 rounded text-xs font-mono font-bold hover:bg-blue-100">Pangkat x²</button>
-                <button type="button" @click="insertMathFormula('^\\circ')" class="px-2 py-1 bg-white border border-blue-200 rounded text-xs font-mono font-bold hover:bg-blue-100">Derajat °</button>
-                <button type="button" @click="insertMathFormula('\\times')" class="px-2 py-1 bg-white border border-blue-200 rounded text-xs font-mono font-bold hover:bg-blue-100">Kali ×</button>
-                <button type="button" @click="insertMathFormula('\\pi')" class="px-2 py-1 bg-white border border-blue-200 rounded text-xs font-mono font-bold hover:bg-blue-100">Pi π</button>
+            <!-- ============================================== -->
+            <!-- BAGIAN 1: STIMULUS / WACANA (OPSIONAL)         -->
+            <!-- ============================================== -->
+            <div class="border border-gray-200 rounded-xl p-4 bg-gray-50/50 space-y-3">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-bold text-gray-700 uppercase flex items-center gap-1.5">
+                  <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                  <span>Bagian 1: Stimulus / Wacana Bacaan (Opsional)</span>
+                </span>
+                <span class="text-[11px] text-gray-400">Kosongkan jika soal mandiri tanpa bacaan</span>
+              </div>
+
+              <!-- Input Teks Stimulus -->
+              <div>
+                <textarea 
+                  v-model="formSoal.stimulus_html" 
+                  rows="3" 
+                  class="w-full border border-gray-300 rounded-lg p-2.5 text-xs text-gray-800 focus:ring-blue-500 focus:border-blue-500 bg-white leading-relaxed" 
+                  placeholder="Ketikkan judul bacaan dan paragraf cerita/stimulus di sini..."
+                ></textarea>
+              </div>
+
+              <!-- Slot Unggah Gambar Stimulus Terpisah (Bebas Base64 di Textarea!) -->
+              <div class="pt-1">
+                <div v-if="!formSoal.stimulus_image" class="flex items-center gap-2">
+                  <label class="cursor-pointer px-3 py-1.5 bg-white hover:bg-gray-100 border border-gray-300 rounded-lg text-xs font-semibold text-gray-700 flex items-center gap-1.5 shadow-sm transition-colors">
+                    <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                    <span>+ Unggah Gambar Stimulus / Grafik</span>
+                    <input type="file" accept="image/*" class="hidden" @change="e => handleImageUpload(e, 'stimulus')" />
+                  </label>
+                  <span class="text-[11px] text-gray-400">Atau tekan Ctrl+V saat kursor aktif</span>
+                </div>
+
+                <!-- Pratinjau Gambar Stimulus -->
+                <div v-else class="relative inline-block border rounded-lg p-1 bg-white shadow-sm mt-1">
+                  <img :src="formSoal.stimulus_image" alt="Pratinjau Stimulus" class="max-h-36 max-w-full rounded" />
+                  <button 
+                    type="button" 
+                    @click="formSoal.stimulus_image = ''" 
+                    class="absolute -top-2 -right-2 w-6 h-6 bg-red-600 hover:bg-red-700 text-white rounded-full flex items-center justify-center text-xs font-bold shadow"
+                    title="Hapus gambar stimulus"
+                  >
+                    ✕
+                  </button>
+                </div>
               </div>
             </div>
 
-            <!-- Stimulus HTML (Wacana / Gambar / Cerita) -->
-            <div>
-              <div class="flex items-center justify-between mb-1">
+            <!-- ============================================== -->
+            <!-- BAGIAN 2: POKOK PERTANYAAN & ALAT BANTU RUMUS  -->
+            <!-- ============================================== -->
+            <div class="space-y-3">
+              <div class="flex items-center justify-between">
                 <label class="block text-xs font-bold text-gray-700 uppercase">
-                  Wacana / Cerita Soal (Kolom Kiri)
+                  Bagian 2: Pokok Pertanyaan
                 </label>
-                <span class="text-[10px] text-blue-600 font-semibold">Bisa Paste Gambar (Ctrl+V)</span>
+                <span class="text-[11px] text-blue-600 font-semibold">Tersedia Alat Bantu Rumus Matematika</span>
               </div>
-              <textarea 
-                v-model="formSoal.stimulus_html"
-                rows="4"
-                placeholder="Tuliskan cerita/wacana pengantar soal di sini. Anda juga bisa langsung menempel gambar (Ctrl+V)..."
-                @paste="handlePasteImage($event, 'stimulus')"
-                class="w-full border-gray-300 rounded-lg p-2.5 text-xs font-sans focus:ring-blue-500 focus:border-blue-500 bg-white"
-              ></textarea>
+
+              <!-- VISUAL FORMULA TOOLBAR MATEMATIKA (SIAP PUSMENDIK STYLE) -->
+              <div class="bg-blue-50/70 p-3 rounded-xl border border-blue-200 space-y-2">
+                <div class="text-[11px] font-bold text-blue-900 flex items-center gap-1.5">
+                  <span>Alat Bantu Matematika (1-Klik Tanpa Koding):</span>
+                </div>
+
+                <!-- Baris 1: Tombol Bangun Rumus (Pecahan, Pangkat, Akar) -->
+                <div class="flex flex-wrap items-center gap-1.5">
+                  <button 
+                    type="button" 
+                    @click="openFormulaModal('fraction')" 
+                    class="px-2.5 py-1 bg-white hover:bg-blue-100 text-blue-900 border border-blue-300 rounded font-bold text-xs shadow-sm flex items-center gap-1"
+                  >
+                    <span class="font-serif">½</span>
+                    <span>Pecahan</span>
+                  </button>
+                  <button 
+                    type="button" 
+                    @click="openFormulaModal('power')" 
+                    class="px-2.5 py-1 bg-white hover:bg-blue-100 text-blue-900 border border-blue-300 rounded font-bold text-xs shadow-sm flex items-center gap-1"
+                  >
+                    <span class="font-serif">xⁿ</span>
+                    <span>Pangkat</span>
+                  </button>
+                  <button 
+                    type="button" 
+                    @click="openFormulaModal('sqrt')" 
+                    class="px-2.5 py-1 bg-white hover:bg-blue-100 text-blue-900 border border-blue-300 rounded font-bold text-xs shadow-sm flex items-center gap-1"
+                  >
+                    <span class="font-serif">√x</span>
+                    <span>Akar</span>
+                  </button>
+                </div>
+
+                <!-- Baris 2: Simbol Cepat Matematika & Geometri -->
+                <div class="flex flex-wrap items-center gap-1 pt-1 border-t border-blue-200/60">
+                  <span class="text-[10px] text-blue-700 font-bold mr-1">Simbol:</span>
+                  <button 
+                    v-for="sym in mathSymbols" 
+                    :key="sym.char"
+                    type="button"
+                    @click="insertSymbol(sym.char)"
+                    class="w-7 h-7 bg-white hover:bg-blue-600 hover:text-white text-gray-800 border border-gray-300 rounded font-bold text-xs flex items-center justify-center transition-colors shadow-sm"
+                    :title="sym.label"
+                  >
+                    {{ sym.char }}
+                  </button>
+                </div>
+              </div>
+
+              <!-- Textarea Pertanyaan Pokok -->
+              <div class="relative">
+                <textarea 
+                  ref="pertanyaanInputRef"
+                  v-model="formSoal.pertanyaan_html" 
+                  rows="3" 
+                  required 
+                  class="w-full border border-gray-300 rounded-lg p-2.5 text-xs text-gray-800 focus:ring-blue-500 focus:border-blue-500 bg-white leading-relaxed" 
+                  placeholder="Ketikkan kalimat pertanyaan di sini..."
+                ></textarea>
+              </div>
+
+              <!-- Slot Gambar Soal Terpisah (Diagram Geometri / Bangun Ruang) -->
+              <div class="pt-1">
+                <div v-if="!formSoal.question_image" class="flex items-center gap-2">
+                  <label class="cursor-pointer px-3 py-1.5 bg-white hover:bg-gray-100 border border-gray-300 rounded-lg text-xs font-semibold text-gray-700 flex items-center gap-1.5 shadow-sm transition-colors">
+                    <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                    <span>+ Unggah Gambar Soal (Geometri / Grafik)</span>
+                    <input type="file" accept="image/*" class="hidden" @change="e => handleImageUpload(e, 'question')" />
+                  </label>
+                </div>
+
+                <!-- Pratinjau Gambar Soal -->
+                <div v-else class="relative inline-block border rounded-lg p-1 bg-white shadow-sm mt-1">
+                  <img :src="formSoal.question_image" alt="Pratinjau Gambar Soal" class="max-h-36 max-w-full rounded" />
+                  <button 
+                    type="button" 
+                    @click="formSoal.question_image = ''" 
+                    class="absolute -top-2 -right-2 w-6 h-6 bg-red-600 hover:bg-red-700 text-white rounded-full flex items-center justify-center text-xs font-bold shadow"
+                    title="Hapus gambar soal"
+                  >
+                    ✕
+                  </button>
+                </div>
+              </div>
             </div>
 
-            <!-- Teks Pertanyaan -->
-            <div>
-              <div class="flex items-center justify-between mb-1">
-                <label class="block text-xs font-bold text-gray-700 uppercase">
-                  Butir Pertanyaan <span class="text-red-500">*</span>
-                </label>
-                <span class="text-[10px] text-blue-600 font-semibold">Bisa Paste Gambar (Ctrl+V)</span>
-              </div>
-              <textarea 
-                v-model="formSoal.pertanyaan_html"
-                rows="3"
-                required
-                placeholder="Tuliskan kalimat pertanyaan di sini..."
-                @paste="handlePasteImage($event, 'pertanyaan')"
-                class="w-full border-gray-300 rounded-lg p-2.5 text-xs font-sans focus:ring-blue-500 focus:border-blue-500 bg-white"
-              ></textarea>
-            </div>
-
-            <!-- BUILDER OPSI JAWABAN SESUAI TIPE -->
-            
-            <!-- TIPE 1 & 2: OPSI A, B, C, D -->
-            <div v-if="formSoal.tipe_soal === '1' || formSoal.tipe_soal === '2'" class="space-y-3 pt-2">
-              <label class="block text-xs font-bold text-gray-700 uppercase">Pilihan Jawaban (A, B, C, D)</label>
+            <!-- ============================================== -->
+            <!-- BAGIAN 3: OPSI JAWABAN & KUNCI SESUAI TIPE     -->
+            <!-- ============================================== -->
+            <div class="pt-2 border-t space-y-4">
               
-              <div v-for="(opt, idx) in formSoal.options_pg" :key="opt.id" class="flex items-center gap-2">
-                <span class="w-6 font-bold text-gray-700 text-sm">{{ opt.id }}.</span>
-                <input 
-                  v-model="opt.text" 
-                  type="text" 
-                  class="flex-1 border-gray-300 rounded-lg p-2 text-xs bg-white" 
-                  :placeholder="'Teks Opsi ' + opt.id"
-                />
+              <!-- 1. TIPE 1: PILIHAN GANDA BIASA (1 KUNCI BULAT HIJAU) -->
+              <div v-if="formSoal.tipe_soal === '1'" class="space-y-3">
+                <div class="flex items-center justify-between">
+                  <label class="block text-xs font-bold text-gray-700 uppercase">Pilihan Jawaban (Klik bulatan hijau pada Kunci Jawaban)</label>
+                  <span class="text-xs text-green-700 font-bold">Kunci: Opsi {{ formSoal.kunci_tipe_1 }}</span>
+                </div>
                 
-                <!-- Radio kunci untuk Tipe 1 -->
-                <label v-if="formSoal.tipe_soal === '1'" class="flex items-center gap-1 cursor-pointer text-xs font-bold text-green-700">
-                  <input type="radio" v-model="formSoal.kunci_tipe_1" :value="opt.id" class="text-green-600" />
-                  Kunci
-                </label>
-
-                <!-- Checkbox kunci untuk Tipe 2 (MCMA) -->
-                <label v-else-if="formSoal.tipe_soal === '2'" class="flex items-center gap-1 cursor-pointer text-xs font-bold text-purple-700">
-                  <input type="checkbox" v-model="formSoal.kunci_tipe_2" :value="opt.id" class="text-purple-600" />
-                  Kunci
-                </label>
-              </div>
-            </div>
-
-            <!-- TIPE 3: MATRIKS BENAR / SALAH -->
-            <div v-else-if="formSoal.tipe_soal === '3'" class="space-y-3 pt-2">
-              <label class="block text-xs font-bold text-gray-700 uppercase">Baris Pernyataan Benar/Salah</label>
-              <div v-for="(row, idx) in formSoal.options_table" :key="row.id" class="flex items-center gap-2">
-                <span class="text-xs font-bold text-gray-500 w-4">{{ idx + 1 }}.</span>
-                <input v-model="row.pernyataan" type="text" class="flex-1 border-gray-300 rounded-lg p-2 text-xs bg-white" :placeholder="'Pernyataan baris ' + (idx + 1)" />
-                <select v-model="formSoal.kunci_table[row.id]" class="border-gray-300 rounded-lg p-2 text-xs font-bold bg-white">
-                  <option value="B">Benar</option>
-                  <option value="S">Salah</option>
-                </select>
-              </div>
-            </div>
-
-            <!-- TIPE 5: MENJODOHKAN (MATCHING) -->
-            <div v-else-if="formSoal.tipe_soal === '5'" class="space-y-4 pt-2">
-              <label class="block text-xs font-bold text-gray-700 uppercase">Pasangan Menjodohkan</label>
-              
-              <div class="space-y-2">
-                <span class="text-[11px] font-bold text-gray-600 block">Kolom Kiri (Premis):</span>
-                <div v-for="l in formSoal.matching_left" :key="l.id" class="flex items-center gap-2">
-                  <span class="font-bold text-xs text-blue-700 w-8">{{ l.id }}</span>
-                  <input v-model="l.text" type="text" class="flex-1 border-gray-300 rounded-lg p-2 text-xs bg-white" :placeholder="'Premis kiri ' + l.id" />
+                <div v-for="opt in formSoal.options_pg" :key="opt.id" class="flex items-center gap-3 bg-gray-50/60 p-2 rounded-lg border border-gray-200">
+                  <span class="w-6 font-bold text-gray-800 text-sm text-center">{{ opt.id }}.</span>
+                  <input 
+                    v-model="opt.text" 
+                    type="text" 
+                    class="flex-1 border border-gray-300 rounded-lg p-2 text-xs bg-white" 
+                    :placeholder="'Teks jawaban opsi ' + opt.id"
+                  />
+                  
+                  <label class="flex items-center gap-1.5 cursor-pointer text-xs font-bold text-green-700 bg-white px-3 py-1.5 rounded-md border border-green-300 hover:bg-green-50 shadow-sm">
+                    <input type="radio" v-model="formSoal.kunci_tipe_1" :value="opt.id" class="text-green-600 focus:ring-green-500 w-4 h-4 cursor-pointer" />
+                    <span>Kunci</span>
+                  </label>
                 </div>
               </div>
 
-              <div class="space-y-2">
-                <span class="text-[11px] font-bold text-gray-600 block">Kolom Kanan (Pilihan Pasangan):</span>
-                <div v-for="r in formSoal.matching_right" :key="r.id" class="flex items-center gap-2">
-                  <span class="font-bold text-xs text-green-700 w-8">{{ r.id }}</span>
-                  <input v-model="r.text" type="text" class="flex-1 border-gray-300 rounded-lg p-2 text-xs bg-white" :placeholder="'Pilihan kanan ' + r.id" />
+              <!-- 2. TIPE 2: PILIHAN GANDA KOMPLEKS (MCMA - CENTANG LEBIH DARI SATU) -->
+              <div v-else-if="formSoal.tipe_soal === '2'" class="space-y-3">
+                <div class="flex items-center justify-between">
+                  <label class="block text-xs font-bold text-gray-700 uppercase">Pilihan Jawaban Kompleks (Centang semua jawaban benar)</label>
+                  <span class="text-xs text-purple-700 font-bold">Kunci Terpilih: {{ formSoal.kunci_tipe_2.join(', ') || 'Belum dipilih' }}</span>
+                </div>
+
+                <div v-for="opt in formSoal.options_pg" :key="opt.id" class="flex items-center gap-3 bg-gray-50/60 p-2 rounded-lg border border-gray-200">
+                  <span class="w-6 font-bold text-gray-800 text-sm text-center">{{ opt.id }}.</span>
+                  <input 
+                    v-model="opt.text" 
+                    type="text" 
+                    class="flex-1 border border-gray-300 rounded-lg p-2 text-xs bg-white" 
+                    :placeholder="'Teks pernyataan opsi ' + opt.id"
+                  />
+                  
+                  <label class="flex items-center gap-1.5 cursor-pointer text-xs font-bold text-purple-700 bg-white px-3 py-1.5 rounded-md border border-purple-300 hover:bg-purple-50 shadow-sm">
+                    <input type="checkbox" v-model="formSoal.kunci_tipe_2" :value="opt.id" class="text-purple-600 rounded focus:ring-purple-500 w-4 h-4 cursor-pointer" />
+                    <span>Kunci</span>
+                  </label>
                 </div>
               </div>
 
-              <div class="space-y-2 bg-gray-50 p-3 rounded-lg border">
-                <span class="text-[11px] font-bold text-gray-700 block">Kunci Pasangan:</span>
-                <div v-for="l in formSoal.matching_left" :key="l.id" class="flex items-center justify-between text-xs">
-                  <span class="font-bold">{{ l.id }}: {{ l.text || '-' }}</span>
-                  <select v-model="formSoal.kunci_matching[l.id]" class="border-gray-300 rounded p-1 text-xs bg-white">
-                    <option v-for="r in formSoal.matching_right" :key="r.id" :value="r.id">{{ r.id }}: {{ r.text }}</option>
-                  </select>
+              <!-- 3. TIPE 3: MATRIKS BENAR / SALAH (TABEL VISUAL) -->
+              <div v-else-if="formSoal.tipe_soal === '3'" class="space-y-3">
+                <div class="flex items-center justify-between">
+                  <label class="block text-xs font-bold text-gray-700 uppercase">Baris Pernyataan Matriks</label>
+                  <button 
+                    type="button" 
+                    @click="addTableRow" 
+                    class="text-xs bg-blue-50 text-blue-700 hover:bg-blue-100 font-bold px-2.5 py-1 rounded border border-blue-200"
+                  >
+                    + Tambah Baris
+                  </button>
+                </div>
+
+                <div class="overflow-x-auto border border-gray-200 rounded-lg">
+                  <table class="min-w-full text-xs">
+                    <thead class="bg-gray-100 font-bold text-gray-700">
+                      <tr>
+                        <th class="p-2 text-left w-10">No</th>
+                        <th class="p-2 text-left">Pernyataan</th>
+                        <th class="p-2 text-center w-28">Kunci Jawaban</th>
+                        <th class="p-2 text-center w-12">Aksi</th>
+                      </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200 bg-white">
+                      <tr v-for="(row, idx) in formSoal.options_table" :key="row.id">
+                        <td class="p-2 font-bold text-gray-500 text-center">{{ idx + 1 }}</td>
+                        <td class="p-2">
+                          <input 
+                            v-model="row.pernyataan" 
+                            type="text" 
+                            class="w-full border border-gray-300 rounded p-1.5 text-xs bg-white" 
+                            :placeholder="'Teks pernyataan baris ' + (idx + 1)" 
+                          />
+                        </td>
+                        <td class="p-2 text-center">
+                          <select v-model="formSoal.kunci_table[row.id]" class="border border-gray-300 rounded p-1 text-xs font-bold bg-white">
+                            <option value="B">Benar</option>
+                            <option value="S">Salah</option>
+                          </select>
+                        </td>
+                        <td class="p-2 text-center">
+                          <button 
+                            v-if="formSoal.options_table.length > 2"
+                            type="button" 
+                            @click="removeTableRow(idx)" 
+                            class="text-red-500 hover:text-red-700 font-bold"
+                          >
+                            ✕
+                          </button>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
                 </div>
               </div>
+
+              <!-- 4. TIPE 5: MENJODOHKAN (PASANGAN VISUAL DUA KOLOM) -->
+              <div v-else-if="formSoal.tipe_soal === '5'" class="space-y-4">
+                <div class="flex items-center justify-between">
+                  <label class="block text-xs font-bold text-gray-700 uppercase">Pasangan Menjodohkan (Premis Kiri ➜ Pilihan Kanan)</label>
+                  <button 
+                    type="button" 
+                    @click="addMatchingPair" 
+                    class="text-xs bg-blue-50 text-blue-700 hover:bg-blue-100 font-bold px-2.5 py-1 rounded border border-blue-200"
+                  >
+                    + Tambah Pasangan
+                  </button>
+                </div>
+
+                <!-- Kartu Dua Kolom -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <!-- Kolom Kiri -->
+                  <div class="bg-blue-50/40 p-3 rounded-xl border border-blue-100 space-y-2">
+                    <span class="text-xs font-bold text-blue-900 block">Kolom Kiri (Premis / Pernyataan):</span>
+                    <div v-for="l in formSoal.matching_left" :key="l.id" class="flex items-center gap-1.5">
+                      <span class="font-bold text-xs text-blue-700 w-6">{{ l.id }}</span>
+                      <input v-model="l.text" type="text" class="flex-1 border border-gray-300 rounded p-1.5 text-xs bg-white" :placeholder="'Teks premis ' + l.id" />
+                    </div>
+                  </div>
+
+                  <!-- Kolom Kanan -->
+                  <div class="bg-green-50/40 p-3 rounded-xl border border-green-100 space-y-2">
+                    <span class="text-xs font-bold text-green-900 block">Kolom Kanan (Pilihan Pasangan):</span>
+                    <div v-for="r in formSoal.matching_right" :key="r.id" class="flex items-center gap-1.5">
+                      <span class="font-bold text-xs text-green-700 w-6">{{ r.id }}</span>
+                      <input v-model="r.text" type="text" class="flex-1 border border-gray-300 rounded p-1.5 text-xs bg-white" :placeholder="'Teks pilihan ' + r.id" />
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Kunci Hubungan Pasangan -->
+                <div class="bg-gray-50 p-3.5 rounded-xl border border-gray-200 space-y-2">
+                  <span class="text-xs font-bold text-gray-800 block">Kunci Pasangan yang Benar:</span>
+                  <div v-for="l in formSoal.matching_left" :key="l.id" class="flex items-center justify-between text-xs py-1 border-b border-gray-200 last:border-0">
+                    <span class="font-medium text-gray-700">{{ l.id }}: {{ l.text || '(Belum diisi)' }}</span>
+                    <div class="flex items-center gap-2">
+                      <span class="text-gray-400">berpasangan dengan</span>
+                      <select v-model="formSoal.kunci_matching[l.id]" class="border border-gray-300 rounded p-1 text-xs font-bold bg-white">
+                        <option v-for="r in formSoal.matching_right" :key="r.id" :value="r.id">
+                          {{ r.id }}: {{ r.text || '(Pilihan ' + r.id + ')' }}
+                        </option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
             </div>
 
-            <!-- Tombol Simpan -->
+            <!-- Tombol Simpan Butir Soal -->
             <div class="pt-4 flex gap-3 border-t">
               <button 
                 type="button" 
                 @click="saveQuestion"
-                class="flex-1 py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-xs sm:text-sm shadow flex items-center justify-center gap-2"
+                class="flex-1 py-3 bg-[#0d6efd] hover:bg-blue-700 text-white font-bold rounded-xl text-xs sm:text-sm shadow flex items-center justify-center gap-2 transition-colors"
               >
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
                 <span>Simpan Butir Soal Ini</span>
               </button>
             </div>
+
           </div>
 
-          <!-- SISI KANAN: LIVE CBT PREVIEW -->
-          <div class="space-y-4">
-            <div class="flex items-center justify-between px-2">
-              <span class="text-xs font-bold text-gray-500 uppercase tracking-wider flex items-center gap-1.5">
-                <span class="w-2.5 h-2.5 rounded-full bg-green-500 animate-pulse"></span>
-                Live CBT Preview (Tampilan Asli Siswa)
+          <!-- SISI KANAN: LIVE CBT PREVIEW (5 Kolom) -->
+          <div class="lg:col-span-5 space-y-5">
+            <div class="flex items-center justify-between px-1">
+              <span class="text-xs font-bold text-gray-600 uppercase tracking-wider flex items-center gap-1.5">
+                <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                <span>Live CBT Preview (Tampilan Siswa)</span>
               </span>
             </div>
 
-            <!-- Preview Card -->
-            <CBTQuestionItem 
-              :question="previewQuestionObj"
-              v-model="previewDummyAnswer"
-            />
+            <!-- Pratinjau Komponen CBT Siswa Detik Itu Juga -->
+            <div class="border-2 border-blue-200 rounded-2xl overflow-hidden shadow-sm">
+              <CBTQuestionItem 
+                :question="previewQuestionObj"
+                v-model="previewDummyAnswer"
+              />
+            </div>
 
-            <!-- Daftar Butir Soal Terdaftar -->
-            <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-5 mt-6">
+            <!-- Daftar Butir Soal Terdaftar dalam Paket -->
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-5">
               <div class="flex items-center justify-between mb-3">
-                <h4 class="text-sm font-bold text-gray-800">Daftar Soal {{ activePaket }} Terdaftar ({{ soalList.length }})</h4>
+                <h4 class="text-sm font-bold text-gray-800">Daftar Soal {{ activePaket }} ({{ soalList.length }} Butir)</h4>
               </div>
 
-              <div v-if="soalList.length === 0" class="text-center py-6 text-gray-400 text-xs">
-                Belum ada soal pada paket ini. Buat butir soal baru atau import file Word.
+              <div v-if="soalList.length === 0" class="text-center py-8 text-gray-400 text-xs bg-gray-50/50 rounded-xl border border-dashed border-gray-200">
+                Belum ada butir soal pada {{ activePaket }}. <br/>
+                Ketikkan butir soal di formulir sebelah kiri dan klik <strong>Simpan Butir Soal Ini</strong>.
               </div>
 
-              <div v-else class="grid grid-cols-5 sm:grid-cols-6 gap-2">
+              <div v-else class="grid grid-cols-5 gap-2 max-h-72 overflow-y-auto p-1">
                 <div 
                   v-for="q in soalList" 
                   :key="q.nomor_soal"
@@ -426,12 +621,69 @@
                 </div>
               </div>
             </div>
+
           </div>
 
         </div>
 
       </div>
 
+    </div>
+
+    <!-- ======================================================== -->
+    <!-- MODAL POPUP ALAT BANTU RUMUS MATEMATIKA (INTERAKTIF)     -->
+    <!-- ======================================================== -->
+    <div v-if="activeFormulaModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+      <div class="bg-white rounded-2xl max-w-sm w-full p-5 shadow-2xl space-y-4">
+        <div class="flex items-center justify-between pb-2 border-b">
+          <h3 class="text-sm font-bold text-gray-800 flex items-center gap-1.5">
+            <span class="w-2.5 h-2.5 rounded-full bg-blue-600"></span>
+            <span>{{ formulaModalTitle }}</span>
+          </h3>
+          <button @click="activeFormulaModal = null" class="text-gray-400 hover:text-gray-600">✕</button>
+        </div>
+
+        <!-- 1. Form Pecahan -->
+        <div v-if="activeFormulaModal === 'fraction'" class="space-y-3">
+          <div>
+            <label class="block text-xs font-bold text-gray-600 mb-1">Angka Pembilang (Atas):</label>
+            <input v-model="formulaInputs.numerator" type="text" placeholder="Contoh: 3" class="w-full border border-gray-300 rounded-lg p-2 text-xs font-bold bg-white" />
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-gray-600 mb-1">Angka Penyebut (Bawah):</label>
+            <input v-model="formulaInputs.denominator" type="text" placeholder="Contoh: 4" class="w-full border border-gray-300 rounded-lg p-2 text-xs font-bold bg-white" />
+          </div>
+        </div>
+
+        <!-- 2. Form Pangkat -->
+        <div v-else-if="activeFormulaModal === 'power'" class="space-y-3">
+          <div>
+            <label class="block text-xs font-bold text-gray-600 mb-1">Bilangan Pokok:</label>
+            <input v-model="formulaInputs.base" type="text" placeholder="Contoh: 7 atau x" class="w-full border border-gray-300 rounded-lg p-2 text-xs font-bold bg-white" />
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-gray-600 mb-1">Angka Pangkat / Eksponen:</label>
+            <input v-model="formulaInputs.exponent" type="text" placeholder="Contoh: -3 atau 2" class="w-full border border-gray-300 rounded-lg p-2 text-xs font-bold bg-white" />
+          </div>
+        </div>
+
+        <!-- 3. Form Akar -->
+        <div v-else-if="activeFormulaModal === 'sqrt'" class="space-y-3">
+          <div>
+            <label class="block text-xs font-bold text-gray-600 mb-1">Nilai di Dalam Akar:</label>
+            <input v-model="formulaInputs.sqrtValue" type="text" placeholder="Contoh: 25 atau 75" class="w-full border border-gray-300 rounded-lg p-2 text-xs font-bold bg-white" />
+          </div>
+        </div>
+
+        <div class="flex gap-2 pt-2 border-t">
+          <button @click="activeFormulaModal = null" class="w-1/2 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold rounded-lg text-xs">
+            Batal
+          </button>
+          <button @click="insertBuiltFormula" class="w-1/2 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg text-xs">
+            Sisipkan Rumus
+          </button>
+        </div>
+      </div>
     </div>
 
     <!-- CUSTOM MODAL: KONFIRMASI HAPUS 1 BUTIR SOAL -->
@@ -492,11 +744,11 @@
 import { ref, reactive, computed, onMounted } from 'vue'
 import CBTHeader from '../components/CBTHeader.vue'
 import CBTQuestionItem from '../components/CBTQuestionItem.vue'
-import { supabase } from '../supabase.js'
 import { loginPenulis, getSoalList, deleteSoalByNomor, deleteEntirePackage } from '../services/apiService.js'
+import { supabase } from '../supabase.js'
 import mammoth from 'mammoth'
 
-// State Auth Penulis (Kosong secara default tanpa prefill)
+// State Penulis & Login
 const currentPenulis = ref(null)
 const inputUsername = ref('')
 const inputPassword = ref('')
@@ -504,23 +756,59 @@ const showPassword = ref(false)
 const loginError = ref('')
 const toastMsg = ref('')
 
-// Tabs
+// State Tabs & Paket
 const activeTab = ref('editor')
 const activePaket = ref('Paket 1')
 const soalList = ref([])
 
-// Modals
+// Modals Konfirmasi
 const showDeleteSingleConfirm = ref(false)
 const showResetPackageConfirm = ref(false)
 const targetQuestionToDelete = ref(null)
 
+// Formula Builder Modal
+const activeFormulaModal = ref(null) // 'fraction', 'power', 'sqrt'
+const formulaInputs = reactive({
+  numerator: '',
+  denominator: '',
+  base: '',
+  exponent: '',
+  sqrtValue: ''
+})
+
+const formulaModalTitle = computed(() => {
+  switch (activeFormulaModal.value) {
+    case 'fraction': return 'Sisipkan Pecahan'
+    case 'power': return 'Sisipkan Bilangan Berpangkat'
+    case 'sqrt': return 'Sisipkan Bentuk Akar'
+    default: return 'Alat Bantu Rumus'
+  }
+})
+
+// Simbol-Simbol Cepat Matematika & Geometri (SD & SMP)
+const mathSymbols = [
+  { char: '×', label: 'Kali' },
+  { char: '÷', label: 'Bagi' },
+  { char: '±', label: 'Plus Minus' },
+  { char: '≤', label: 'Kurang Dari Sama Dengan' },
+  { char: '≥', label: 'Lebih Dari Sama Dengan' },
+  { char: '≠', label: 'Tidak Sama Dengan' },
+  { char: '°', label: 'Derajat' },
+  { char: 'π', label: 'Pi' },
+  { char: '∠', label: 'Sudut' },
+  { char: '%', label: 'Persen' }
+]
+
 // Editor Form
 const isEditing = ref(false)
+const pertanyaanInputRef = ref(null)
 const formSoal = reactive({
   nomor_soal: 1,
   tipe_soal: '1',
   stimulus_html: '',
+  stimulus_image: '',
   pertanyaan_html: '',
+  question_image: '',
   options_pg: [
     { id: 'A', text: '' },
     { id: 'B', text: '' },
@@ -621,7 +909,9 @@ function initNewQuestion() {
   formSoal.nomor_soal = (soalList.value.length || 0) + 1
   formSoal.tipe_soal = '1'
   formSoal.stimulus_html = ''
+  formSoal.stimulus_image = ''
   formSoal.pertanyaan_html = ''
+  formSoal.question_image = ''
   formSoal.options_pg = [
     { id: 'A', text: '' },
     { id: 'B', text: '' },
@@ -630,6 +920,20 @@ function initNewQuestion() {
   ]
   formSoal.kunci_tipe_1 = 'A'
   formSoal.kunci_tipe_2 = ['A']
+  formSoal.options_table = [
+    { id: 'row_1', pernyataan: '' },
+    { id: 'row_2', pernyataan: '' }
+  ]
+  formSoal.kunci_table = { row_1: 'B', row_2: 'S' }
+  formSoal.matching_left = [
+    { id: 'L1', text: '' },
+    { id: 'L2', text: '' }
+  ]
+  formSoal.matching_right = [
+    { id: 'R1', text: '' },
+    { id: 'R2', text: '' }
+  ]
+  formSoal.kunci_matching = { L1: 'R1', L2: 'R2' }
 }
 
 function loadQuestionIntoForm(q) {
@@ -637,7 +941,9 @@ function loadQuestionIntoForm(q) {
   formSoal.nomor_soal = q.nomor_soal
   formSoal.tipe_soal = q.tipe_soal
   formSoal.stimulus_html = q.stimulus_html || ''
+  formSoal.stimulus_image = q.stimulus_image || ''
   formSoal.pertanyaan_html = q.pertanyaan_html || ''
+  formSoal.question_image = q.question_image || ''
 
   if (q.tipe_soal === '1') {
     formSoal.options_pg = q.options_json || []
@@ -655,30 +961,84 @@ function loadQuestionIntoForm(q) {
   }
 }
 
-// Sisipkan Formula MathLive
-function insertMathFormula(formula) {
-  formSoal.pertanyaan_html += ` <span class="math-inline">${formula}</span> `
-}
+// Upload Gambar Terpisah (FileReader to Base64/DataURL)
+function handleImageUpload(e, targetField) {
+  const file = e.target.files[0]
+  if (!file) return
 
-// Clipboard Paste Image (Ctrl+V)
-function handlePasteImage(e, targetField) {
-  const items = (e.clipboardData || e.originalEvent.clipboardData).items
-  for (const item of items) {
-    if (item.type.indexOf('image') === 0) {
-      const blob = item.getAsFile()
-      const reader = new FileReader()
-      reader.onload = (event) => {
-        const base64 = event.target.result
-        const imgTag = `<div class="my-3 text-center"><img src="${base64}" class="max-w-full mx-auto rounded shadow-sm border" /></div>`
-        if (targetField === 'stimulus') {
-          formSoal.stimulus_html += imgTag
-        } else {
-          formSoal.pertanyaan_html += imgTag
-        }
-      }
-      reader.readAsDataURL(blob)
+  const reader = new FileReader()
+  reader.onload = (event) => {
+    if (targetField === 'stimulus') {
+      formSoal.stimulus_image = event.target.result
+      showToast('Gambar stimulus berhasil diunggah.')
+    } else {
+      formSoal.question_image = event.target.result
+      showToast('Gambar soal berhasil diunggah.')
     }
   }
+  reader.readAsDataURL(file)
+}
+
+// Alat Bantu Rumus Matematika Popover
+function openFormulaModal(type) {
+  activeFormulaModal.value = type
+  formulaInputs.numerator = ''
+  formulaInputs.denominator = ''
+  formulaInputs.base = ''
+  formulaInputs.exponent = ''
+  formulaInputs.sqrtValue = ''
+}
+
+function insertBuiltFormula() {
+  let latex = ''
+  if (activeFormulaModal.value === 'fraction') {
+    const num = formulaInputs.numerator.trim() || '1'
+    const den = formulaInputs.denominator.trim() || '2'
+    latex = `\\frac{${num}}{${den}}`
+  } else if (activeFormulaModal.value === 'power') {
+    const base = formulaInputs.base.trim() || 'x'
+    const exp = formulaInputs.exponent.trim() || '2'
+    latex = `${base}^{${exp}}`
+  } else if (activeFormulaModal.value === 'sqrt') {
+    const val = formulaInputs.sqrtValue.trim() || 'x'
+    latex = `\\sqrt{${val}}`
+  }
+
+  if (latex) {
+    formSoal.pertanyaan_html += ` <span class="math-inline">${latex}</span> `
+    showToast('Rumus matematika berhasil disisipkan.')
+  }
+  activeFormulaModal.value = null
+}
+
+function insertSymbol(sym) {
+  formSoal.pertanyaan_html += ` ${sym} `
+  showToast(`Simbol ${sym} disisipkan.`)
+}
+
+// Helpers Tabel Matriks
+function addTableRow() {
+  const nextId = 'row_' + (formSoal.options_table.length + 1)
+  formSoal.options_table.push({ id: nextId, pernyataan: '' })
+  formSoal.kunci_table[nextId] = 'B'
+}
+
+function removeTableRow(idx) {
+  const row = formSoal.options_table[idx]
+  if (row) {
+    delete formSoal.kunci_table[row.id]
+  }
+  formSoal.options_table.splice(idx, 1)
+}
+
+// Helpers Menjodohkan
+function addMatchingPair() {
+  const count = formSoal.matching_left.length + 1
+  const lid = 'L' + count
+  const rid = 'R' + count
+  formSoal.matching_left.push({ id: lid, text: '' })
+  formSoal.matching_right.push({ id: rid, text: '' })
+  formSoal.kunci_matching[lid] = rid
 }
 
 // Simpan Butir Soal ke Supabase
@@ -710,7 +1070,9 @@ async function saveQuestion() {
     nomor_soal: formSoal.nomor_soal,
     tipe_soal: formSoal.tipe_soal,
     stimulus_html: formSoal.stimulus_html,
+    stimulus_image: formSoal.stimulus_image,
     pertanyaan_html: formSoal.pertanyaan_html,
+    question_image: formSoal.question_image,
     options_json: optionsJson,
     kunci_jawaban_json: kunciJson,
     updated_at: new Date().toISOString()
@@ -814,7 +1176,9 @@ const previewQuestionObj = computed(() => {
     nomor_soal: formSoal.nomor_soal,
     tipe_soal: formSoal.tipe_soal,
     stimulus_html: formSoal.stimulus_html,
+    stimulus_image: formSoal.stimulus_image,
     pertanyaan_html: formSoal.pertanyaan_html,
+    question_image: formSoal.question_image,
     options_json: opt
   }
 })

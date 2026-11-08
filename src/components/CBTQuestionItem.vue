@@ -7,17 +7,25 @@
     <div class="p-5 sm:p-7">
       
       <!-- Layout 2 Kolom dengan Dotted Divider jika ada Stimulus/Wacana -->
-      <div v-if="question.stimulus_html" class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+      <div v-if="question.stimulus_html || question.stimulus_image" class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
         
         <!-- KOLOM KIRI: STIMULUS / WACANA POLOS DENGAN GAMBAR BESAR & SCROLL MANDIRI -->
         <div class="stimulus-column overflow-y-auto max-h-[680px] pr-4 lg:border-r lg:border-dotted lg:border-gray-300 text-justify leading-relaxed">
-          <div class="content-body" v-html="formattedStimulus"></div>
+          <div v-if="question.stimulus_image" class="my-3 text-center">
+            <img :src="question.stimulus_image" alt="Gambar Stimulus" class="max-w-full mx-auto rounded shadow-sm border" />
+          </div>
+          <div v-if="question.stimulus_html" class="content-body" v-html="formattedStimulus"></div>
         </div>
 
         <!-- KOLOM KANAN: PERTANYAAN & OPSI JAWABAN POLOS PUSMENDIK -->
         <div class="question-column space-y-4 pl-0 lg:pl-2">
           <!-- Butir Pertanyaan -->
           <div class="pertanyaan-text font-normal text-gray-900 leading-relaxed" v-html="formattedPertanyaan"></div>
+
+          <!-- Gambar Soal Terpisah (jika ada) -->
+          <div v-if="question.question_image" class="my-3 text-center">
+            <img :src="question.question_image" alt="Gambar Soal" class="max-w-full max-h-72 mx-auto rounded shadow-sm border" />
+          </div>
 
           <!-- Teks Panduan Biru Tebal Sesuai Standar Pusmendik -->
           <div v-if="instructionText" class="instruction-text text-blue-700 font-bold tracking-tight leading-snug">
@@ -147,6 +155,11 @@
       <div v-else class="max-w-4xl mx-auto space-y-5">
         <!-- Butir Pertanyaan -->
         <div class="pertanyaan-text font-normal text-gray-900 leading-relaxed" v-html="formattedPertanyaan"></div>
+
+        <!-- Gambar Soal Terpisah (jika ada) -->
+        <div v-if="question.question_image" class="my-3 text-center">
+          <img :src="question.question_image" alt="Gambar Soal" class="max-w-full max-h-72 mx-auto rounded shadow-sm border" />
+        </div>
 
         <!-- Teks Panduan Biru Tebal -->
         <div v-if="instructionText" class="instruction-text text-blue-700 font-bold tracking-tight leading-snug">
