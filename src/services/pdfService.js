@@ -3,9 +3,6 @@ import autoTable from 'jspdf-autotable'
 
 export async function generateResultPDF({
   nama_siswa,
-  nisn,
-  npsn,
-  nama_sekolah,
   jenjang,
   mapel,
   paket,
@@ -35,161 +32,113 @@ export async function generateResultPDF({
     minute: '2-digit'
   })
 
-  // 1. Header & Kop Surat Disdikbud Karanganyar
-  // Coba muat logo Karanganyar jika tersedia
-  try {
-    const base = import.meta.env.BASE_URL || '/'
-    const logoImg = await loadImgBase64(`${base}images/logo_karanganyar.png`, 800)
-    if (logoImg) {
-      doc.addImage(logoImg, 'PNG', 16, 12, 22, 26)
-    }
-  } catch (e) {
-    // Lewatkan jika logo belum siap
-  }
-
+  // 1. Header Latihan Modern & Bersih (Tanpa Kop Dinas & Tanpa Logo Pemkab)
   doc.setFont('helvetica', 'bold')
-  doc.setFontSize(13)
-  doc.text('PEMERINTAH KABUPATEN KARANGANYAR', 110, 16, { align: 'center' })
-  doc.setFontSize(15)
-  doc.text('DINAS PENDIDIKAN DAN KEBUDAYAAN', 110, 23, { align: 'center' })
+  doc.setFontSize(16)
+  doc.setTextColor(30, 58, 138) // Navy Blue
+  doc.text('LEMBAR HASIL LATIHAN SIMULASI TKA', 105, 20, { align: 'center' })
+
   doc.setFont('helvetica', 'normal')
-  doc.setFontSize(9)
-  doc.text('Kompleks Perkantoran Cangakan, Karanganyar, Jawa Tengah', 110, 29, { align: 'center' })
-  doc.text('Laman Resmi: https://disdikbud.karanganyarkab.go.id  |  Email: disdik.karanganyar@gmail.com', 110, 34, { align: 'center' })
+  doc.setFontSize(10)
+  doc.setTextColor(100, 116, 139) // Slate Gray
+  doc.text(`Tes Kemampuan Akademik (TKA) • ${jenjang || 'SD/SMP'} ${mapel || ''}`, 105, 27, { align: 'center' })
 
-  // Garis batas kop surat (Double line)
-  doc.setLineWidth(0.8)
-  doc.line(15, 39, 195, 39)
-  doc.setLineWidth(0.3)
-  doc.line(15, 40.5, 195, 40.5)
+  // Garis aksen pemisah bersih
+  doc.setDrawColor(203, 213, 225)
+  doc.setLineWidth(0.5)
+  doc.line(16, 32, 194, 32)
 
-  // 2. Judul Dokumen
-  doc.setFont('helvetica', 'bold')
-  doc.setFontSize(13)
-  doc.text('LEMBAR HASIL SIMULASI TES KEMAMPUAN AKADEMIK (TKA)', 105, 50, { align: 'center' })
-  doc.setFontSize(11)
-  doc.setTextColor(40, 70, 120)
-  doc.text(`TAHUN AJARAN 2026/2027`, 105, 56, { align: 'center' })
-  doc.setTextColor(0, 0, 0)
-
-  // 3. Tabel Identitas Peserta
+  // 2. Tabel Identitas Peserta Latihan (Tanpa NPSN, Tanpa NISN, Tanpa Asal Sekolah)
   const dataIdentitas = [
-    ['Nama Peserta', ':', (nama_siswa || '-').toUpperCase()]
+    ['Nama Peserta', ':', (nama_siswa || 'Peserta').toUpperCase()],
+    ['Jenjang & Mata Pelajaran', ':', `${jenjang || '-'} - ${mapel || '-'}`],
+    ['Paket Latihan', ':', paket || 'Paket 1'],
+    ['Waktu Latihan', ':', tglFormatted],
+    ['Durasi Pengerjaan', ':', durasiFormatted]
   ]
 
-  if (nisn) {
-    dataIdentitas.push(['Nomor Induk Siswa Nasional (NISN)', ':', nisn])
-  }
-  if (npsn) {
-    dataIdentitas.push(['Nomor Pokok Sekolah Nasional (NPSN)', ':', npsn])
-  }
-  if (nama_sekolah) {
-    dataIdentitas.push(['Asal Sekolah', ':', nama_sekolah])
-  }
-
-  dataIdentitas.push(
-    ['Jenjang / Mata Pelajaran', ':', `${jenjang || '-'} / ${mapel || '-'}`],
-    ['Paket Soal', ':', paket || 'Paket 1'],
-    ['Waktu Pelaksanaan', ':', tglFormatted],
-    ['Durasi Pengerjaan', ':', durasiFormatted]
-  )
-
   autoTable(doc, {
-    startY: 63,
+    startY: 38,
     body: dataIdentitas,
     theme: 'plain',
     styles: {
       fontSize: 10,
-      cellPadding: 1.5,
-      textColor: [30, 30, 30]
+      cellPadding: 2,
+      textColor: [51, 65, 85]
     },
     columnStyles: {
-      0: { fontStyle: 'bold', cellWidth: 70 },
+      0: { fontStyle: 'bold', cellWidth: 55 },
       1: { cellWidth: 5 },
-      2: { cellWidth: 105 }
+      2: { cellWidth: 118 }
     },
     margin: { left: 16, right: 16 }
   })
 
-  // 4. Kotak Hasil Capaian (HANYA JUMLAH BENAR - TANPA NILAI 0-100 & TANPA KUNCI)
-  const currentY = doc.lastAutoTable.finalY + 10
+  // 3. Kotak Ringkasan Capaian Latihan
+  const cardY = doc.lastAutoTable.finalY + 8
+  const salahCount = Math.max(0, (total_soal || 0) - (jumlah_benar || 0))
 
   // Background Box
-  doc.setFillColor(242, 247, 255)
-  doc.setDrawColor(50, 102, 152)
+  doc.setFillColor(248, 250, 252) // Light Slate
+  doc.setDrawColor(203, 213, 225)
   doc.setLineWidth(0.6)
-  doc.roundedRect(16, currentY, 178, 48, 3, 3, 'FD')
+  doc.roundedRect(16, cardY, 178, 62, 3, 3, 'FD')
 
   // Label Header Box
   doc.setFont('helvetica', 'bold')
-  doc.setFontSize(12)
-  doc.setTextColor(30, 60, 100)
-  doc.text('RINGKASAN CAPAIAN SIMULASI', 105, currentY + 10, { align: 'center' })
+  doc.setFontSize(11)
+  doc.setTextColor(30, 41, 59)
+  doc.text('RINGKASAN CAPAIAN LATIHAN', 105, cardY + 9, { align: 'center' })
 
-  // Badge Jumlah Benar
-  doc.setFontSize(28)
-  doc.setTextColor(16, 120, 60) // Hijau
-  doc.text(`${jumlah_benar}`, 105, currentY + 26, { align: 'center' })
+  // Badge Keterangan Utama: "Benar X dari Y Soal"
+  doc.setFontSize(22)
+  doc.setTextColor(16, 120, 60) // Hijau Edukatif
+  doc.text(`Benar ${jumlah_benar} dari ${total_soal} Soal`, 105, cardY + 23, { align: 'center' })
 
-  doc.setFontSize(12)
-  doc.setTextColor(60, 60, 60)
-  doc.text(`dari total ${total_soal} butir soal yang dikerjakan`, 105, currentY + 34, { align: 'center' })
+  // Garis pemisah dalam box
+  doc.setDrawColor(226, 232, 240)
+  doc.setLineWidth(0.3)
+  doc.line(30, cardY + 29, 180, cardY + 29)
 
-  doc.setFont('helvetica', 'italic')
-  doc.setFontSize(9)
-  doc.setTextColor(110, 110, 110)
-  doc.text('* Lembar hasil ini hanya memuat jumlah jawaban benar sebagai tolok ukur kesiapan simulasi akademik.', 105, currentY + 42, { align: 'center' })
-
-  // 5. Catatan Dinas & Tanda Pengesahan
-  const noteY = currentY + 58
-  doc.setFont('helvetica', 'normal')
-  doc.setFontSize(9)
-  doc.setTextColor(80, 80, 80)
-  doc.text('Catatan Resmi:', 16, noteY)
-  doc.text('1. Dokumen ini merupakan bukti keikutsertaan simulasi TKA Disdikbud Kabupaten Karanganyar.', 16, noteY + 5)
-  doc.text('2. Kerahasiaan butir soal dan kunci jawaban dilindungi oleh peraturan penyelenggaraan asesmen.', 16, noteY + 10)
-  doc.text('3. Gunakan hasil simulasi ini sebagai bahan evaluasi dan pengayaan materi di sekolah masing-masing.', 16, noteY + 15)
-
-  // Tanggal & Tanda Tangan Proktor
-  const ttdY = noteY + 28
+  // Rincian Butir Soal
   doc.setFont('helvetica', 'normal')
   doc.setFontSize(10)
-  doc.setTextColor(0, 0, 0)
-  doc.text('Karanganyar, ' + new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }), 140, ttdY)
-  doc.text('Proktor / Panitia Pelaksana,', 140, ttdY + 6)
+  doc.setTextColor(71, 85, 105)
+  doc.text(`• Total Butir Soal Dikerjakan : ${total_soal} Soal`, 35, cardY + 36)
+  doc.text(`• Jumlah Jawaban Benar : ${jumlah_benar} Soal`, 35, cardY + 42)
+  doc.text(`• Jawaban Belum Tepat / Kosong : ${salahCount} Soal`, 35, cardY + 48)
 
-  // Garis TTD
+  // Kalimat Penjelas Bersahabat
+  doc.setFont('helvetica', 'italic')
+  doc.setFontSize(9)
+  doc.setTextColor(100, 116, 139)
+  doc.text(
+    `* Dari total ${total_soal} butir soal latihan pada paket ini, kamu telah berhasil menjawab ${jumlah_benar} butir soal dengan benar.`,
+    105,
+    cardY + 56,
+    { align: 'center' }
+  )
+
+  // 4. Catatan Evaluasi Mandiri (Bukan Catatan Resmi Dinas & Tanpa Tanda Tangan)
+  const noteY = cardY + 70
   doc.setFont('helvetica', 'bold')
-  doc.text('DISDIKBUD KAB. KARANGANYAR', 140, ttdY + 30)
+  doc.setFontSize(10)
+  doc.setTextColor(51, 65, 85)
+  doc.text('Catatan Belajar:', 16, noteY)
 
-  // 6. Unduh berkas PDF
+  doc.setFont('helvetica', 'normal')
+  doc.setFontSize(9)
+  doc.setTextColor(100, 116, 139)
+  doc.text('1. Lembar ini merupakan rekaman latihan mandiri untuk mengukur kesiapan dan pemahaman materi.', 16, noteY + 6)
+  doc.text('2. Gunakan hasil simulasi ini sebagai bahan evaluasi untuk memperdalam materi yang belum dikuasai.', 16, noteY + 12)
+  doc.text('3. Teruslah berlatih secara konsisten untuk mengasah kemampuan akademikmu!', 16, noteY + 18)
+
+  // 5. Footer Watermark Kecil di Bawah
+  doc.setFontSize(8)
+  doc.setTextColor(148, 163, 184)
+  doc.text(`Dicetak otomatis melalui Simulasi TKA • ${tglFormatted}`, 105, 280, { align: 'center' })
+
+  // 6. Simpan File PDF
   const safeName = (nama_siswa || 'Peserta').replace(/[^a-zA-Z0-9]/g, '_')
-  doc.save(`Lembar_Hasil_TKA_${safeName}.pdf`)
-}
-
-// Helper untuk load gambar logo ke Base64 dengan timeout pengaman
-function loadImgBase64(url, timeoutMs = 800) {
-  return new Promise((resolve) => {
-    const timer = setTimeout(() => resolve(null), timeoutMs)
-    const img = new Image()
-    img.crossOrigin = 'Anonymous'
-    img.onload = () => {
-      clearTimeout(timer)
-      try {
-        const canvas = document.createElement('canvas')
-        canvas.width = img.width
-        canvas.height = img.height
-        const ctx = canvas.getContext('2d')
-        ctx.drawImage(img, 0, 0)
-        resolve(canvas.toDataURL('image/png'))
-      } catch (err) {
-        resolve(null)
-      }
-    }
-    img.onerror = () => {
-      clearTimeout(timer)
-      resolve(null)
-    }
-    img.src = url
-  })
+  doc.save(`Hasil_Latihan_TKA_${safeName}.pdf`)
 }

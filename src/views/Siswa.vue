@@ -829,7 +829,7 @@ const dummyUsername = ref('dladnc')
 function handleStudentLogin() {
   const user = inputStudentUsername.value.trim() || 'dladnc'
   dummyUsername.value = user
-  studentData.nama_siswa = user
+  studentData.nama_siswa = '' // Kolom input Nama Peserta di bawah dibiarkan kosong agar diisi nama asli siswa
   goToStep(2)
 }
 
@@ -1159,10 +1159,7 @@ async function downloadPdfResult() {
   showToast('Sedang memproses berkas PDF Lembar Hasil...')
   try {
     await generateResultPDF({
-      nama_siswa: studentData.nama_siswa || dummyUsername.value || 'Peserta',
-      nisn: studentData.nisn,
-      npsn: studentData.npsn,
-      nama_sekolah: studentData.nama_sekolah,
+      nama_siswa: studentData.nama_siswa || 'Peserta',
       jenjang: selectedJenjang.value,
       mapel: selectedMapel.value,
       paket: selectedPaket.value,
