@@ -430,7 +430,7 @@
       <!-- ======================================================== -->
       <!-- STEP 4: RUANG UJIAN CBT (PERSIS SCREENSHOT 2, 3, 4, 7, 8)-->
       <!-- ======================================================== -->
-      <section v-else-if="currentStep === 4" class="flex-1 flex flex-col p-3 sm:p-6 max-w-7xl mx-auto w-full">
+      <section v-else-if="currentStep === 4" @contextmenu.prevent class="flex-1 flex flex-col p-3 sm:p-6 max-w-7xl mx-auto w-full select-none">
         
         <!-- MAIN CBT CONTAINER CARD -->
         <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-5 sm:p-7 flex-1 flex flex-col justify-between">
@@ -887,6 +887,7 @@ const studentHeaderIdentity = computed(() => {
 
 // Lifecycle
 onMounted(async () => {
+  window.addEventListener('keydown', handleExamKeyDown)
   settings.value = await getAppSettings()
   
   // Penyesuaian jenjang dinamis berdasarkan kontrol Proktor Marshal
@@ -900,8 +901,48 @@ onMounted(async () => {
 })
 
 onUnmounted(() => {
+  window.removeEventListener('keydown', handleExamKeyDown)
   if (timerInterval) clearInterval(timerInterval)
 })
+
+// Pengamanan Mouse & Keyboard di Ruang Ujian (Anti Copy-Paste & DevTools)
+function handleExamKeyDown(e) {
+  if (currentStep.value !== 4) return
+
+  // 1. Blokir F12
+  if (e.key === 'F12') {
+    e.preventDefault()
+    e.stopPropagation()
+    showToast('Tombol F12 dinonaktifkan pada ruang ujian simulasi.')
+    return false
+  }
+
+  const isCtrl = e.ctrlKey || e.metaKey
+  const key = (e.key || '').toLowerCase()
+
+  // 2. Blokir DevTools: Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+Shift+C
+  if (isCtrl && e.shiftKey && (key === 'i' || key === 'j' || key === 'c')) {
+    e.preventDefault()
+    e.stopPropagation()
+    showToast('Kombinasi tombol pintas dinonaktifkan.')
+    return false
+  }
+
+  // 3. Blokir Ctrl+U (View Page Source)
+  if (isCtrl && key === 'u') {
+    e.preventDefault()
+    e.stopPropagation()
+    return false
+  }
+
+  // 4. Blokir Copy-Paste & Select All: Ctrl+C, Ctrl+V, Ctrl+X, Ctrl+A
+  if (isCtrl && (key === 'c' || key === 'v' || key === 'x' || key === 'a')) {
+    e.preventDefault()
+    e.stopPropagation()
+    showToast('Fitur salin/tempel (copy-paste) dinonaktifkan pada ruang ujian.')
+    return false
+  }
+}
 
 function showToast(msg) {
   toastMsg.value = msg
@@ -1075,105 +1116,38 @@ function getQuestionGridClass(nomor, idx) {
   return base
 }
 
-// Selesai Ujian & Penilaian Poin Parsial
+// Selesai Ujian & Penilaian Poin Server-Side (Aman & Anti-Manipulasi)
 async function confirmFinishExam() {
   showConfirmFinishModal.value = false
   if (timerInterval) clearInterval(timerInterval)
   durasiPengerjaan.value = Math.floor((Date.now() - startTime.value) / 1000)
 
-  let totalBenar = 0
-  const details = []
+  showToast('Memproses dan menilai lembar jawaban di server...')
 
-  for (const q of questions.value) {
-    const userAns = userAnswers[q.nomor_soal]
-    const keyData = q.kunci_jawaban_json || {}
-    let poin = 0
-    let isCorrect = false
-
-    if (q.tipe_soal === '1') {
-      if (userAns && userAns === keyData.jawaban) {
-        poin = 1.0
-        isCorrect = true
-      }
-    } else if (q.tipe_soal === '2') {
-      const correctArr = Array.isArray(keyData.jawaban) ? keyData.jawaban : [keyData.jawaban]
-      const userArr = Array.isArray(userAns) ? userAns : []
-      const bobot = keyData.bobot_per_opsi || (1 / correctArr.length)
-
-      let matchCount = 0
-      for (const opt of userArr) {
-        if (correctArr.includes(opt)) {
-          matchCount++
-        } else {
-          matchCount -= 0.5
-        }
-      }
-      poin = Math.max(0, Math.min(1.0, matchCount * bobot))
-      isCorrect = poin >= 0.99
-    } else if (q.tipe_soal === '3') {
-      const keyMap = keyData.jawaban || {}
-      const rows = Object.keys(keyMap)
-      const bobot = keyData.bobot_per_baris || (1 / (rows.length || 1))
-      let benarCount = 0
-
-      if (userAns && typeof userAns === 'object') {
-        for (const r of rows) {
-          if (userAns[r] === keyMap[r]) {
-            benarCount++
-          }
-        }
-      }
-      poin = Math.min(1.0, benarCount * bobot)
-      isCorrect = poin >= 0.99
-    } else if (q.tipe_soal === '5') {
-      const pairs = keyData.pairs || {}
-      const leftKeys = Object.keys(pairs)
-      const bobot = keyData.bobot_per_pasang || (1 / (leftKeys.length || 1))
-      let matchCount = 0
-
-      if (userAns && typeof userAns === 'object') {
-        for (const lk of leftKeys) {
-          if (userAns[lk] === pairs[lk]) {
-            matchCount++
-          }
-        }
-      }
-      poin = Math.min(1.0, matchCount * bobot)
-      isCorrect = poin >= 0.99
-    }
-
-    totalBenar += poin
-
-    details.push({
-      nomor: q.nomor_soal,
-      tipe: q.tipe_soal,
-      userAnswer: userAns,
-      keyAnswer: keyData.jawaban || keyData.pairs || '',
-      poin: poin,
-      isCorrect: isCorrect
-    })
-  }
-
-  scoreResult.jumlahBenar = Number(totalBenar.toFixed(1))
-  scoreResult.detailAnswers = details
-
-  // Simpan ke Supabase
+  // Simpan & evaluasi jawaban secara atomik di sisi server Supabase
   try {
-    await submitHasilUjian({
+    const res = await submitHasilUjian({
       npsn: studentData.npsn,
       nama_sekolah: studentData.nama_sekolah,
-      nama_siswa: studentData.nama_siswa,
+      nama_siswa: studentData.nama_siswa || dummyUsername.value || 'Peserta',
       nisn: studentData.nisn,
       jenjang: selectedJenjang.value,
       mapel: selectedMapel.value,
       paket: selectedPaket.value,
-      jumlah_benar: scoreResult.jumlahBenar,
-      total_soal: questions.value.length,
       durasi_detik: durasiPengerjaan.value,
-      rincian_jawaban: details
+      jawaban_siswa: { ...userAnswers }
     })
+
+    if (res && res.success) {
+      scoreResult.jumlahBenar = Number(res.jumlah_benar)
+      scoreResult.detailAnswers = res.detailAnswers || []
+    } else {
+      scoreResult.jumlahBenar = 0
+      scoreResult.detailAnswers = []
+    }
   } catch (err) {
     console.error('Gagal mencatat hasil ke Supabase:', err)
+    showToast('Terjadi kendala saat menyimpan jawaban: ' + (err.message || 'Error'))
   }
 
   // Tanpa pop-up otomatis unduh berkas PDF sesuai instruksi Mas Bos

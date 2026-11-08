@@ -117,11 +117,11 @@ export async function lookupNpsn(npsn) {
   return null
 }
 
-// 3. Bank Soal Loader
+// 3. Bank Soal Loader (Secure Views & RPCs)
 export async function getAvailablePackages(jenjang, mapel) {
   try {
     const { data, error } = await supabase
-      .from('soal_bank')
+      .from('soal_bank_siswa')
       .select('paket')
       .eq('jenjang', jenjang)
       .eq('mapel', mapel)
@@ -139,10 +139,11 @@ export async function getAvailablePackages(jenjang, mapel) {
   }
 }
 
+// Untuk Siswa: Mengambil soal TANPA kolom kunci_jawaban_json (Zero Leakage)
 export async function getSoalList(jenjang, mapel, paket) {
   try {
     const { data, error } = await supabase
-      .from('soal_bank')
+      .from('soal_bank_siswa')
       .select('*')
       .eq('jenjang', jenjang)
       .eq('mapel', mapel)
@@ -150,8 +151,6 @@ export async function getSoalList(jenjang, mapel, paket) {
       .order('nomor_soal', { ascending: true })
 
     if (error) throw error
-
-    // Kembalikan data dari database langsung (walaupun kosong [] setelah dihapus)
     return data || []
   } catch (err) {
     console.warn('Gagal memuat soal dari Supabase:', err)
@@ -159,68 +158,110 @@ export async function getSoalList(jenjang, mapel, paket) {
   }
 }
 
-// Hapus 1 Butir Soal Tertentu
-export async function deleteSoalByNomor(jenjang, mapel, paket, nomor_soal) {
+// Untuk Penulis Terverifikasi: Mengambil soal lengkap dengan kunci melalui RPC terautentikasi
+export async function getSoalListPenulis(username, password, jenjang, mapel, paket) {
   try {
-    const { error } = await supabase
-      .from('soal_bank')
-      .delete()
-      .eq('jenjang', jenjang)
-      .eq('mapel', mapel)
-      .eq('paket', paket)
-      .eq('nomor_soal', nomor_soal)
+    const { data, error } = await supabase.rpc('get_soal_penulis', {
+      p_username: username,
+      p_password: password,
+      p_jenjang: jenjang,
+      p_mapel: mapel,
+      p_paket: paket
+    })
 
     if (error) throw error
-    return true
+    return data || []
+  } catch (err) {
+    console.error('Gagal memuat soal penulis via RPC:', err)
+    return []
+  }
+}
+
+// Simpan Butir Soal Terautentikasi Penulis
+export async function saveSoalPenulis(username, password, soalData) {
+  try {
+    const { data, error } = await supabase.rpc('save_soal_penulis', {
+      p_username: username,
+      p_password: password,
+      p_soal: soalData
+    })
+
+    if (error) throw error
+    return data
+  } catch (err) {
+    console.error('Error saving question via secure RPC:', err)
+    throw err
+  }
+}
+
+// Hapus 1 Butir Soal Tertentu Terautentikasi Penulis
+export async function deleteSoalByNomor(username, password, jenjang, mapel, paket, nomor_soal) {
+  try {
+    const { data, error } = await supabase.rpc('delete_soal_penulis', {
+      p_username: username,
+      p_password: password,
+      p_jenjang: jenjang,
+      p_mapel: mapel,
+      p_paket: paket,
+      p_nomor_soal: nomor_soal
+    })
+
+    if (error) throw error
+    return data
   } catch (err) {
     console.error('Error deleting single question:', err)
     throw err
   }
 }
 
-// Hapus Seluruh Soal dalam 1 Paket
-export async function deleteEntirePackage(jenjang, mapel, paket) {
+// Hapus Seluruh Soal dalam 1 Paket Terautentikasi Penulis
+export async function deleteEntirePackage(username, password, jenjang, mapel, paket) {
   try {
-    const { error } = await supabase
-      .from('soal_bank')
-      .delete()
-      .eq('jenjang', jenjang)
-      .eq('mapel', mapel)
-      .eq('paket', paket)
+    const { data, error } = await supabase.rpc('delete_soal_penulis', {
+      p_username: username,
+      p_password: password,
+      p_jenjang: jenjang,
+      p_mapel: mapel,
+      p_paket: paket
+    })
 
     if (error) throw error
-    return true
+    return data
   } catch (err) {
     console.error('Error deleting entire package:', err)
     throw err
   }
 }
 
-// 4. Simpan Hasil Ujian Siswa (dengan Rincian Butir Soal)
-export async function submitHasilUjian(payload) {
+// 4. Submit Jawaban Siswa dengan Penilaian Server-Side (Anti-Cheat Server-Side Grading)
+export async function submitHasilUjian({
+  npsn,
+  nama_sekolah,
+  nama_siswa,
+  nisn,
+  jenjang,
+  mapel,
+  paket,
+  durasi_detik,
+  jawaban_siswa
+}) {
   try {
-    const { data, error } = await supabase
-      .from('hasil_ujian')
-      .insert({
-        npsn: payload.npsn,
-        nama_sekolah: payload.nama_sekolah,
-        nama_siswa: payload.nama_siswa,
-        nisn: payload.nisn || '',
-        jenjang: payload.jenjang,
-        mapel: payload.mapel,
-        paket: payload.paket,
-        jumlah_benar: payload.jumlah_benar,
-        total_soal: payload.total_soal,
-        durasi_detik: payload.durasi_detik || 0,
-        rincian_jawaban: payload.rincian_jawaban || []
-      })
-      .select()
-      .single()
+    const { data, error } = await supabase.rpc('submit_ujian_siswa', {
+      p_npsn: npsn,
+      p_nama_sekolah: nama_sekolah,
+      p_nama_siswa: nama_siswa,
+      p_nisn: nisn || '',
+      p_jenjang: jenjang,
+      p_mapel: mapel,
+      p_paket: paket,
+      p_durasi_detik: durasi_detik || 0,
+      p_jawaban_siswa: jawaban_siswa || {}
+    })
 
     if (error) throw error
     return data
   } catch (err) {
-    console.error('Error submitting exam result:', err)
+    console.error('Error submitting exam via server-side grading:', err)
     return null
   }
 }
@@ -296,16 +337,15 @@ export async function deletePenulisAccount(id) {
 
 export async function loginPenulis(username, password) {
   try {
-    const { data, error } = await supabase
-      .from('penulis_accounts')
-      .select('*')
-      .eq('username', username.trim())
-      .eq('password_plain', password.trim())
-      .single()
+    const { data, error } = await supabase.rpc('verify_penulis_login', {
+      p_username: username.trim(),
+      p_password: password.trim()
+    })
 
     if (error || !data) return null
     return data
   } catch (err) {
+    console.error('Error during secure writer verification:', err)
     return null
   }
 }

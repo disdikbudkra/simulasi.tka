@@ -259,6 +259,7 @@
 <script setup>
 import { computed } from 'vue'
 import { convertLatexToMarkup } from 'mathlive'
+import DOMPurify from 'dompurify'
 
 const props = defineProps({
   question: {
@@ -349,7 +350,13 @@ function formatHtml(html) {
     formatted = formatted.replace(/\n/g, '<br/>')
   }
 
-  return renderMathLatex(formatted)
+  const mathRendered = renderMathLatex(formatted)
+
+  // Sanitasi XSS dengan DOMPurify mengizinkan tag tipografi & MathML
+  return DOMPurify.sanitize(mathRendered, {
+    ADD_TAGS: ['math-field', 'annotation', 'semantics', 'mrow', 'mi', 'mn', 'mo', 'mfrac', 'msup', 'msub', 'msqrt', 'mroot', 'mtable', 'mtr', 'mtd', 'mtext'],
+    ADD_ATTR: ['display', 'mathvariant', 'xmlns']
+  })
 }
 
 const formattedStimulus = computed(() => formatHtml(props.question.stimulus_html))

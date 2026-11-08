@@ -1043,7 +1043,7 @@
 import { ref, reactive, computed, onMounted } from 'vue'
 import CBTHeader from '../components/CBTHeader.vue'
 import CBTQuestionItem from '../components/CBTQuestionItem.vue'
-import { loginPenulis, getAvailablePackages, getSoalList, deleteSoalByNomor, deleteEntirePackage } from '../services/apiService.js'
+import { loginPenulis, getAvailablePackages, getSoalListPenulis, saveSoalPenulis, deleteSoalByNomor, deleteEntirePackage } from '../services/apiService.js'
 import { supabase } from '../supabase.js'
 import mammoth from 'mammoth'
 import { convertLatexToMarkup } from 'mathlive'
@@ -1277,8 +1277,9 @@ async function handleLogin() {
   }
   const acc = await loginPenulis(inputUsername.value, inputPassword.value)
   if (acc) {
+    acc.password = inputPassword.value
     currentPenulis.value = acc
-    localStorage.setItem('penulis_session', JSON.stringify(acc))
+    sessionStorage.setItem('penulis_session', JSON.stringify(acc))
     await loadSoalList()
     showToast(`Selamat datang, ${acc.nama_guru}!`)
   } else {
@@ -1288,6 +1289,7 @@ async function handleLogin() {
 
 function logoutPenulis() {
   currentPenulis.value = null
+  sessionStorage.removeItem('penulis_session')
   localStorage.removeItem('penulis_session')
   inputUsername.value = ''
   inputPassword.value = ''
@@ -1302,7 +1304,13 @@ async function switchPaket(p) {
 async function loadSoalList() {
   if (!currentPenulis.value) return
   await refreshPackageList()
-  soalList.value = await getSoalList(currentPenulis.value.jenjang, currentPenulis.value.mapel, activePaket.value)
+  soalList.value = await getSoalListPenulis(
+    currentPenulis.value.username,
+    currentPenulis.value.password || '',
+    currentPenulis.value.jenjang,
+    currentPenulis.value.mapel,
+    activePaket.value
+  )
   if (soalList.value.length > 0 && !isEditing.value) {
     loadQuestionIntoForm(soalList.value[0])
   } else if (soalList.value.length === 0) {
@@ -1549,19 +1557,19 @@ async function saveQuestion() {
     pertanyaan_html: formSoal.pertanyaan_html,
     question_image: formSoal.question_image,
     options_json: optionsJson,
-    kunci_jawaban_json: kunciJson,
-    updated_at: new Date().toISOString()
+    kunci_jawaban_json: kunciJson
   }
 
-  const { error } = await supabase
-    .from('soal_bank')
-    .upsert(payload, { onConflict: 'jenjang,mapel,paket,nomor_soal' })
-
-  if (error) {
-    showToast('Gagal menyimpan butir soal: ' + error.message)
-  } else {
+  try {
+    await saveSoalPenulis(
+      currentPenulis.value.username,
+      currentPenulis.value.password || '',
+      payload
+    )
     showToast(`Soal Nomor ${formSoal.nomor_soal} berhasil disimpan!`)
     await loadSoalList()
+  } catch (err) {
+    showToast('Gagal menyimpan butir soal: ' + (err.message || 'Error'))
   }
 }
 
@@ -1580,6 +1588,8 @@ async function executeDeleteSingle() {
   const nomor = targetQuestionToDelete.value ? targetQuestionToDelete.value.nomor_soal : formSoal.nomor_soal
   try {
     await deleteSoalByNomor(
+      currentPenulis.value.username,
+      currentPenulis.value.password || '',
       currentPenulis.value.jenjang,
       currentPenulis.value.mapel,
       activePaket.value,
@@ -1591,7 +1601,7 @@ async function executeDeleteSingle() {
     await loadSoalList()
     initNewQuestion()
   } catch (err) {
-    showToast('Gagal menghapus soal: ' + err.message)
+    showToast('Gagal menghapus soal: ' + (err.message || 'Error'))
   }
 }
 
@@ -1599,16 +1609,18 @@ async function executeDeleteSingle() {
 async function executeResetPackage() {
   try {
     await deleteEntirePackage(
+      currentPenulis.value.username,
+      currentPenulis.value.password || '',
       currentPenulis.value.jenjang,
       currentPenulis.value.mapel,
       activePaket.value
     )
     showResetPackageConfirm.value = false
-    showToast(`Seluruh soal ${activePaket.value} berhasil dihapus dari database.`)
+    showToast(`Seluruh butir soal dalam ${activePaket.value} telah dibersihkan.`)
     await loadSoalList()
     initNewQuestion()
   } catch (err) {
-    showToast('Gagal mereset paket: ' + err.message)
+    showToast('Gagal mengosongkan paket: ' + (err.message || 'Error'))
   }
 }
 
