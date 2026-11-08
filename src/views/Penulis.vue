@@ -286,15 +286,78 @@
                 <span class="text-[11px] text-gray-400">Kosongkan jika soal mandiri tanpa bacaan</span>
               </div>
 
-              <!-- Toolbar Format Teks Literasi Stimulus -->
-              <div class="flex items-center gap-1.5 flex-wrap bg-white p-2 rounded-lg border border-gray-200">
-                <span class="text-[10px] font-bold text-gray-500 mr-1 uppercase">Format:</span>
-                <button type="button" @click="applyTextFormat('stimulus_html', 'b')" class="px-2 py-0.5 bg-gray-50 hover:bg-gray-100 border border-gray-300 rounded font-bold text-xs" title="Tebal (Bold)"><strong>B</strong></button>
-                <button type="button" @click="applyTextFormat('stimulus_html', 'i')" class="px-2 py-0.5 bg-gray-50 hover:bg-gray-100 border border-gray-300 rounded font-serif italic text-xs" title="Miring (Italic)"><em>I</em></button>
-                <button type="button" @click="applyTextFormat('stimulus_html', 'u')" class="px-2 py-0.5 bg-gray-50 hover:bg-gray-100 border border-gray-300 rounded underline text-xs" title="Garis Bawah (Underline)"><u>U</u></button>
-                <button type="button" @click="applyTextFormat('stimulus_html', 'quote')" class="px-2 py-0.5 bg-gray-50 hover:bg-gray-100 border border-gray-300 rounded text-xs font-semibold" title="Kutipan Percakapan / Dialog">“ ”</button>
-                <button type="button" @click="applyTextFormat('stimulus_html', 'br')" class="px-2 py-0.5 bg-gray-50 hover:bg-gray-100 border border-gray-300 rounded text-xs font-semibold" title="Ganti Baris / Bait Puisi">⏎ Baris Baru</button>
-                <button type="button" @click="applyTextFormat('stimulus_html', 'title')" class="px-2 py-0.5 bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 rounded text-xs font-bold" title="Format Judul Cerita / Wacana">+ Judul Cerita</button>
+              <!-- VISUAL FORMULA & FORMAT TOOLBAR UNTUK STIMULUS -->
+              <div class="bg-blue-50/70 p-3 rounded-xl border border-blue-200 space-y-2.5">
+                <!-- Baris 1: Format Teks Literasi Stimulus -->
+                <div class="flex flex-wrap items-center gap-1 pb-2 border-b border-blue-200/60">
+                  <span class="text-[10px] font-bold text-blue-900 mr-1 uppercase">Format Teks:</span>
+                  <button type="button" @click="applyTextFormat('stimulus_html', 'b')" class="px-2 py-0.5 bg-white hover:bg-blue-100 text-blue-900 border border-blue-300 rounded font-bold text-xs shadow-xs" title="Tebal (Bold)"><strong>B</strong></button>
+                  <button type="button" @click="applyTextFormat('stimulus_html', 'i')" class="px-2 py-0.5 bg-white hover:bg-blue-100 text-blue-900 border border-blue-300 rounded font-serif italic text-xs shadow-xs" title="Miring (Italic)"><em>I</em></button>
+                  <button type="button" @click="applyTextFormat('stimulus_html', 'u')" class="px-2 py-0.5 bg-white hover:bg-blue-100 text-blue-900 border border-blue-300 rounded underline text-xs shadow-xs" title="Garis Bawah (Underline)"><u>U</u></button>
+                  <button type="button" @click="applyTextFormat('stimulus_html', 'quote')" class="px-2 py-0.5 bg-white hover:bg-blue-100 text-blue-900 border border-blue-300 rounded text-xs font-semibold shadow-xs" title="Kutipan Percakapan / Dialog">“ ”</button>
+                  <button type="button" @click="applyTextFormat('stimulus_html', 'br')" class="px-2 py-0.5 bg-white hover:bg-blue-100 text-blue-900 border border-blue-300 rounded text-xs font-semibold shadow-xs" title="Ganti Baris / Bait Puisi">⏎ Ganti Baris</button>
+                  <button type="button" @click="applyTextFormat('stimulus_html', 'title')" class="px-2 py-0.5 bg-blue-100 hover:bg-blue-200 text-blue-800 border border-blue-300 rounded text-xs font-bold shadow-xs" title="Format Judul Cerita / Wacana">+ Judul Cerita</button>
+                </div>
+
+                <!-- Baris 2: Pembuat Rumus Matematika Visual (Modal Interaktif) untuk Stimulus -->
+                <div class="flex flex-wrap items-center gap-1.5">
+                  <span class="text-[10px] font-bold text-blue-900 mr-1 uppercase">Rumus Visual:</span>
+                  <button 
+                    type="button" 
+                    @click="openFormulaModal('fraction', 'stimulus_html')" 
+                    class="px-2.5 py-1 bg-white hover:bg-blue-100 text-blue-900 border border-blue-300 rounded font-bold text-xs shadow-xs flex items-center gap-1"
+                  >
+                    <span class="font-serif">½ / 2½</span>
+                    <span>Pecahan</span>
+                  </button>
+                  <button 
+                    type="button" 
+                    @click="openFormulaModal('power', 'stimulus_html')" 
+                    class="px-2.5 py-1 bg-white hover:bg-blue-100 text-blue-900 border border-blue-300 rounded font-bold text-xs shadow-xs flex items-center gap-1"
+                  >
+                    <span class="font-serif">xⁿ</span>
+                    <span>Pangkat</span>
+                  </button>
+                  <button 
+                    type="button" 
+                    @click="openFormulaModal('subscript', 'stimulus_html')" 
+                    class="px-2.5 py-1 bg-white hover:bg-blue-100 text-blue-900 border border-blue-300 rounded font-bold text-xs shadow-xs flex items-center gap-1"
+                  >
+                    <span class="font-serif">xₙ</span>
+                    <span>Indeks (Uₙ)</span>
+                  </button>
+                  <button 
+                    type="button" 
+                    @click="openFormulaModal('sqrt', 'stimulus_html')" 
+                    class="px-2.5 py-1 bg-white hover:bg-blue-100 text-blue-900 border border-blue-300 rounded font-bold text-xs shadow-xs flex items-center gap-1"
+                  >
+                    <span class="font-serif">√x / ∛x</span>
+                    <span>Akar</span>
+                  </button>
+                  <button 
+                    type="button" 
+                    @click="openFormulaModal('spldv', 'stimulus_html')" 
+                    class="px-2.5 py-1 bg-white hover:bg-blue-100 text-blue-900 border border-blue-300 rounded font-bold text-xs shadow-xs flex items-center gap-1"
+                  >
+                    <span class="font-mono">{</span>
+                    <span>SPLDV</span>
+                  </button>
+                </div>
+
+                <!-- Baris 3: Simbol Cepat Matematika & Geometri (1-Klik) untuk Stimulus -->
+                <div class="flex flex-wrap items-center gap-1 pt-1.5 border-t border-blue-200/60">
+                  <span class="text-[10px] text-blue-700 font-bold mr-1">Simbol 1-Klik:</span>
+                  <button 
+                    v-for="sym in mathSymbols" 
+                    :key="'stimulus-' + sym.char"
+                    type="button"
+                    @click="insertSymbolToTarget(sym.char, 'stimulus_html')"
+                    class="min-w-[28px] h-7 px-1.5 bg-white hover:bg-blue-600 hover:text-white text-gray-800 border border-gray-300 rounded font-bold text-xs flex items-center justify-center transition-colors shadow-xs"
+                    :title="sym.label"
+                  >
+                    {{ sym.char }}
+                  </button>
+                </div>
               </div>
 
               <!-- Input Teks Stimulus -->
@@ -349,29 +412,14 @@
               <!-- VISUAL FORMULA & FORMAT TOOLBAR (SIAP PUSMENDIK STYLE) -->
               <div class="bg-blue-50/70 p-3 rounded-xl border border-blue-200 space-y-2.5">
                 
-                <!-- Baris 1: Format Teks Literasi & Pemilihan Target -->
-                <div class="flex flex-wrap items-center justify-between gap-2 pb-2 border-b border-blue-200/60">
-                  <div class="flex items-center gap-1 flex-wrap">
-                    <span class="text-[10px] font-bold text-blue-900 mr-1 uppercase">Format Teks:</span>
-                    <button type="button" @click="applyTextFormat('pertanyaan_html', 'b')" class="px-2 py-0.5 bg-white hover:bg-blue-100 text-blue-900 border border-blue-300 rounded font-bold text-xs shadow-xs" title="Tebal (Bold)"><strong>B</strong></button>
-                    <button type="button" @click="applyTextFormat('pertanyaan_html', 'i')" class="px-2 py-0.5 bg-white hover:bg-blue-100 text-blue-900 border border-blue-300 rounded font-serif italic text-xs shadow-xs" title="Miring (Italic)"><em>I</em></button>
-                    <button type="button" @click="applyTextFormat('pertanyaan_html', 'u')" class="px-2 py-0.5 bg-white hover:bg-blue-100 text-blue-900 border border-blue-300 rounded underline text-xs shadow-xs" title="Garis Bawah (Underline)"><u>U</u></button>
-                    <button type="button" @click="applyTextFormat('pertanyaan_html', 'quote')" class="px-2 py-0.5 bg-white hover:bg-blue-100 text-blue-900 border border-blue-300 rounded text-xs font-semibold shadow-xs" title="Tanda Petik">“ ”</button>
-                    <button type="button" @click="applyTextFormat('pertanyaan_html', 'br')" class="px-2 py-0.5 bg-white hover:bg-blue-100 text-blue-900 border border-blue-300 rounded text-xs font-semibold shadow-xs" title="Ganti Baris">⏎ Ganti Baris</button>
-                  </div>
-
-                  <!-- Target Selector -->
-                  <div class="flex items-center gap-1.5">
-                    <label class="text-[11px] font-bold text-gray-600">Target Rumus:</label>
-                    <select v-model="activeTargetField" class="text-xs font-bold border border-blue-300 rounded-md py-0.5 px-2 bg-white text-blue-900">
-                      <option value="pertanyaan_html">Pokok Pertanyaan</option>
-                      <option value="stimulus_html">Stimulus / Wacana</option>
-                      <option value="opt_A">Opsi A</option>
-                      <option value="opt_B">Opsi B</option>
-                      <option value="opt_C">Opsi C</option>
-                      <option value="opt_D">Opsi D</option>
-                    </select>
-                  </div>
+                <!-- Baris 1: Format Teks Literasi Pertanyaan -->
+                <div class="flex flex-wrap items-center gap-1 pb-2 border-b border-blue-200/60">
+                  <span class="text-[10px] font-bold text-blue-900 mr-1 uppercase">Format Teks:</span>
+                  <button type="button" @click="applyTextFormat('pertanyaan_html', 'b')" class="px-2 py-0.5 bg-white hover:bg-blue-100 text-blue-900 border border-blue-300 rounded font-bold text-xs shadow-xs" title="Tebal (Bold)"><strong>B</strong></button>
+                  <button type="button" @click="applyTextFormat('pertanyaan_html', 'i')" class="px-2 py-0.5 bg-white hover:bg-blue-100 text-blue-900 border border-blue-300 rounded font-serif italic text-xs shadow-xs" title="Miring (Italic)"><em>I</em></button>
+                  <button type="button" @click="applyTextFormat('pertanyaan_html', 'u')" class="px-2 py-0.5 bg-white hover:bg-blue-100 text-blue-900 border border-blue-300 rounded underline text-xs shadow-xs" title="Garis Bawah (Underline)"><u>U</u></button>
+                  <button type="button" @click="applyTextFormat('pertanyaan_html', 'quote')" class="px-2 py-0.5 bg-white hover:bg-blue-100 text-blue-900 border border-blue-300 rounded text-xs font-semibold shadow-xs" title="Tanda Petik">“ ”</button>
+                  <button type="button" @click="applyTextFormat('pertanyaan_html', 'br')" class="px-2 py-0.5 bg-white hover:bg-blue-100 text-blue-900 border border-blue-300 rounded text-xs font-semibold shadow-xs" title="Ganti Baris">⏎ Ganti Baris</button>
                 </div>
 
                 <!-- Baris 2: Pembuat Rumus Matematika Visual (Modal Interaktif) -->
@@ -424,9 +472,9 @@
                   <span class="text-[10px] text-blue-700 font-bold mr-1">Simbol 1-Klik:</span>
                   <button 
                     v-for="sym in mathSymbols" 
-                    :key="sym.char"
+                    :key="'pertanyaan-' + sym.char"
                     type="button"
-                    @click="insertSymbol(sym.char)"
+                    @click="insertSymbolToTarget(sym.char, 'pertanyaan_html')"
                     class="min-w-[28px] h-7 px-1.5 bg-white hover:bg-blue-600 hover:text-white text-gray-800 border border-gray-300 rounded font-bold text-xs flex items-center justify-center transition-colors shadow-xs"
                     :title="sym.label"
                   >
