@@ -375,6 +375,40 @@
         </form>
       </div>
     </div>
+
+    <!-- MODAL SETEL KATA SANDI BARU (DARI EMAIL RESET) -->
+    <div v-if="showResetModal" class="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4">
+      <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl">
+        <div class="text-center mb-4">
+          <div class="w-12 h-12 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center mx-auto mb-2">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"></path></svg>
+          </div>
+          <h3 class="text-lg font-bold text-gray-800">Setel Kata Sandi Baru Admin</h3>
+          <p class="text-xs text-gray-500 mt-1">Masukkan kata sandi baru untuk akun {{ userEmail || 'disdik.karanganyar@gmail.com' }}</p>
+        </div>
+
+        <form @submit.prevent="submitNewPassword" class="space-y-4 text-xs">
+          <div>
+            <label class="block font-bold text-gray-700 mb-1">Kata Sandi Baru</label>
+            <input 
+              v-model="newPasswordInput" 
+              type="password" 
+              required 
+              minlength="6"
+              placeholder="Minimal 6 karakter"
+              class="w-full border-gray-300 rounded-lg p-2.5 text-sm"
+            />
+          </div>
+
+          <button 
+            type="submit" 
+            class="w-full py-2.5 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded-lg shadow text-sm"
+          >
+            Simpan Kata Sandi Baru
+          </button>
+        </form>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -401,6 +435,8 @@ const loginPassword = ref('')
 const isLoading = ref(false)
 const authError = ref('')
 const resetSuccessMsg = ref('')
+const showResetModal = ref(false)
+const newPasswordInput = ref('')
 
 // Settings
 const settings = ref({
@@ -429,6 +465,13 @@ const newPenulis = reactive({
 })
 
 onMounted(async () => {
+  // Listen for recovery event
+  supabase.auth.onAuthStateChange((event, session) => {
+    if (event === 'PASSWORD_RECOVERY') {
+      showResetModal.value = true
+    }
+  })
+
   // Check active Supabase session
   const { data: { session } } = await supabase.auth.getSession()
   if (session && session.user) {
@@ -476,12 +519,13 @@ async function handleForgotPassword() {
   resetSuccessMsg.value = ''
 
   try {
+    const redirectUrl = window.location.origin + import.meta.env.BASE_URL + 'marshal'
     const { error } = await supabase.auth.resetPasswordForEmail(targetEmail, {
-      redirectTo: window.location.origin + '/marshal'
+      redirectTo: redirectUrl
     })
 
     if (error) throw error
-    resetSuccessMsg.value = `Tautan ganti password telah berhasil dikirim ke ${targetEmail}. Silakan periksa inbox email Anda.`
+    resetSuccessMsg.value = `Tautan ganti password telah berhasil dikirim ke ${targetEmail}. Silakan periksa kotak masuk (Inbox atau folder Spam) email Anda.`
   } catch (err) {
     authError.value = 'Gagal mengirim email reset: ' + err.message
   } finally {
@@ -492,6 +536,25 @@ async function handleForgotPassword() {
 async function handleLogout() {
   await supabase.auth.signOut()
   isLoggedIn.value = false
+}
+
+async function submitNewPassword() {
+  if (!newPasswordInput.value || newPasswordInput.value.length < 6) {
+    alert('Kata sandi minimal 6 karakter.')
+    return
+  }
+  try {
+    const { error } = await supabase.auth.updateUser({
+      password: newPasswordInput.value
+    })
+    if (error) throw error
+    alert('Kata sandi berhasil diperbarui! Anda sekarang sudah masuk ke Dashboard.')
+    showResetModal.value = false
+    isLoggedIn.value = true
+    await initDashboard()
+  } catch (err) {
+    alert('Gagal memperbarui kata sandi: ' + err.message)
+  }
 }
 
 // Toggle Settings Real-Time
