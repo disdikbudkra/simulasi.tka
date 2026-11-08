@@ -706,6 +706,9 @@
       </div>
     </div>
 
+    <!-- FOOTER JEMPROT [BID SMP 2026] -->
+    <AppFooter />
+
     <!-- Toast Notifikasi Ringan -->
     <div 
       v-if="toastMsg" 
@@ -721,6 +724,7 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
+import AppFooter from '../components/AppFooter.vue'
 import { supabase } from '../supabase.js'
 import { 
   getRekapHasilUjian, 

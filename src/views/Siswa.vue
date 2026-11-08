@@ -764,6 +764,9 @@
 
     </main>
 
+    <!-- FOOTER JEMPROT [BID SMP 2026] (Hanya Tampil Pada Step 0 & Step 1 - Setelah Login Dihilangkan) -->
+    <AppFooter v-if="currentStep <= 1" />
+
     <!-- CUSTOM TOAST NOTIFICATION -->
     <div v-if="toastMsg" class="fixed bottom-6 right-6 z-50 bg-gray-900/95 text-white px-5 py-3 rounded-xl shadow-2xl flex items-center gap-3 text-xs font-semibold animate-fade-in">
       <span class="w-2 h-2 rounded-full bg-blue-400"></span>
@@ -776,6 +779,7 @@
 import { ref, reactive, computed, watch, onMounted, onUnmounted } from 'vue'
 import CBTHeader from '../components/CBTHeader.vue'
 import CBTQuestionItem from '../components/CBTQuestionItem.vue'
+import AppFooter from '../components/AppFooter.vue'
 import { getAppSettings, lookupNpsn, getAvailablePackages, getSoalList, submitHasilUjian } from '../services/apiService.js'
 import { generateResultPDF } from '../services/pdfService.js'
 
