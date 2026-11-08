@@ -154,6 +154,38 @@
               </button>
             </div>
 
+            <!-- Switch Toggle NISN (Baru Sesuai Arahan Mas Bos) -->
+            <div class="p-4 rounded-xl border flex items-center justify-between" :class="settings.require_nisn ? 'border-purple-200 bg-purple-50/40' : 'border-gray-200 bg-gray-50'">
+              <div>
+                <div class="font-bold text-sm text-gray-800">Minta / Tampilkan NISN</div>
+                <div class="text-xs text-gray-500">{{ settings.require_nisn ? 'Siswa diminta mengisi NISN' : 'Data NISN tidak diminta (dilewati)' }}</div>
+              </div>
+              <button 
+                type="button" 
+                @click="toggleSetting('require_nisn')"
+                class="relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none"
+                :class="settings.require_nisn ? 'bg-purple-600' : 'bg-gray-300'"
+              >
+                <span class="inline-block h-5 w-5 transform rounded-full bg-white shadow transition duration-200 ease-in-out" :class="settings.require_nisn ? 'translate-x-5' : 'translate-x-0'"></span>
+              </button>
+            </div>
+
+            <!-- Switch Toggle NPSN & Asal Sekolah (Baru Sesuai Arahan Mas Bos) -->
+            <div class="p-4 rounded-xl border flex items-center justify-between" :class="settings.require_npsn ? 'border-indigo-200 bg-indigo-50/40' : 'border-gray-200 bg-gray-50'">
+              <div>
+                <div class="font-bold text-sm text-gray-800">Minta / Tampilkan NPSN</div>
+                <div class="text-xs text-gray-500">{{ settings.require_npsn ? 'Siswa mengisi NPSN (auto sekolah)' : 'Data NPSN tidak diminta (dilewati)' }}</div>
+              </div>
+              <button 
+                type="button" 
+                @click="toggleSetting('require_npsn')"
+                class="relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none"
+                :class="settings.require_npsn ? 'bg-indigo-600' : 'bg-gray-300'"
+              >
+                <span class="inline-block h-5 w-5 transform rounded-full bg-white shadow transition duration-200 ease-in-out" :class="settings.require_npsn ? 'translate-x-5' : 'translate-x-0'"></span>
+              </button>
+            </div>
+
             <!-- Switch Perbandingan Kunci -->
             <div class="p-4 rounded-xl border flex items-center justify-between" :class="settings.show_kunci ? 'border-amber-200 bg-amber-50/40' : 'border-gray-200 bg-gray-50'">
               <div>
@@ -170,11 +202,11 @@
               </button>
             </div>
 
-            <!-- Switch Laporan PDF Pop-up -->
+            <!-- Switch Tombol Unduh PDF Lembar Hasil (Bukan Pop-Up) -->
             <div class="p-4 rounded-xl border flex items-center justify-between" :class="settings.show_pdf ? 'border-green-200 bg-green-50/40' : 'border-gray-200 bg-gray-50'">
               <div>
-                <div class="font-bold text-sm text-gray-800">Laporan Hasil PDF Pop-up</div>
-                <div class="text-xs text-gray-500">{{ settings.show_pdf ? 'Otomatis pop-up download PDF' : 'Download PDF dinonaktifkan' }}</div>
+                <div class="font-bold text-sm text-gray-800">Tombol Unduh Lembar Hasil PDF</div>
+                <div class="text-xs text-gray-500">{{ settings.show_pdf ? 'Tombol unduh PDF aktif jika siswa butuh' : 'Tombol unduh PDF disembunyikan' }}</div>
               </div>
               <button 
                 type="button" 
@@ -486,6 +518,8 @@ const settings = ref({
   smp_active: true,
   show_kunci: false,
   show_pdf: true,
+  require_nisn: false,
+  require_npsn: false,
   current_token: 'KRA26'
 })
 

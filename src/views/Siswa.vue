@@ -257,61 +257,84 @@
 
               <!-- 5. Nama Peserta Input Field (Underlined Sesuai Gambar 5) -->
               <div class="pt-2">
-                <label class="block text-xs text-gray-500 font-medium mb-1">Nama Peserta</label>
+                <label class="block text-xs text-gray-500 font-medium mb-1">Nama Peserta <span class="text-red-500">*</span></label>
                 <input 
                   v-model="studentData.nama_siswa"
                   type="text" 
+                  required
                   placeholder="Ketikkan nama Peserta"
                   class="w-full border-0 border-b border-gray-300 focus:ring-0 focus:border-blue-600 px-0 py-1.5 text-sm font-medium text-gray-800 placeholder-gray-400 bg-transparent"
                 />
               </div>
 
-              <!-- 6. NPSN Sekolah (Auto Fetch Asal Sekolah) -->
-              <div class="pt-1">
-                <label class="block text-xs text-gray-500 font-medium mb-1">NPSN Sekolah (8 Digit)</label>
-                <div class="flex gap-2">
+              <!-- 6. NISN (Di Atas NPSN, Di Bawah Nama Peserta - Hanya Tampil Jika Toggle NISN Aktif di Marshal) -->
+              <div v-if="settings.require_nisn" class="pt-2">
+                <label class="block text-xs text-gray-500 font-medium mb-1">NISN (Nomor Induk Siswa Nasional) <span class="text-red-500">*</span></label>
+                <input 
+                  v-model="studentData.nisn"
+                  type="text" 
+                  maxlength="10"
+                  required
+                  placeholder="NISN (10 Digit)"
+                  class="w-full border-0 border-b border-gray-300 focus:ring-0 focus:border-blue-600 px-0 py-1.5 text-sm font-mono text-gray-800 placeholder-gray-400 bg-transparent"
+                />
+              </div>
+
+              <!-- 7. NPSN & Asal Sekolah (Hanya Tampil Jika Toggle NPSN Aktif di Marshal) -->
+              <div v-if="settings.require_npsn" class="pt-2">
+                <label class="block text-xs text-gray-500 font-medium mb-1">NPSN & Asal Sekolah <span class="text-red-500">*</span></label>
+                <div class="flex flex-col sm:flex-row gap-2">
                   <input 
                     v-model="studentData.npsn"
                     @input="handleNpsnInput"
                     type="text" 
                     maxlength="8"
-                    placeholder="Contoh: 20312015"
+                    placeholder="NPSN (8 digit)"
                     required
-                    class="w-40 border border-gray-300 rounded-lg p-2 text-xs font-mono font-bold text-gray-800"
+                    class="w-full sm:w-36 border border-gray-300 rounded-lg p-2 text-xs font-mono font-bold text-gray-800 focus:ring-blue-500 focus:border-blue-500 bg-white"
                   />
-                  <input 
-                    v-model="studentData.nama_sekolah"
-                    type="text" 
-                    placeholder="Nama Sekolah Asal"
-                    required
-                    class="flex-1 border border-gray-300 rounded-lg p-2 text-xs text-gray-800 bg-gray-50"
-                  />
+                  <div class="relative flex-1">
+                    <input 
+                      :value="studentData.nama_sekolah"
+                      readonly
+                      tabindex="-1"
+                      type="text" 
+                      placeholder="Nama Sekolah (Otomatis dari NPSN)"
+                      class="w-full border border-gray-200 rounded-lg p-2 text-xs text-gray-600 bg-gray-100 font-semibold cursor-not-allowed select-none"
+                    />
+                    <span v-if="isSearchingNpsn" class="absolute right-2.5 top-2.5 text-[10px] text-blue-600 font-bold animate-pulse">
+                      Mencari...
+                    </span>
+                  </div>
                 </div>
               </div>
 
-              <!-- 7. Tanggal Lahir (3 Kotak Abu-Abu Berjajar: Hari, Bulan, Tahun) -->
+              <!-- 8. Tanggal Lahir (Hari, Bulan, Tahun - Awalnya Kosong & Wajib Dipilih) -->
               <div class="pt-2">
-                <label class="block text-xs text-gray-500 font-medium mb-1.5">Tanggal Lahir</label>
+                <label class="block text-xs text-gray-500 font-medium mb-1.5">Tanggal Lahir <span class="text-red-500">*</span></label>
                 <div class="grid grid-cols-3 gap-3">
                   <div class="bg-gray-100 rounded-md p-1 border border-gray-200">
-                    <select v-model="studentData.tgl" class="w-full bg-transparent border-0 text-xs text-gray-700 py-1.5 px-2 focus:ring-0">
+                    <select v-model="studentData.tgl" required class="w-full bg-transparent border-0 text-xs text-gray-700 py-1.5 px-2 focus:ring-0">
+                      <option value="" disabled selected>- Hari -</option>
                       <option v-for="d in 31" :key="d" :value="d">{{ d }}</option>
                     </select>
                   </div>
                   <div class="bg-gray-100 rounded-md p-1 border border-gray-200">
-                    <select v-model="studentData.bln" class="w-full bg-transparent border-0 text-xs text-gray-700 py-1.5 px-2 focus:ring-0">
+                    <select v-model="studentData.bln" required class="w-full bg-transparent border-0 text-xs text-gray-700 py-1.5 px-2 focus:ring-0">
+                      <option value="" disabled selected>- Bulan -</option>
                       <option v-for="m in bulanList" :key="m" :value="m">{{ m }}</option>
                     </select>
                   </div>
                   <div class="bg-gray-100 rounded-md p-1 border border-gray-200">
-                    <select v-model="studentData.thn" class="w-full bg-transparent border-0 text-xs text-gray-700 py-1.5 px-2 focus:ring-0">
-                      <option v-for="y in [2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016]" :key="y" :value="y">{{ y }}</option>
+                    <select v-model="studentData.thn" required class="w-full bg-transparent border-0 text-xs text-gray-700 py-1.5 px-2 focus:ring-0">
+                      <option value="" disabled selected>- Tahun -</option>
+                      <option v-for="y in tahunList" :key="y" :value="y">{{ y }}</option>
                     </select>
                   </div>
                 </div>
               </div>
 
-              <!-- 8. Token (Label Biru Sesuai Gambar 5) -->
+              <!-- 9. Token (Label Biru Sesuai Gambar 5) -->
               <div class="pt-2">
                 <label class="block text-xs font-bold text-blue-600 mb-1">Token</label>
                 <input 
@@ -359,9 +382,13 @@
                 <span class="text-gray-500">Nama Peserta:</span>
                 <span class="font-bold text-gray-800">{{ studentData.nama_siswa }}</span>
               </div>
-              <div class="py-2.5 flex justify-between">
+              <div v-if="studentData.nisn" class="py-2.5 flex justify-between">
+                <span class="text-gray-500">NISN:</span>
+                <span class="font-bold text-gray-800 font-mono">{{ studentData.nisn }}</span>
+              </div>
+              <div v-if="studentData.nama_sekolah || studentData.npsn" class="py-2.5 flex justify-between">
                 <span class="text-gray-500">Asal Sekolah:</span>
-                <span class="font-bold text-gray-800">{{ studentData.nama_sekolah }} ({{ studentData.npsn }})</span>
+                <span class="font-bold text-gray-800">{{ studentData.nama_sekolah || '-' }} {{ studentData.npsn ? `(${studentData.npsn})` : '' }}</span>
               </div>
               <div class="py-2.5 flex justify-between">
                 <span class="text-gray-500">Nama Tes:</span>
@@ -646,7 +673,9 @@
                 {{ studentData.nama_siswa }}
               </h2>
               <p class="text-sm text-gray-500 mt-0.5">
-                {{ studentData.nama_sekolah }} (NPSN: {{ studentData.npsn }}) • {{ selectedJenjang }} {{ selectedMapel }}
+                <span v-if="studentData.nama_sekolah">{{ studentData.nama_sekolah }} </span>
+                <span v-if="studentData.npsn">(NPSN: {{ studentData.npsn }}) • </span>
+                <span>{{ selectedJenjang }} {{ selectedMapel }}</span>
               </p>
             </div>
 
@@ -660,17 +689,14 @@
             </div>
           </div>
 
-          <!-- Tombol Unduh PDF Ulang -->
-          <div class="mt-6 pt-6 border-t flex flex-wrap items-center justify-between gap-3">
-            <p class="text-xs text-gray-500">
-              * Pop-up berkas PDF Lembar Hasil telah diunduh secara otomatis ke perangkat Anda.
-            </p>
+          <!-- Tombol Unduh PDF Lembar Hasil (Hanya Jika Dibutuhkan & Diizinkan Marshal) -->
+          <div v-if="settings.show_pdf" class="mt-6 pt-6 border-t flex flex-wrap items-center justify-end gap-3">
             <button
-              @click="downloadPdfAgain"
-              class="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg text-xs sm:text-sm shadow flex items-center gap-2"
+              @click="downloadPdfResult"
+              class="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg text-xs sm:text-sm shadow flex items-center gap-2 transition-colors"
             >
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-              <span>Unduh Ulang PDF Lembar Hasil</span>
+              <span>Unduh PDF Lembar Hasil</span>
             </button>
           </div>
         </div>
@@ -723,9 +749,6 @@
         <div v-else class="bg-gray-50 border border-gray-200 rounded-2xl p-6 text-center text-gray-600 text-sm">
           <svg class="w-8 h-8 text-gray-400 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
           <p class="font-semibold text-gray-700">Perbandingan Kunci Jawaban Dinonaktifkan</p>
-          <p class="text-xs text-gray-500 mt-1">
-            Untuk menjaga integritas dan kerahasiaan soal simulasi, pembahasan dan kunci jawaban tidak dipublikasikan ke siswa oleh Proktor Dinas.
-          </p>
         </div>
 
         <!-- Tombol Kembali ke Awal -->
@@ -762,6 +785,8 @@ const settings = ref({
   smp_active: true,
   show_kunci: false,
   show_pdf: true,
+  require_nisn: false,
+  require_npsn: false,
   current_token: '377HW8'
 })
 
@@ -804,19 +829,19 @@ const dummyUsername = ref('dladnc')
 function handleStudentLogin() {
   const user = inputStudentUsername.value.trim() || 'dladnc'
   dummyUsername.value = user
-  studentData.nama_siswa = ''
+  studentData.nama_siswa = user
   goToStep(2)
 }
 
-// Step 2: Form Data Siswa
+// Step 2: Form Data Siswa (Kosong secara default tanpa contoh isian)
 const studentData = reactive({
-  npsn: '20312015',
-  nama_sekolah: 'SMP NEGERI 1 KARANGANYAR',
+  npsn: '',
+  nama_sekolah: '',
   nama_siswa: '',
   nisn: '',
-  tgl: 15,
-  bln: 'Juli',
-  thn: 2011
+  tgl: '',
+  bln: '',
+  thn: ''
 })
 const inputToken = ref('')
 const tokenError = ref(false)
@@ -824,6 +849,7 @@ const isSearchingNpsn = ref(false)
 let npsnDebounceTimer = null
 
 const bulanList = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember']
+const tahunList = [2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018]
 
 // Step 4: Ujian CBT
 const questions = ref([])
@@ -924,7 +950,23 @@ function handleKonfirmasiData() {
   }
 
   if (!studentData.nama_siswa || !studentData.nama_siswa.trim()) {
-    studentData.nama_siswa = dummyUsername.value || 'PESERTA TKA'
+    showToast('Nama peserta wajib diisi.')
+    return
+  }
+
+  if (settings.value.require_nisn && (!studentData.nisn || !studentData.nisn.trim())) {
+    showToast('NISN (Nomor Induk Siswa Nasional) wajib diisi.')
+    return
+  }
+
+  if (settings.value.require_npsn && (!studentData.npsn || !studentData.npsn.trim())) {
+    showToast('NPSN wajib diisi.')
+    return
+  }
+
+  if (!studentData.tgl || !studentData.bln || !studentData.thn) {
+    showToast('Silakan pilih Tanggal, Bulan, dan Tahun Lahir secara lengkap.')
+    return
   }
 
   goToStep(3)
@@ -1134,29 +1176,31 @@ async function confirmFinishExam() {
     console.error('Gagal mencatat hasil ke Supabase:', err)
   }
 
-  // Unduh otomatis Lembar Hasil PDF
-  if (settings.value.show_pdf) {
-    setTimeout(() => {
-      downloadPdfAgain()
-    }, 600)
-  }
-
+  // Tanpa pop-up otomatis unduh berkas PDF sesuai instruksi Mas Bos
+  // Berkas PDF hanya diunduh jika siswa secara sadar mengklik tombol Unduh di halaman hasil
   goToStep(6)
 }
 
-function downloadPdfAgain() {
-  generateResultPDF({
-    nama_siswa: studentData.nama_siswa,
-    nisn: studentData.nisn,
-    npsn: studentData.npsn,
-    nama_sekolah: studentData.nama_sekolah,
-    jenjang: selectedJenjang.value,
-    mapel: selectedMapel.value,
-    paket: selectedPaket.value,
-    jumlah_benar: scoreResult.jumlahBenar,
-    total_soal: questions.value.length,
-    durasi_detik: durasiPengerjaan.value
-  })
+async function downloadPdfResult() {
+  showToast('Sedang memproses berkas PDF Lembar Hasil...')
+  try {
+    await generateResultPDF({
+      nama_siswa: studentData.nama_siswa || dummyUsername.value || 'Peserta',
+      nisn: studentData.nisn,
+      npsn: studentData.npsn,
+      nama_sekolah: studentData.nama_sekolah,
+      jenjang: selectedJenjang.value,
+      mapel: selectedMapel.value,
+      paket: selectedPaket.value,
+      jumlah_benar: scoreResult.jumlahBenar,
+      total_soal: questions.value.length,
+      durasi_detik: durasiPengerjaan.value
+    })
+    showToast('Berkas PDF Lembar Hasil berhasil diunduh.')
+  } catch (err) {
+    console.error('Gagal mengunduh berkas PDF:', err)
+    showToast('Gagal memproses berkas PDF: ' + (err.message || 'Error'))
+  }
 }
 
 function resetToHome() {

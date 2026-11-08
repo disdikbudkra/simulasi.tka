@@ -1,5 +1,5 @@
 import { jsPDF } from 'jspdf'
-import 'jspdf-autotable'
+import autoTable from 'jspdf-autotable'
 
 export async function generateResultPDF({
   nama_siswa,
@@ -39,7 +39,7 @@ export async function generateResultPDF({
   // Coba muat logo Karanganyar jika tersedia
   try {
     const base = import.meta.env.BASE_URL || '/'
-    const logoImg = await loadImgBase64(`${base}images/logo_karanganyar.png`)
+    const logoImg = await loadImgBase64(`${base}images/logo_karanganyar.png`, 800)
     if (logoImg) {
       doc.addImage(logoImg, 'PNG', 16, 12, 22, 26)
     }
@@ -74,17 +74,27 @@ export async function generateResultPDF({
 
   // 3. Tabel Identitas Peserta
   const dataIdentitas = [
-    ['Nama Peserta', ':', (nama_siswa || '-').toUpperCase()],
-    ['Nomor Induk Siswa Nasional (NISN)', ':', nisn || '-'],
-    ['Nomor Pokok Sekolah Nasional (NPSN)', ':', npsn || '-'],
-    ['Asal Sekolah', ':', nama_sekolah || '-'],
+    ['Nama Peserta', ':', (nama_siswa || '-').toUpperCase()]
+  ]
+
+  if (nisn) {
+    dataIdentitas.push(['Nomor Induk Siswa Nasional (NISN)', ':', nisn])
+  }
+  if (npsn) {
+    dataIdentitas.push(['Nomor Pokok Sekolah Nasional (NPSN)', ':', npsn])
+  }
+  if (nama_sekolah) {
+    dataIdentitas.push(['Asal Sekolah', ':', nama_sekolah])
+  }
+
+  dataIdentitas.push(
     ['Jenjang / Mata Pelajaran', ':', `${jenjang || '-'} / ${mapel || '-'}`],
     ['Paket Soal', ':', paket || 'Paket 1'],
     ['Waktu Pelaksanaan', ':', tglFormatted],
     ['Durasi Pengerjaan', ':', durasiFormatted]
-  ]
+  )
 
-  doc.autoTable({
+  autoTable(doc, {
     startY: 63,
     body: dataIdentitas,
     theme: 'plain',
@@ -152,25 +162,34 @@ export async function generateResultPDF({
   doc.setFont('helvetica', 'bold')
   doc.text('DISDIKBUD KAB. KARANGANYAR', 140, ttdY + 30)
 
-  // 6. Unduh PDF otomatis
+  // 6. Unduh berkas PDF
   const safeName = (nama_siswa || 'Peserta').replace(/[^a-zA-Z0-9]/g, '_')
   doc.save(`Lembar_Hasil_TKA_${safeName}.pdf`)
 }
 
-// Helper untuk load gambar logo ke Base64
-function loadImgBase64(url) {
+// Helper untuk load gambar logo ke Base64 dengan timeout pengaman
+function loadImgBase64(url, timeoutMs = 800) {
   return new Promise((resolve) => {
+    const timer = setTimeout(() => resolve(null), timeoutMs)
     const img = new Image()
     img.crossOrigin = 'Anonymous'
     img.onload = () => {
-      const canvas = document.createElement('canvas')
-      canvas.width = img.width
-      canvas.height = img.height
-      const ctx = canvas.getContext('2d')
-      ctx.drawImage(img, 0, 0)
-      resolve(canvas.toDataURL('image/png'))
+      clearTimeout(timer)
+      try {
+        const canvas = document.createElement('canvas')
+        canvas.width = img.width
+        canvas.height = img.height
+        const ctx = canvas.getContext('2d')
+        ctx.drawImage(img, 0, 0)
+        resolve(canvas.toDataURL('image/png'))
+      } catch (err) {
+        resolve(null)
+      }
     }
-    img.onerror = () => resolve(null)
+    img.onerror = () => {
+      clearTimeout(timer)
+      resolve(null)
+    }
     img.src = url
   })
 }

@@ -16,6 +16,8 @@ export async function getAppSettings() {
         smp_active: true,
         show_kunci: false,
         show_pdf: true,
+        require_nisn: false,
+        require_npsn: false,
         current_token: generateHourlyToken(),
         token_updated_at: new Date().toISOString()
       }
@@ -43,6 +45,8 @@ export async function getAppSettings() {
       smp_active: true,
       show_kunci: false,
       show_pdf: true,
+      require_nisn: false,
+      require_npsn: false,
       current_token: generateHourlyToken(),
       token_updated_at: new Date().toISOString()
     }
