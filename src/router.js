@@ -1,12 +1,15 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import Home from './views/Home.vue'
-import Guru from './views/Guru.vue'
 import Siswa from './views/Siswa.vue'
+import Marshal from './views/Marshal.vue'
+import Penulis from './views/Penulis.vue'
 
 const routes = [
-  { path: '/', name: 'Home', component: Home },
-  { path: '/siswa', name: 'Siswa', component: Siswa },
-  { path: '/guru', name: 'Guru', component: Guru },
+  { path: '/', name: 'Siswa', component: Siswa },
+  { path: '/simulasi_tka', name: 'SimulasiTka', component: Siswa },
+  { path: '/marshal', name: 'Marshal', component: Marshal },
+  { path: '/admin', redirect: '/marshal' },
+  { path: '/penulis', name: 'Penulis', component: Penulis },
+  { path: '/guru', redirect: '/penulis' },
   { path: '/:pathMatch(.*)*', redirect: '/' }
 ]
 
