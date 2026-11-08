@@ -59,9 +59,11 @@
 
           <button
             type="submit"
-            class="w-full py-3 bg-blue-700 hover:bg-blue-800 text-white font-bold rounded-xl shadow transition-all flex items-center justify-center gap-2 text-sm mt-4"
+            :disabled="loginCooldown > 0"
+            class="w-full py-3 bg-blue-700 hover:bg-blue-800 text-white font-bold rounded-xl shadow transition-all flex items-center justify-center gap-2 text-sm mt-4 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            <span>MASUK KE STUDIO PENULIS</span>
+            <span v-if="loginCooldown > 0">Terkunci Sementara ({{ loginCooldown }}s)</span>
+            <span v-else>MASUK KE STUDIO PENULIS</span>
           </button>
         </form>
       </div>
@@ -1031,6 +1033,30 @@
       </div>
     </div>
 
+    <!-- MODAL PERINGATAN IDLE TIMEOUT (COUNTDOWN 60 DETIK) -->
+    <div v-if="showIdleWarningModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
+      <div class="bg-white rounded-2xl shadow-2xl max-w-sm w-full p-6 text-center space-y-4">
+        <div class="w-14 h-14 mx-auto rounded-full bg-amber-100 text-amber-600 flex items-center justify-center">
+          <svg class="w-8 h-8 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+        </div>
+        <div>
+          <h3 class="text-base font-bold text-gray-800">Sesi Penulis Segera Berakhir</h3>
+          <p class="text-xs text-gray-500 mt-1">
+            Tidak ada aktivitas selama 29 menit. Demi keamanan butir soal simulasi, sesi Anda akan otomatis keluar dalam:
+          </p>
+          <div class="text-4xl font-black text-amber-600 font-mono my-3">
+            {{ idleSecondsLeft }}s
+          </div>
+        </div>
+        <button 
+          @click="resumeIdleSession" 
+          class="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-xs shadow-md transition-all"
+        >
+          Lanjut Menulis (Tetap Login)
+        </button>
+      </div>
+    </div>
+
     <!-- CUSTOM TOAST NOTIFICATION -->
     <div v-if="toastMsg" class="fixed bottom-6 right-6 z-50 bg-gray-900/95 text-white px-5 py-3 rounded-xl shadow-2xl flex items-center gap-3 text-xs font-semibold animate-fade-in">
       <span class="w-2 h-2 rounded-full bg-blue-400"></span>
@@ -1040,10 +1066,18 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted } from 'vue'
+import { ref, reactive, computed, onMounted, onUnmounted } from 'vue'
 import CBTHeader from '../components/CBTHeader.vue'
 import CBTQuestionItem from '../components/CBTQuestionItem.vue'
 import { loginPenulis, getAvailablePackages, getSoalListPenulis, saveSoalPenulis, deleteSoalByNomor, deleteEntirePackage } from '../services/apiService.js'
+import {
+  createIdleTimer,
+  broadcastSessionLogout,
+  listenCrossTabLogout,
+  checkLoginRateLimit,
+  recordFailedLogin,
+  resetLoginAttempts
+} from '../services/sessionSecurity.js'
 import { supabase } from '../supabase.js'
 import mammoth from 'mammoth'
 import { convertLatexToMarkup } from 'mathlive'
@@ -1055,6 +1089,16 @@ const inputPassword = ref('')
 const showPassword = ref(false)
 const loginError = ref('')
 const toastMsg = ref('')
+
+// Inactivity Auto Logout (30 Menit)
+const showIdleWarningModal = ref(false)
+const idleSecondsLeft = ref(60)
+let idleTracker = null
+let stopCrossTabListen = null
+
+// Brute Force Rate Limiting
+const loginCooldown = ref(0)
+let cooldownTimer = null
 
 // State Tabs & Paket Dinamis
 const activeTab = ref('editor')
@@ -1251,16 +1295,82 @@ const previewDummyAnswer = ref(null)
 const uploadStatus = ref('')
 
 onMounted(async () => {
-  const saved = localStorage.getItem('penulis_session')
+  const saved = localStorage.getItem('penulis_session') || sessionStorage.getItem('penulis_session')
   if (saved) {
     try {
       currentPenulis.value = JSON.parse(saved)
       await loadSoalList()
+      startIdleTracker()
     } catch (e) {
       localStorage.removeItem('penulis_session')
+      sessionStorage.removeItem('penulis_session')
     }
   }
+
+  // Cross-tab logout listener
+  stopCrossTabListen = listenCrossTabLogout((msg) => {
+    if (msg.type === 'LOGOUT') {
+      logoutPenulis()
+      showToast('Sesi penulis telah keluar dari tab lain.')
+    }
+  })
+
+  updateLoginCooldown()
 })
+
+onUnmounted(() => {
+  stopIdleTracker()
+  if (stopCrossTabListen) stopCrossTabListen()
+  if (cooldownTimer) clearInterval(cooldownTimer)
+})
+
+function startIdleTracker() {
+  stopIdleTracker()
+  idleTracker = createIdleTimer({
+    timeoutMs: 30 * 60 * 1000, // 30 Menit Sesuai Instruksi Mas Bos
+    warningMs: 60 * 1000,      // 60 Detik Sebelum Habis
+    onWarning: (sec) => {
+      idleSecondsLeft.value = sec
+      showIdleWarningModal.value = true
+    },
+    onTimeout: () => {
+      showIdleWarningModal.value = false
+      logoutPenulis()
+      showToast('Sesi penulis telah berakhir otomatis karena tidak ada aktivitas selama 30 menit.')
+    },
+    onResume: () => {
+      showIdleWarningModal.value = false
+    }
+  })
+  idleTracker.start()
+}
+
+function resumeIdleSession() {
+  if (idleTracker) idleTracker.reset()
+  showIdleWarningModal.value = false
+}
+
+function stopIdleTracker() {
+  if (idleTracker) {
+    idleTracker.stop()
+    idleTracker = null
+  }
+  showIdleWarningModal.value = false
+}
+
+function updateLoginCooldown() {
+  const rl = checkLoginRateLimit('penulis')
+  loginCooldown.value = rl.remainingCooldown
+  if (loginCooldown.value > 0 && !cooldownTimer) {
+    cooldownTimer = setInterval(() => {
+      loginCooldown.value--
+      if (loginCooldown.value <= 0) {
+        clearInterval(cooldownTimer)
+        cooldownTimer = null
+      }
+    }, 1000)
+  }
+}
 
 function showToast(msg) {
   toastMsg.value = msg
@@ -1271,23 +1381,35 @@ function showToast(msg) {
 
 async function handleLogin() {
   loginError.value = ''
+  updateLoginCooldown()
+  if (loginCooldown.value > 0) {
+    loginError.value = `Terlalu banyak percobaan gagal. Silakan tunggu ${loginCooldown.value} detik.`
+    return
+  }
+
   if (!inputUsername.value || !inputPassword.value) {
     loginError.value = 'Silakan masukkan username dan kata sandi.'
     return
   }
   const acc = await loginPenulis(inputUsername.value, inputPassword.value)
   if (acc) {
+    resetLoginAttempts('penulis')
     acc.password = inputPassword.value
     currentPenulis.value = acc
     sessionStorage.setItem('penulis_session', JSON.stringify(acc))
     await loadSoalList()
+    startIdleTracker()
     showToast(`Selamat datang, ${acc.nama_guru}!`)
   } else {
+    recordFailedLogin('penulis')
+    updateLoginCooldown()
     loginError.value = 'Username atau kata sandi penulis tidak ditemukan.'
   }
 }
 
 function logoutPenulis() {
+  stopIdleTracker()
+  broadcastSessionLogout('penulis')
   currentPenulis.value = null
   sessionStorage.removeItem('penulis_session')
   localStorage.removeItem('penulis_session')

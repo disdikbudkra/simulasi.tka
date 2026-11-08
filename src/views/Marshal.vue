@@ -82,7 +82,7 @@
     <!-- 2. DASHBOARD MARSHAL (LOGGED IN) -->
     <div v-else class="flex-1 max-w-7xl mx-auto w-full p-4 sm:p-6 space-y-6">
       
-      <!-- Top Bar Profile & Logout -->
+      <!-- Top Bar Profile, Navigasi Tab & Logout -->
       <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-5 flex flex-wrap items-center justify-between gap-4">
         <div class="flex items-center gap-3">
           <div class="w-10 h-10 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center font-bold text-lg">
@@ -94,16 +94,42 @@
           </div>
         </div>
 
-        <div class="flex items-center gap-3">
-          <span class="text-xs bg-green-100 text-green-800 font-semibold px-3 py-1 rounded-full flex items-center gap-1.5">
-            <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
-            Server Terhubung Supabase
+        <div class="flex flex-wrap items-center gap-2 sm:gap-3">
+          <!-- Navigasi Tab Terpadu -->
+          <span class="px-3 py-1.5 rounded-lg text-xs font-bold bg-[#1e3a5f] text-white shadow flex items-center gap-1.5">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+            <span>Pusat Kendali</span>
           </span>
+
+          <router-link 
+            to="/rekap-siswa" 
+            class="px-3 py-1.5 rounded-lg text-xs font-bold transition-all text-gray-700 bg-gray-100 hover:bg-blue-50 hover:text-blue-700 border border-gray-200 flex items-center gap-1.5"
+          >
+            <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+            <span>Rekap Siswa</span>
+          </router-link>
+
+          <router-link 
+            to="/penulis" 
+            class="px-3 py-1.5 rounded-lg text-xs font-bold transition-all text-gray-700 bg-gray-100 hover:bg-blue-50 hover:text-blue-700 border border-gray-200 hidden sm:flex items-center gap-1.5"
+          >
+            <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+            <span>Studio Penulis</span>
+          </router-link>
+
+          <router-link 
+            to="/" 
+            class="px-3 py-1.5 rounded-lg text-xs font-bold transition-all text-gray-700 bg-gray-100 hover:bg-gray-200 border border-gray-200 hidden lg:flex items-center gap-1.5"
+          >
+            <span>Simulasi Siswa ↗</span>
+          </router-link>
+
           <button 
             @click="handleLogout"
-            class="text-xs bg-gray-100 hover:bg-red-50 text-gray-700 hover:text-red-700 font-bold px-3.5 py-2 rounded-lg border border-gray-200 transition-colors"
+            class="text-xs bg-red-50 hover:bg-red-100 text-red-700 font-bold px-3 py-1.5 rounded-lg border border-red-200 transition-colors flex items-center gap-1"
           >
-            Keluar
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
+            <span>Keluar</span>
           </button>
         </div>
       </div>
@@ -245,80 +271,62 @@
         </div>
       </div>
 
-      <!-- KARTU 2: REKAPITULASI HASIL UJIAN SISWA & DOWNLOAD EXCEL -->
-      <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 space-y-4">
-        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-3 border-b">
-          <div>
-            <h3 class="text-base font-bold text-gray-800">Rekapitulasi Hasil Ujian Siswa Se-Kabupaten</h3>
-            <p class="text-xs text-gray-500">Data hasil pengerjaan siswa Karanganyar tersimpan real-time di Supabase</p>
+      <!-- KARTU 2: REKAPITULASI HASIL SIMULASI SISWA (MENU MANDIRI BARU) -->
+      <div class="bg-gradient-to-r from-blue-50/70 via-indigo-50/40 to-white rounded-2xl shadow-sm border border-blue-200 p-6 space-y-4">
+        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div class="space-y-1">
+            <div class="flex items-center gap-2">
+              <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-600 text-white uppercase tracking-wider">
+                Menu Terpisah
+              </span>
+              <h3 class="text-base font-bold text-gray-900">Rekapitulasi Hasil Simulasi Siswa Se-Kabupaten</h3>
+            </div>
+            <p class="text-xs text-gray-600">
+              Pengelolaan lengkap hasil simulasi: paginasi 25/50/100, filter bertingkat, pembersih data uji coba, dan hapus data massal/individual.
+            </p>
           </div>
 
-          <button
-            @click="exportToExcel"
-            class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-lg text-xs shadow flex items-center gap-2 transition-colors"
-          >
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-            <span>Download Rekap Excel (.xlsx)</span>
-          </button>
+          <div class="flex items-center gap-2">
+            <button
+              @click="exportToExcel"
+              class="px-3.5 py-2 bg-white hover:bg-gray-50 text-gray-700 font-bold rounded-xl text-xs border border-gray-300 shadow-2xs flex items-center gap-1.5 transition-colors"
+              title="Unduh rekap cepat (.xlsx)"
+            >
+              <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+              <span>Download Excel</span>
+            </button>
+
+            <router-link
+              to="/rekap-siswa"
+              class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-xs shadow-md flex items-center gap-2 transition-all hover:gap-2.5"
+            >
+              <span>Buka Menu Rekap Siswa</span>
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+            </router-link>
+          </div>
         </div>
 
-        <!-- Filter Pencarian -->
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          <input 
-            v-model="filterNpsn" 
-            type="text" 
-            placeholder="Cari NPSN / Sekolah..."
-            class="border-gray-300 rounded-lg p-2 text-xs focus:ring-blue-500 focus:border-blue-500 bg-white" 
-          />
-          <select v-model="filterJenjang" class="border-gray-300 rounded-lg p-2 text-xs bg-white">
-            <option value="">Semua Jenjang</option>
-            <option value="SD">Jenjang SD</option>
-            <option value="SMP">Jenjang SMP</option>
-          </select>
-          <button @click="loadRekap" class="bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold px-3 py-2 rounded-lg text-xs">
-            Muat Ulang Data
-          </button>
-        </div>
-
-        <!-- Tabel Hasil Ujian -->
-        <div class="overflow-x-auto border border-gray-200 rounded-xl">
-          <table class="min-w-full divide-y divide-gray-200 text-xs">
-            <thead class="bg-gray-50 text-gray-600 font-bold uppercase">
-              <tr>
-                <th class="py-3 px-3 text-left">Waktu</th>
-                <th class="py-3 px-3 text-left">NPSN</th>
-                <th class="py-3 px-3 text-left">Nama Sekolah</th>
-                <th class="py-3 px-3 text-left">Nama Siswa</th>
-                <th class="py-3 px-3 text-center">Jenjang</th>
-                <th class="py-3 px-3 text-left">Mapel / Paket</th>
-                <th class="py-3 px-3 text-center">Benar</th>
-                <th class="py-3 px-3 text-center">Durasi</th>
-              </tr>
-            </thead>
-            <tbody class="divide-y divide-gray-200 bg-white">
-              <tr v-if="filteredHasilList.length === 0">
-                <td colspan="8" class="text-center py-8 text-gray-400">Belum ada data pengerjaan ujian.</td>
-              </tr>
-              <tr v-for="row in filteredHasilList" :key="row.id" class="hover:bg-gray-50">
-                <td class="py-2.5 px-3 text-gray-500 whitespace-nowrap">{{ formatDate(row.created_at) }}</td>
-                <td class="py-2.5 px-3 font-mono font-semibold text-blue-700">{{ row.npsn }}</td>
-                <td class="py-2.5 px-3 font-medium text-gray-800">{{ row.nama_sekolah }}</td>
-                <td class="py-2.5 px-3 font-bold text-gray-900">{{ row.nama_siswa }}</td>
-                <td class="py-2.5 px-3 text-center">
-                  <span class="px-2 py-0.5 rounded text-[10px] font-bold" :class="row.jenjang === 'SD' ? 'bg-orange-100 text-orange-800' : 'bg-blue-100 text-blue-800'">
-                    {{ row.jenjang }}
-                  </span>
-                </td>
-                <td class="py-2.5 px-3 text-gray-700">{{ row.mapel }} ({{ row.paket }})</td>
-                <td class="py-2.5 px-3 text-center font-bold text-green-700">
-                  {{ row.jumlah_benar }} / {{ row.total_soal }}
-                </td>
-                <td class="py-2.5 px-3 text-center text-gray-500">
-                  {{ Math.floor(row.durasi_detik / 60) }}m {{ row.durasi_detik % 60 }}s
-                </td>
-              </tr>
-            </tbody>
-          </table>
+        <!-- Quick Info Metrics -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2 text-xs">
+          <div class="bg-white p-3 rounded-xl border border-gray-200">
+            <span class="text-gray-500 block">Total Sesi Masuk</span>
+            <span class="text-lg font-black text-gray-800">{{ hasilList.length }} Siswa</span>
+          </div>
+          <div class="bg-white p-3 rounded-xl border border-gray-200">
+            <span class="text-gray-500 block">Jenjang SD</span>
+            <span class="text-lg font-black text-orange-700">{{ hasilList.filter(r => r.jenjang === 'SD').length }} Siswa</span>
+          </div>
+          <div class="bg-white p-3 rounded-xl border border-gray-200">
+            <span class="text-gray-500 block">Jenjang SMP</span>
+            <span class="text-lg font-black text-blue-700">{{ hasilList.filter(r => r.jenjang === 'SMP').length }} Siswa</span>
+          </div>
+          <div class="bg-white p-3 rounded-xl border border-gray-200">
+            <span class="text-gray-500 block">Status Data</span>
+            <span class="text-lg font-black text-emerald-700 flex items-center gap-1">
+              <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+              Real-Time
+            </span>
+          </div>
         </div>
       </div>
 
@@ -476,6 +484,30 @@
       </div>
     </div>
 
+    <!-- MODAL PERINGATAN IDLE TIMEOUT (COUNTDOWN 60 DETIK) -->
+    <div v-if="showIdleWarningModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
+      <div class="bg-white rounded-2xl shadow-2xl max-w-sm w-full p-6 text-center space-y-4">
+        <div class="w-14 h-14 mx-auto rounded-full bg-amber-100 text-amber-600 flex items-center justify-center">
+          <svg class="w-8 h-8 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+        </div>
+        <div>
+          <h3 class="text-base font-bold text-gray-800">Sesi Segera Berakhir</h3>
+          <p class="text-xs text-gray-500 mt-1">
+            Tidak ada aktivitas selama 29 menit. Demi keamanan sistem simulasi, sesi Marshal akan otomatis keluar dalam:
+          </p>
+          <div class="text-4xl font-black text-amber-600 font-mono my-3">
+            {{ idleSecondsLeft }}s
+          </div>
+        </div>
+        <button 
+          @click="resumeIdleSession" 
+          class="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-xs shadow-md transition-all"
+        >
+          Lanjut Bekerja (Tetap Login)
+        </button>
+      </div>
+    </div>
+
     <!-- CUSTOM TOAST NOTIFICATION -->
     <div v-if="toastMsg" class="fixed bottom-6 right-6 z-50 bg-gray-900/95 text-white px-5 py-3 rounded-xl shadow-2xl flex items-center gap-3 text-xs font-semibold animate-fade-in">
       <span class="w-2 h-2 rounded-full bg-green-400"></span>
@@ -485,7 +517,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted } from 'vue'
+import { ref, reactive, computed, onMounted, onUnmounted } from 'vue'
 import CBTHeader from '../components/CBTHeader.vue'
 import { supabase } from '../supabase.js'
 import { 
@@ -497,6 +529,14 @@ import {
   createPenulisAccount, 
   deletePenulisAccount 
 } from '../services/apiService.js'
+import {
+  createIdleTimer,
+  broadcastSessionLogout,
+  listenCrossTabLogout,
+  checkLoginRateLimit,
+  recordFailedLogin,
+  resetLoginAttempts
+} from '../services/sessionSecurity.js'
 import * as XLSX from 'xlsx'
 
 // Auth State (Kosong secara default tanpa prefill)
@@ -511,6 +551,16 @@ const resetSuccessMsg = ref('')
 const showResetModal = ref(false)
 const newPasswordInput = ref('')
 const toastMsg = ref('')
+
+// Inactivity Auto Logout (30 Menit)
+const showIdleWarningModal = ref(false)
+const idleSecondsLeft = ref(60)
+let idleTracker = null
+let stopCrossTabListen = null
+
+// Rate Limit Cooldown
+const loginCooldown = ref(0)
+let cooldownTimer = null
 
 // Settings
 const settings = ref({
@@ -555,8 +605,74 @@ onMounted(async () => {
     isLoggedIn.value = true
     userEmail.value = session.user.email
     await initDashboard()
+    startIdleTracker()
   }
+
+  // Cross-tab logout listener
+  stopCrossTabListen = listenCrossTabLogout((msg) => {
+    if (msg.type === 'LOGOUT') {
+      isLoggedIn.value = false
+      stopIdleTracker()
+      showToast('Sesi telah keluar dari tab lain.')
+    }
+  })
+
+  updateLoginCooldown()
 })
+
+onUnmounted(() => {
+  stopIdleTracker()
+  if (stopCrossTabListen) stopCrossTabListen()
+  if (cooldownTimer) clearInterval(cooldownTimer)
+})
+
+function startIdleTracker() {
+  stopIdleTracker()
+  idleTracker = createIdleTimer({
+    timeoutMs: 30 * 60 * 1000, // 30 Menit
+    warningMs: 60 * 1000,      // 60 Detik
+    onWarning: (sec) => {
+      idleSecondsLeft.value = sec
+      showIdleWarningModal.value = true
+    },
+    onTimeout: async () => {
+      showIdleWarningModal.value = false
+      await handleLogout()
+      showToast('Sesi telah keluar otomatis karena tidak ada aktivitas selama 30 menit.')
+    },
+    onResume: () => {
+      showIdleWarningModal.value = false
+    }
+  })
+  idleTracker.start()
+}
+
+function resumeIdleSession() {
+  if (idleTracker) idleTracker.reset()
+  showIdleWarningModal.value = false
+}
+
+function stopIdleTracker() {
+  if (idleTracker) {
+    idleTracker.stop()
+    idleTracker = null
+  }
+  showIdleWarningModal.value = false
+}
+
+function updateLoginCooldown() {
+  const rl = checkLoginRateLimit('marshal_dashboard')
+  loginCooldown.value = rl.remainingCooldown
+  if (loginCooldown.value > 0 && !cooldownTimer) {
+    cooldownTimer = setInterval(() => {
+      loginCooldown.value--
+      if (loginCooldown.value <= 0) {
+        clearInterval(cooldownTimer)
+        cooldownTimer = null
+      }
+    }, 1000)
+  }
+}
 
 async function initDashboard() {
   settings.value = await getAppSettings()
@@ -573,8 +689,14 @@ function showToast(msg) {
 
 // Login
 async function handleLogin() {
-  isLoading.value = true
   authError.value = ''
+  updateLoginCooldown()
+  if (loginCooldown.value > 0) {
+    authError.value = `Terlalu banyak percobaan gagal. Silakan tunggu ${loginCooldown.value} detik.`
+    return
+  }
+
+  isLoading.value = true
   resetSuccessMsg.value = ''
 
   try {
@@ -583,11 +705,17 @@ async function handleLogin() {
       password: loginPassword.value.trim()
     })
 
-    if (error) throw error
+    if (error) {
+      recordFailedLogin('marshal_dashboard')
+      updateLoginCooldown()
+      throw error
+    }
 
+    resetLoginAttempts('marshal_dashboard')
     isLoggedIn.value = true
     userEmail.value = data.user.email
     await initDashboard()
+    startIdleTracker()
   } catch (err) {
     authError.value = 'Gagal masuk: Email atau kata sandi salah. Silakan periksa kembali.'
   } finally {
@@ -623,6 +751,8 @@ async function handleForgotPassword() {
 }
 
 async function handleLogout() {
+  stopIdleTracker()
+  broadcastSessionLogout('marshal')
   await supabase.auth.signOut()
   isLoggedIn.value = false
   loginEmail.value = ''

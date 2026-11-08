@@ -266,7 +266,7 @@ export async function submitHasilUjian({
   }
 }
 
-// 5. Rekapitulasi Hasil Ujian untuk Marshal
+// 5. Rekapitulasi Hasil Ujian untuk Marshal & Rekap Siswa
 export async function getRekapHasilUjian(filter = {}) {
   try {
     let query = supabase
@@ -285,6 +285,65 @@ export async function getRekapHasilUjian(filter = {}) {
   } catch (err) {
     console.error('Error loading rekap hasil:', err)
     return []
+  }
+}
+
+/**
+ * Hapus 1 rekaman hasil ujian siswa berdasarkan ID
+ */
+export async function deleteHasilUjian(id) {
+  try {
+    const { error } = await supabase
+      .from('hasil_ujian')
+      .delete()
+      .eq('id', id)
+    if (error) throw error
+    return true
+  } catch (err) {
+    console.error('Error deleting single hasil ujian:', err)
+    throw err
+  }
+}
+
+/**
+ * Hapus beberapa rekaman hasil ujian siswa (Batch Delete)
+ */
+export async function deleteBatchHasilUjian(ids = []) {
+  if (!ids || ids.length === 0) return true
+  try {
+    const { error } = await supabase
+      .from('hasil_ujian')
+      .delete()
+      .in('id', ids)
+    if (error) throw error
+    return true
+  } catch (err) {
+    console.error('Error batch deleting hasil ujian:', err)
+    throw err
+  }
+}
+
+/**
+ * Hapus seluruh hasil ujian yang cocok dengan filter atau bersihkan semua
+ */
+export async function deleteAllHasilUjian(filter = {}) {
+  try {
+    let query = supabase.from('hasil_ujian').delete()
+
+    if (filter.jenjang) query = query.eq('jenjang', filter.jenjang)
+    if (filter.mapel) query = query.eq('mapel', filter.mapel)
+    if (filter.paket) query = query.eq('paket', filter.paket)
+    if (!filter.jenjang && !filter.mapel && !filter.paket) {
+      // Hapus semua
+      query = query.neq('id', '00000000-0000-0000-0000-000000000000')
+    }
+
+    const { error } = await query
+    if (error) throw error
+    return true
+  } catch (err) {
+    console.error('Error clearing all hasil ujian:', err)
+    throw err
   }
 }
 
