@@ -38,7 +38,8 @@ export async function generateResultPDF({
   // 1. Header & Kop Surat Disdikbud Karanganyar
   // Coba muat logo Karanganyar jika tersedia
   try {
-    const logoImg = await loadImgBase64('/images/logo_karanganyar.png')
+    const base = import.meta.env.BASE_URL || '/'
+    const logoImg = await loadImgBase64(`${base}images/logo_karanganyar.png`)
     if (logoImg) {
       doc.addImage(logoImg, 'PNG', 16, 12, 22, 26)
     }

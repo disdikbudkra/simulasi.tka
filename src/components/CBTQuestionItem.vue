@@ -30,13 +30,13 @@
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
             Informasi / Wacana Soal
           </div>
-          <div class="content-body text-sm sm:text-base" v-html="question.stimulus_html"></div>
+          <div class="content-body text-sm sm:text-base" v-html="formattedStimulus"></div>
         </div>
 
         <!-- Kolom Kanan: Pertanyaan & Opsi Jawaban -->
         <div class="pertanyaan-pane space-y-6">
           <!-- Teks Pertanyaan -->
-          <div class="pertanyaan-text font-medium text-gray-900 text-base leading-relaxed" v-html="question.pertanyaan_html"></div>
+          <div class="pertanyaan-text font-medium text-gray-900 text-base leading-relaxed" v-html="formattedPertanyaan"></div>
 
           <!-- 1. TIPE 1: PILIHAN GANDA TUNGGAL -->
           <div v-if="question.tipe_soal === '1'" class="space-y-3">
@@ -58,7 +58,7 @@
               </div>
               <div class="flex-1 flex items-start gap-2 text-sm sm:text-base text-gray-800">
                 <span class="font-bold text-gray-700 min-w-[20px]">{{ opt.id }}.</span>
-                <div class="flex-1" v-html="opt.text"></div>
+                <div class="flex-1" v-html="formatHtml(opt.text)"></div>
               </div>
             </label>
           </div>
@@ -82,7 +82,7 @@
               </div>
               <div class="flex-1 flex items-start gap-2 text-sm sm:text-base text-gray-800">
                 <span class="font-bold text-gray-700 min-w-[20px]">{{ opt.id }}.</span>
-                <div class="flex-1" v-html="opt.text"></div>
+                <div class="flex-1" v-html="formatHtml(opt.text)"></div>
               </div>
             </label>
           </div>
@@ -182,6 +182,15 @@ const props = defineProps({
 })
 
 const emit = defineEmits(['update:modelValue'])
+
+function formatHtml(html) {
+  if (!html) return ''
+  const base = import.meta.env.BASE_URL
+  return String(html).replaceAll('src="/images/', `src="${base}images/`)
+}
+
+const formattedStimulus = computed(() => formatHtml(props.question.stimulus_html))
+const formattedPertanyaan = computed(() => formatHtml(props.question.pertanyaan_html))
 
 const typeLabel = computed(() => {
   switch (props.question.tipe_soal) {

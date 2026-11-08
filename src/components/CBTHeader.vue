@@ -4,7 +4,7 @@
       <!-- Logo & Dinas Identity -->
       <div class="flex items-center space-x-3.5">
         <img 
-          src="/images/logo_karanganyar.png" 
+          :src="baseUrl + 'images/logo_karanganyar.png'" 
           alt="Logo Kabupaten Karanganyar" 
           class="h-12 w-auto drop-shadow object-contain"
         />
@@ -60,6 +60,10 @@
     </div>
   </header>
 </template>
+
+<script setup>
+const baseUrl = import.meta.env.BASE_URL
+</script>
 
 <style scoped>
 .pusmendik-header {
