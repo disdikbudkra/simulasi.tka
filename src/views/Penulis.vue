@@ -379,7 +379,7 @@
                   <span class="text-[10px] font-bold text-blue-900 mr-1 uppercase">Rumus Visual:</span>
                   <button 
                     type="button" 
-                    @click="openFormulaModal('fraction')" 
+                    @click="openFormulaModal('fraction', 'pertanyaan_html')" 
                     class="px-2.5 py-1 bg-white hover:bg-blue-100 text-blue-900 border border-blue-300 rounded font-bold text-xs shadow-xs flex items-center gap-1"
                   >
                     <span class="font-serif">½ / 2½</span>
@@ -387,7 +387,7 @@
                   </button>
                   <button 
                     type="button" 
-                    @click="openFormulaModal('power')" 
+                    @click="openFormulaModal('power', 'pertanyaan_html')" 
                     class="px-2.5 py-1 bg-white hover:bg-blue-100 text-blue-900 border border-blue-300 rounded font-bold text-xs shadow-xs flex items-center gap-1"
                   >
                     <span class="font-serif">xⁿ</span>
@@ -395,7 +395,7 @@
                   </button>
                   <button 
                     type="button" 
-                    @click="openFormulaModal('subscript')" 
+                    @click="openFormulaModal('subscript', 'pertanyaan_html')" 
                     class="px-2.5 py-1 bg-white hover:bg-blue-100 text-blue-900 border border-blue-300 rounded font-bold text-xs shadow-xs flex items-center gap-1"
                   >
                     <span class="font-serif">xₙ</span>
@@ -403,7 +403,7 @@
                   </button>
                   <button 
                     type="button" 
-                    @click="openFormulaModal('sqrt')" 
+                    @click="openFormulaModal('sqrt', 'pertanyaan_html')" 
                     class="px-2.5 py-1 bg-white hover:bg-blue-100 text-blue-900 border border-blue-300 rounded font-bold text-xs shadow-xs flex items-center gap-1"
                   >
                     <span class="font-serif">√x / ∛x</span>
@@ -411,7 +411,7 @@
                   </button>
                   <button 
                     type="button" 
-                    @click="openFormulaModal('spldv')" 
+                    @click="openFormulaModal('spldv', 'pertanyaan_html')" 
                     class="px-2.5 py-1 bg-white hover:bg-blue-100 text-blue-900 border border-blue-300 rounded font-bold text-xs shadow-xs flex items-center gap-1"
                   >
                     <span class="font-mono">{</span>
@@ -770,22 +770,12 @@
         <div class="flex items-center justify-between pb-3 border-b">
           <div class="flex items-center gap-2">
             <span class="w-3 h-3 rounded-full bg-blue-600"></span>
-            <h3 class="text-sm font-bold text-gray-800">{{ formulaModalTitle }}</h3>
+            <div>
+              <h3 class="text-sm font-bold text-gray-800">{{ formulaModalTitle }}</h3>
+              <span class="text-[10px] text-blue-600 font-semibold block">Disisipkan langsung ke: {{ getTargetFieldLabel(activeTargetField) }}</span>
+            </div>
           </div>
           <button @click="activeFormulaModal = null" class="text-gray-400 hover:text-gray-600 p-1">✕</button>
-        </div>
-
-        <!-- Target Selector -->
-        <div class="flex items-center justify-between bg-blue-50/50 p-2.5 rounded-lg border border-blue-200 text-xs">
-          <span class="font-bold text-gray-700">Target Penyisipan:</span>
-          <select v-model="activeTargetField" class="font-bold text-blue-900 border border-blue-300 rounded px-2 py-1 bg-white">
-            <option value="pertanyaan_html">Pokok Pertanyaan</option>
-            <option value="stimulus_html">Stimulus / Wacana</option>
-            <option value="opt_A">Pilihan Opsi A</option>
-            <option value="opt_B">Pilihan Opsi B</option>
-            <option value="opt_C">Pilihan Opsi C</option>
-            <option value="opt_D">Pilihan Opsi D</option>
-          </select>
         </div>
 
         <!-- Formula Type Switcher Tab -->
@@ -1566,6 +1556,13 @@ function applyTextFormat(targetFieldName, tag) {
       el.setSelectionRange(start + replacement.length, start + replacement.length)
     }, 50)
   }
+}
+
+function getTargetFieldLabel(target) {
+  if (target === 'pertanyaan_html') return 'Pokok Pertanyaan'
+  if (target === 'stimulus_html') return 'Stimulus / Wacana'
+  if (target && target.startsWith('opt_')) return 'Pilihan Opsi ' + target.replace('opt_', '')
+  return 'Soal'
 }
 
 // Alat Bantu Rumus Matematika Popover
