@@ -1,10 +1,10 @@
 <template>
-  <div class="min-h-screen bg-gray-100 flex flex-col font-sans">
+  <div class="h-screen bg-gray-100 flex flex-col overflow-hidden font-sans">
     
     <!-- ======================================================== -->
     <!-- 1. HEADER REKAP SISWA DENGAN TAB NAVIGASI MARSHAL        -->
     <!-- ======================================================== -->
-    <header class="bg-gradient-to-r from-[#1e3a5f] to-[#326698] text-white shadow-md relative z-20">
+    <header class="bg-gradient-to-r from-[#1e3a5f] to-[#326698] text-white shadow-md flex-shrink-0 z-30">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex flex-wrap items-center justify-between gap-4">
         
         <!-- Identitas Dinas Karanganyar -->
@@ -75,8 +75,8 @@
     <!-- ======================================================== -->
     <!-- 2. FORM LOGIN (JIKA BELUM LOGGED IN SEBAGAI ADMIN)       -->
     <!-- ======================================================== -->
-    <main v-if="!isLoggedIn" class="flex-1 flex items-center justify-center p-4">
-      <div class="max-w-md w-full bg-white rounded-2xl shadow-xl border border-gray-200 p-8 space-y-6">
+    <main v-if="!isLoggedIn" class="flex-1 overflow-y-auto flex items-center justify-center p-4">
+      <div class="max-w-md w-full bg-white rounded-2xl shadow-xl border border-gray-200 p-8 space-y-6 my-auto">
         <div class="text-center space-y-2">
           <div class="w-14 h-14 mx-auto rounded-2xl bg-blue-50 text-blue-700 flex items-center justify-center font-bold text-2xl shadow-inner">
             <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
@@ -134,9 +134,10 @@
     </main>
 
     <!-- ======================================================== -->
-    <!-- 3. DASHBOARD REKAP SISWA (LOGGED IN)                     -->
+    <!-- 3. DASHBOARD REKAP SISWA (LOGGED IN) - SCROLLABLE        -->
     <!-- ======================================================== -->
-    <main v-else class="flex-1 max-w-7xl mx-auto w-full p-4 sm:p-6 space-y-6">
+    <main v-else class="flex-1 overflow-y-auto w-full p-4 sm:p-6">
+      <div class="max-w-7xl mx-auto space-y-6">
 
       <!-- A. KARTU STATISTIK RINGKAS SIMULASI (DIAGNOSTIK EDUKATIF) -->
       <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
@@ -500,6 +501,7 @@
 
       </div>
 
+      </div>
     </main>
 
     <!-- ======================================================== -->
@@ -508,7 +510,7 @@
     <transition enter-active-class="transform transition ease-out duration-300" enter-from-class="translate-y-full opacity-0" enter-to-class="translate-y-0 opacity-100" leave-active-class="transform transition ease-in duration-200" leave-from-class="translate-y-0 opacity-100" leave-to-class="translate-y-full opacity-0">
       <div 
         v-if="effectiveSelectedCount > 0" 
-        class="fixed bottom-6 inset-x-0 mx-auto max-w-xl bg-gray-900 text-white rounded-2xl shadow-2xl p-4 flex items-center justify-between z-40 border border-gray-700"
+        class="fixed bottom-14 inset-x-0 mx-auto max-w-xl bg-gray-900 text-white rounded-2xl shadow-2xl p-4 flex items-center justify-between z-40 border border-gray-700"
       >
         <div class="flex items-center gap-3">
           <div class="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold text-xs">

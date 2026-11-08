@@ -1,11 +1,11 @@
 <template>
-  <div class="min-h-screen bg-[#f8fafc] flex flex-col font-sans">
-    <!-- Header CBT Resmi Disdikbud Karanganyar -->
-    <CBTHeader />
+  <div class="h-screen bg-[#f8fafc] flex flex-col overflow-hidden font-sans">
+    <!-- Header CBT Resmi Disdikbud Karanganyar (Fixed di Atas) -->
+    <CBTHeader class="flex-shrink-0 z-30 shadow-xs" />
 
     <!-- 1. LOGIN SCREEN PENULIS SOAL -->
-    <div v-if="!currentPenulis" class="flex-1 flex items-center justify-center p-4 sm:p-6">
-      <div class="max-w-md w-full bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
+    <div v-if="!currentPenulis" class="flex-1 overflow-y-auto flex items-center justify-center p-4 sm:p-6">
+      <div class="max-w-md w-full bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden my-auto">
         <div class="bg-gradient-to-r from-blue-700 to-indigo-800 p-6 text-white text-center">
           <div class="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-2">
             <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
@@ -69,8 +69,9 @@
       </div>
     </div>
 
-    <!-- 2. STUDIO PENULIS SOAL (LOGGED IN) -->
-    <div v-else class="flex-1 max-w-7xl mx-auto w-full p-4 sm:p-6 space-y-6">
+    <!-- 2. STUDIO PENULIS SOAL (LOGGED IN) - SCROLLABLE CONTENT -->
+    <div v-else class="flex-1 overflow-y-auto w-full p-4 sm:p-6">
+      <div class="max-w-7xl mx-auto space-y-6">
       
       <!-- Top Info Profile & Paket Selector -->
       <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-5 flex flex-wrap items-center justify-between gap-4">
@@ -757,7 +758,7 @@
         </div>
 
       </div>
-
+      </div>
     </div>
 
     <!-- ======================================================== -->
@@ -1427,7 +1428,7 @@ async function switchPaket(p) {
   initNewQuestion()
 }
 
-async function loadSoalList() {
+async function loadSoalList(autoLoadFirst = true) {
   if (!currentPenulis.value) return
   await refreshPackageList()
   soalList.value = await getSoalListPenulis(
@@ -1437,16 +1438,23 @@ async function loadSoalList() {
     currentPenulis.value.mapel,
     activePaket.value
   )
-  if (soalList.value.length > 0 && !isEditing.value) {
-    loadQuestionIntoForm(soalList.value[0])
-  } else if (soalList.value.length === 0) {
-    initNewQuestion()
+  if (autoLoadFirst) {
+    if (soalList.value.length > 0 && !isEditing.value) {
+      loadQuestionIntoForm(soalList.value[0])
+    } else if (soalList.value.length === 0) {
+      initNewQuestion()
+    }
   }
 }
 
-function initNewQuestion() {
+function initNewQuestion(customNomor = null) {
   isEditing.value = false
-  formSoal.nomor_soal = (soalList.value.length || 0) + 1
+  if (customNomor !== null && customNomor !== undefined) {
+    formSoal.nomor_soal = Number(customNomor)
+  } else {
+    const highestNomor = soalList.value.reduce((max, q) => Math.max(max, Number(q.nomor_soal) || 0), 0)
+    formSoal.nomor_soal = highestNomor + 1
+  }
   formSoal.tipe_soal = '1'
   formSoal.stimulus_html = ''
   formSoal.stimulus_image = ''
@@ -1692,8 +1700,30 @@ async function saveQuestion() {
       currentPenulis.value.password || '',
       payload
     )
-    showToast(`Soal Nomor ${formSoal.nomor_soal} berhasil disimpan!`)
-    await loadSoalList()
+    const savedNomor = Number(formSoal.nomor_soal)
+    
+    // Muat ulang daftar soal tanpa memaksa kembali ke soal pertama
+    await loadSoalList(false)
+
+    // Beralih otomatis ke nomor berikutnya sesuai arahan Mas Bos:
+    // Soal no 1 tersimpan -> form di-reset bersih ke No 2.
+    // Jika No 2 belum disimpan oleh penulis, maka tidak masuk ke database.
+    const nextNomor = savedNomor + 1
+    const existingNext = soalList.value.find(q => Number(q.nomor_soal) === nextNomor)
+    
+    if (existingNext) {
+      loadQuestionIntoForm(existingNext)
+      showToast(`Soal Nomor ${savedNomor} berhasil disimpan! Beralih ke Soal Nomor ${nextNomor}.`)
+    } else {
+      initNewQuestion(nextNomor)
+      showToast(`Soal Nomor ${savedNomor} berhasil disimpan! Form di-reset untuk Soal Nomor ${nextNomor}.`)
+    }
+
+    // Scroll konten kembali ke atas agar penulis nyaman mengetik soal berikutnya
+    const scrollContainer = document.querySelector('.overflow-y-auto')
+    if (scrollContainer) {
+      scrollContainer.scrollTo({ top: 0, behavior: 'smooth' })
+    }
   } catch (err) {
     showToast('Gagal menyimpan butir soal: ' + (err.message || 'Error'))
   }

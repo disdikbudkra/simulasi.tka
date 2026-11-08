@@ -1,11 +1,11 @@
 <template>
-  <div class="min-h-screen bg-[#f1f5f9] flex flex-col font-sans">
-    <!-- Header CBT Resmi Disdikbud Karanganyar -->
-    <CBTHeader />
+  <div class="h-screen bg-[#f1f5f9] flex flex-col overflow-hidden font-sans">
+    <!-- Header CBT Resmi Disdikbud Karanganyar (Fixed di Atas) -->
+    <CBTHeader class="flex-shrink-0 z-30 shadow-xs" />
 
     <!-- 1. LOGIN SCREEN MARSHAL -->
-    <div v-if="!isLoggedIn" class="flex-1 flex items-center justify-center p-4 sm:p-6">
-      <div class="max-w-md w-full bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
+    <div v-if="!isLoggedIn" class="flex-1 overflow-y-auto flex items-center justify-center p-4 sm:p-6">
+      <div class="max-w-md w-full bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden my-auto">
         <div class="bg-gradient-to-r from-amber-600 to-amber-700 p-6 text-white text-center">
           <div class="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-2">
             <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
@@ -79,8 +79,9 @@
       </div>
     </div>
 
-    <!-- 2. DASHBOARD MARSHAL (LOGGED IN) -->
-    <div v-else class="flex-1 max-w-7xl mx-auto w-full p-4 sm:p-6 space-y-6">
+    <!-- 2. DASHBOARD MARSHAL (LOGGED IN) - SCROLLABLE CONTENT -->
+    <div v-else class="flex-1 overflow-y-auto w-full p-4 sm:p-6">
+      <div class="max-w-7xl mx-auto space-y-6">
       
       <!-- Top Bar Profile, Navigasi Tab & Logout -->
       <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-5 flex flex-wrap items-center justify-between gap-4">
@@ -380,6 +381,7 @@
         </div>
       </div>
 
+      </div>
     </div>
 
     <!-- CUSTOM MODAL: TAMBAH PENULIS -->
