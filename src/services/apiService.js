@@ -114,6 +114,27 @@ export async function lookupNpsn(npsn) {
 }
 
 // 3. Bank Soal Loader
+export async function getAvailablePackages(jenjang, mapel) {
+  try {
+    const { data, error } = await supabase
+      .from('soal_bank')
+      .select('paket')
+      .eq('jenjang', jenjang)
+      .eq('mapel', mapel)
+
+    if (error) throw error
+    if (!data || data.length === 0) return []
+
+    // Ambil daftar nama paket unik yang terdaftar di database
+    const unique = [...new Set(data.map(d => d.paket).filter(Boolean))]
+    unique.sort()
+    return unique
+  } catch (err) {
+    console.warn('Gagal memuat daftar paket:', err)
+    return []
+  }
+}
+
 export async function getSoalList(jenjang, mapel, paket) {
   try {
     const { data, error } = await supabase

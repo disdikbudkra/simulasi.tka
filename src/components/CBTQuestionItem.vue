@@ -258,6 +258,7 @@
 
 <script setup>
 import { computed } from 'vue'
+import { convertLatexToMarkup } from 'mathlive'
 
 const props = defineProps({
   question: {
@@ -299,10 +300,56 @@ const cbtFontStyles = computed(() => {
   }
 })
 
+function renderMathLatex(content) {
+  if (!content) return ''
+  let text = String(content)
+
+  // 1. Convert <span class="math-inline">LATEX</span> to rendered math markup
+  text = text.replace(/<span class="math-inline">([\s\S]*?)<\/span>/g, (match, latex) => {
+    try {
+      const clean = latex
+        .replace(/&amp;/g, '&')
+        .replace(/&lt;/g, '<')
+        .replace(/&gt;/g, '>')
+        .replace(/&quot;/g, '"')
+        .trim()
+      return convertLatexToMarkup(clean)
+    } catch (e) {
+      return match
+    }
+  })
+
+  // 2. Convert $...$ to rendered math markup
+  text = text.replace(/\$([^$]+)\$/g, (match, latex) => {
+    try {
+      return convertLatexToMarkup(latex.trim())
+    } catch (e) {
+      return match
+    }
+  })
+
+  // 3. Convert \(...\) to rendered math markup
+  text = text.replace(/\\\(([\s\S]*?)\\\)/g, (match, latex) => {
+    try {
+      return convertLatexToMarkup(latex.trim())
+    } catch (e) {
+      return match
+    }
+  })
+
+  return text
+}
+
 function formatHtml(html) {
   if (!html) return ''
   const base = import.meta.env.BASE_URL || '/'
-  return String(html).replaceAll('src="/images/', `src="${base}images/`)
+  let formatted = String(html).replaceAll('src="/images/', `src="${base}images/`)
+  
+  if (!/<(p|div|ul|ol|li|table|blockquote)[^>]*>/i.test(formatted) && formatted.includes('\n')) {
+    formatted = formatted.replace(/\n/g, '<br/>')
+  }
+
+  return renderMathLatex(formatted)
 }
 
 const formattedStimulus = computed(() => formatHtml(props.question.stimulus_html))

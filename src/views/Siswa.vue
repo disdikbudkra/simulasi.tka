@@ -10,10 +10,9 @@
           <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
         </div>
         <h2 class="text-xl font-bold text-gray-800 mb-2">Simulasi Sedang Ditutup</h2>
-        <p class="text-sm text-gray-600 mb-6 leading-relaxed">
+        <p class="text-sm text-gray-600 mb-2 leading-relaxed">
           Saat ini portal simulasi TKA sedang dinonaktifkan sementara oleh Proktor Dinas Pendidikan dan Kebudayaan Kabupaten Karanganyar untuk pemeliharaan sistem.
         </p>
-        <router-link to="/marshal" class="text-xs text-blue-600 hover:underline">Masuk sebagai Marshal</router-link>
       </div>
     </div>
 
@@ -31,39 +30,49 @@
           </div>
 
           <div class="p-6 sm:p-8 space-y-6">
-            <!-- Jenjang -->
+            <!-- Jenjang Pendidikan Dinamis Sesuai Kontrol Marshal -->
             <div>
               <label class="block text-sm font-semibold text-gray-700 mb-2">Jenjang Pendidikan</label>
-              <div class="grid grid-cols-2 gap-4">
+              
+              <!-- Kondisi 1: Keduanya Aktif (2 Kolom) -->
+              <div v-if="settings.sd_active && settings.smp_active" class="grid grid-cols-2 gap-4">
                 <button
                   type="button"
-                  :disabled="!settings.sd_active"
                   @click="selectedJenjang = 'SD'"
                   class="p-4 rounded-xl border-2 text-center transition-all flex flex-col items-center gap-1.5"
-                  :class="[
-                    selectedJenjang === 'SD' ? 'border-blue-600 bg-blue-50/70 text-blue-800 font-bold shadow-sm' : 'border-gray-200 text-gray-600 hover:border-blue-300',
-                    !settings.sd_active ? 'opacity-40 cursor-not-allowed bg-gray-100' : ''
-                  ]"
+                  :class="selectedJenjang === 'SD' ? 'border-blue-600 bg-blue-50/70 text-blue-800 font-bold shadow-sm' : 'border-gray-200 text-gray-600 hover:border-blue-300'"
                 >
                   <span class="text-2xl">🎒</span>
                   <span class="text-base font-bold">Jenjang SD</span>
-                  <span v-if="!settings.sd_active" class="text-[10px] text-red-500 font-normal">(Nonaktif)</span>
                 </button>
 
                 <button
                   type="button"
-                  :disabled="!settings.smp_active"
                   @click="selectedJenjang = 'SMP'"
                   class="p-4 rounded-xl border-2 text-center transition-all flex flex-col items-center gap-1.5"
-                  :class="[
-                    selectedJenjang === 'SMP' ? 'border-blue-600 bg-blue-50/70 text-blue-800 font-bold shadow-sm' : 'border-gray-200 text-gray-600 hover:border-blue-300',
-                    !settings.smp_active ? 'opacity-40 cursor-not-allowed bg-gray-100' : ''
-                  ]"
+                  :class="selectedJenjang === 'SMP' ? 'border-blue-600 bg-blue-50/70 text-blue-800 font-bold shadow-sm' : 'border-gray-200 text-gray-600 hover:border-blue-300'"
                 >
                   <span class="text-2xl">🏫</span>
                   <span class="text-base font-bold">Jenjang SMP</span>
-                  <span v-if="!settings.smp_active" class="text-[10px] text-red-500 font-normal">(Nonaktif)</span>
                 </button>
+              </div>
+
+              <!-- Kondisi 2: Hanya SD yang Aktif (Tampil 1 di Tengah) -->
+              <div v-else-if="settings.sd_active && !settings.smp_active" class="max-w-xs mx-auto">
+                <div class="p-4 rounded-xl border-2 border-blue-600 bg-blue-50/70 text-blue-800 font-bold shadow-sm text-center flex flex-col items-center gap-1.5">
+                  <span class="text-3xl">🎒</span>
+                  <span class="text-base font-bold">Jenjang SD</span>
+                  <span class="text-[11px] text-blue-600 font-medium">Aktif untuk Simulasi</span>
+                </div>
+              </div>
+
+              <!-- Kondisi 3: Hanya SMP yang Aktif (Tampil 1 di Tengah) -->
+              <div v-else-if="!settings.sd_active && settings.smp_active" class="max-w-xs mx-auto">
+                <div class="p-4 rounded-xl border-2 border-blue-600 bg-blue-50/70 text-blue-800 font-bold shadow-sm text-center flex flex-col items-center gap-1.5">
+                  <span class="text-3xl">🏫</span>
+                  <span class="text-base font-bold">Jenjang SMP</span>
+                  <span class="text-[11px] text-blue-600 font-medium">Aktif untuk Simulasi</span>
+                </div>
               </div>
             </div>
 
@@ -76,32 +85,44 @@
               </select>
             </div>
 
-            <!-- Pilihan Paket -->
+            <!-- Pilihan Paket Dinamis Sesuai Isi Studio / Database -->
             <div>
               <label class="block text-sm font-semibold text-gray-700 mb-2">Pilihan Paket Ujian</label>
-              <div class="grid grid-cols-2 gap-4">
+              
+              <div v-if="isLoadingPackages" class="p-4 text-center text-xs text-gray-500 bg-gray-50 rounded-lg border">
+                Memeriksa ketersediaan paket soal...
+              </div>
+
+              <div v-else-if="availablePackages.length === 0" class="p-4 bg-amber-50 border border-amber-200 rounded-xl text-center space-y-1">
+                <div class="text-amber-800 font-bold text-xs flex items-center justify-center gap-1.5">
+                  <svg class="w-4 h-4 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                  <span>Paket Soal Belum Siap / Belum Tersedia</span>
+                </div>
+                <p class="text-[11px] text-amber-700">
+                  Belum ada paket soal yang didaftarkan untuk {{ selectedJenjang }} {{ selectedMapel }}.
+                </p>
+              </div>
+
+              <div v-else class="grid gap-3" :class="availablePackages.length === 1 ? 'grid-cols-1' : 'grid-cols-2'">
                 <label 
+                  v-for="p in availablePackages" 
+                  :key="p"
                   class="p-3.5 rounded-lg border cursor-pointer flex items-center gap-3 transition-all"
-                  :class="selectedPaket === 'Paket 1' ? 'border-blue-600 bg-blue-50 font-bold text-blue-900' : 'border-gray-200 text-gray-700'"
+                  :class="selectedPaket === p ? 'border-blue-600 bg-blue-50 font-bold text-blue-900 shadow-xs' : 'border-gray-200 text-gray-700 hover:bg-gray-50'"
                 >
-                  <input type="radio" v-model="selectedPaket" value="Paket 1" class="text-blue-600" />
-                  <span>Paket 1 (Utama)</span>
-                </label>
-                <label 
-                  class="p-3.5 rounded-lg border cursor-pointer flex items-center gap-3 transition-all"
-                  :class="selectedPaket === 'Paket 2' ? 'border-blue-600 bg-blue-50 font-bold text-blue-900' : 'border-gray-200 text-gray-700'"
-                >
-                  <input type="radio" v-model="selectedPaket" value="Paket 2" class="text-blue-600" />
-                  <span>Paket 2 (Latihan)</span>
+                  <input type="radio" v-model="selectedPaket" :value="p" class="text-blue-600 focus:ring-blue-500" />
+                  <span>{{ p }}</span>
                 </label>
               </div>
             </div>
 
             <button
               @click="goToStep(1)"
+              :disabled="availablePackages.length === 0 || !selectedPaket"
               class="w-full py-3.5 px-6 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-bold rounded-xl shadow-md transition-all flex items-center justify-center gap-2"
+              :class="availablePackages.length === 0 || !selectedPaket ? 'opacity-50 cursor-not-allowed' : ''"
             >
-              <span>Lanjut ke Halaman Login</span>
+              <span>{{ availablePackages.length === 0 ? 'Paket Soal Belum Siap' : 'Lanjut ke Halaman Login' }}</span>
               <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
             </button>
           </div>
@@ -712,10 +733,10 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted, onUnmounted } from 'vue'
+import { ref, reactive, computed, watch, onMounted, onUnmounted } from 'vue'
 import CBTHeader from '../components/CBTHeader.vue'
 import CBTQuestionItem from '../components/CBTQuestionItem.vue'
-import { getAppSettings, lookupNpsn, getSoalList, submitHasilUjian } from '../services/apiService.js'
+import { getAppSettings, lookupNpsn, getAvailablePackages, getSoalList, submitHasilUjian } from '../services/apiService.js'
 import { generateResultPDF } from '../services/pdfService.js'
 
 // State Global & Settings
@@ -730,7 +751,32 @@ const settings = ref({
 const currentStep = ref(0) // 0: Pilih, 1: Login, 2: Data, 3: Konfirmasi, 4: Ujian, 6: Hasil
 const selectedJenjang = ref('SMP')
 const selectedMapel = ref('Matematika')
-const selectedPaket = ref('Paket 1')
+const selectedPaket = ref('')
+const availablePackages = ref([])
+const isLoadingPackages = ref(false)
+
+async function refreshAvailablePackages() {
+  isLoadingPackages.value = true
+  try {
+    availablePackages.value = await getAvailablePackages(selectedJenjang.value, selectedMapel.value)
+    if (availablePackages.value.length > 0) {
+      if (!availablePackages.value.includes(selectedPaket.value)) {
+        selectedPaket.value = availablePackages.value[0]
+      }
+    } else {
+      selectedPaket.value = ''
+    }
+  } catch (err) {
+    availablePackages.value = []
+    selectedPaket.value = ''
+  } finally {
+    isLoadingPackages.value = false
+  }
+}
+
+watch([selectedJenjang, selectedMapel], () => {
+  refreshAvailablePackages()
+})
 
 // Step 1: Login
 const dummyUsername = ref('dladnc')
@@ -790,9 +836,14 @@ const studentHeaderIdentity = computed(() => {
 onMounted(async () => {
   settings.value = await getAppSettings()
   
-  if (!settings.value.smp_active && settings.value.sd_active) {
+  // Penyesuaian jenjang dinamis berdasarkan kontrol Proktor Marshal
+  if (settings.value.sd_active && !settings.value.smp_active) {
     selectedJenjang.value = 'SD'
+  } else if (!settings.value.sd_active && settings.value.smp_active) {
+    selectedJenjang.value = 'SMP'
   }
+
+  await refreshAvailablePackages()
 })
 
 onUnmounted(() => {

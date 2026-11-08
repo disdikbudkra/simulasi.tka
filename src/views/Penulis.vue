@@ -85,19 +85,40 @@
         </div>
 
         <div class="flex items-center gap-3">
-          <!-- Pilih Paket -->
+          <!-- Pilih Paket Dinamis -->
           <div class="flex items-center gap-1.5 bg-gray-100 p-1 rounded-lg border border-gray-200">
             <span class="text-xs font-bold text-gray-500 px-2">Paket:</span>
+            
+            <!-- Jika Belum Ada Paket yang Terdaftar di DB -->
             <button 
-              @click="switchPaket('Paket 1')" 
-              class="px-3 py-1 text-xs font-bold rounded transition-colors"
-              :class="activePaket === 'Paket 1' ? 'bg-white shadow text-blue-700' : 'text-gray-600 hover:bg-white/60'"
-            >Paket 1</button>
+              v-if="packageList.length === 0"
+              @click="switchPaket(activePaket)" 
+              class="px-3 py-1 text-xs font-bold rounded bg-white shadow text-blue-700"
+            >
+              {{ activePaket }} (Baru)
+            </button>
+
+            <!-- Daftar Paket yang Sudah Terdaftar -->
             <button 
-              @click="switchPaket('Paket 2')" 
+              v-for="p in packageList"
+              :key="p"
+              @click="switchPaket(p)" 
               class="px-3 py-1 text-xs font-bold rounded transition-colors"
-              :class="activePaket === 'Paket 2' ? 'bg-white shadow text-blue-700' : 'text-gray-600 hover:bg-white/60'"
-            >Paket 2</button>
+              :class="activePaket === p ? 'bg-white shadow text-blue-700' : 'text-gray-600 hover:bg-white/60'"
+            >
+              {{ p }}
+            </button>
+
+            <!-- Tombol Tambah Paket Baru -->
+            <button
+              type="button"
+              @click="openAddPackageModal"
+              class="px-2.5 py-1 text-xs font-bold rounded bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200 transition-colors flex items-center gap-1 ml-1"
+              title="Tambah Paket Baru"
+            >
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+              <span>+ Paket Baru</span>
+            </button>
           </div>
 
           <button 
@@ -264,13 +285,26 @@
                 <span class="text-[11px] text-gray-400">Kosongkan jika soal mandiri tanpa bacaan</span>
               </div>
 
+              <!-- Toolbar Format Teks Literasi Stimulus -->
+              <div class="flex items-center gap-1.5 flex-wrap bg-white p-2 rounded-lg border border-gray-200">
+                <span class="text-[10px] font-bold text-gray-500 mr-1 uppercase">Format:</span>
+                <button type="button" @click="applyTextFormat('stimulus_html', 'b')" class="px-2 py-0.5 bg-gray-50 hover:bg-gray-100 border border-gray-300 rounded font-bold text-xs" title="Tebal (Bold)"><strong>B</strong></button>
+                <button type="button" @click="applyTextFormat('stimulus_html', 'i')" class="px-2 py-0.5 bg-gray-50 hover:bg-gray-100 border border-gray-300 rounded font-serif italic text-xs" title="Miring (Italic)"><em>I</em></button>
+                <button type="button" @click="applyTextFormat('stimulus_html', 'u')" class="px-2 py-0.5 bg-gray-50 hover:bg-gray-100 border border-gray-300 rounded underline text-xs" title="Garis Bawah (Underline)"><u>U</u></button>
+                <button type="button" @click="applyTextFormat('stimulus_html', 'quote')" class="px-2 py-0.5 bg-gray-50 hover:bg-gray-100 border border-gray-300 rounded text-xs font-semibold" title="Kutipan Percakapan / Dialog">“ ”</button>
+                <button type="button" @click="applyTextFormat('stimulus_html', 'br')" class="px-2 py-0.5 bg-gray-50 hover:bg-gray-100 border border-gray-300 rounded text-xs font-semibold" title="Ganti Baris / Bait Puisi">⏎ Baris Baru</button>
+                <button type="button" @click="applyTextFormat('stimulus_html', 'title')" class="px-2 py-0.5 bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 rounded text-xs font-bold" title="Format Judul Cerita / Wacana">+ Judul Cerita</button>
+              </div>
+
               <!-- Input Teks Stimulus -->
               <div>
                 <textarea 
+                  ref="stimulusTextareaRef"
                   v-model="formSoal.stimulus_html" 
-                  rows="3" 
+                  rows="4" 
                   class="w-full border border-gray-300 rounded-lg p-2.5 text-xs text-gray-800 focus:ring-blue-500 focus:border-blue-500 bg-white leading-relaxed" 
                   placeholder="Ketikkan judul bacaan dan paragraf cerita/stimulus di sini..."
+                  @focus="activeTargetField = 'stimulus_html'"
                 ></textarea>
               </div>
 
@@ -282,7 +316,7 @@
                     <span>+ Unggah Gambar Stimulus / Grafik</span>
                     <input type="file" accept="image/*" class="hidden" @change="e => handleImageUpload(e, 'stimulus')" />
                   </label>
-                  <span class="text-[11px] text-gray-400">Atau tekan Ctrl+V saat kursor aktif</span>
+                  <span class="text-[11px] text-gray-400">Format JPG / PNG / WebP</span>
                 </div>
 
                 <!-- Pratinjau Gambar Stimulus -->
@@ -308,52 +342,91 @@
                 <label class="block text-xs font-bold text-gray-700 uppercase">
                   Bagian 2: Pokok Pertanyaan
                 </label>
-                <span class="text-[11px] text-blue-600 font-semibold">Tersedia Alat Bantu Rumus Matematika</span>
+                <span class="text-[11px] text-blue-600 font-semibold">Tersedia Alat Bantu Rumus Lengkap</span>
               </div>
 
-              <!-- VISUAL FORMULA TOOLBAR MATEMATIKA (SIAP PUSMENDIK STYLE) -->
-              <div class="bg-blue-50/70 p-3 rounded-xl border border-blue-200 space-y-2">
-                <div class="text-[11px] font-bold text-blue-900 flex items-center gap-1.5">
-                  <span>Alat Bantu Matematika (1-Klik Tanpa Koding):</span>
+              <!-- VISUAL FORMULA & FORMAT TOOLBAR (SIAP PUSMENDIK STYLE) -->
+              <div class="bg-blue-50/70 p-3 rounded-xl border border-blue-200 space-y-2.5">
+                
+                <!-- Baris 1: Format Teks Literasi & Pemilihan Target -->
+                <div class="flex flex-wrap items-center justify-between gap-2 pb-2 border-b border-blue-200/60">
+                  <div class="flex items-center gap-1 flex-wrap">
+                    <span class="text-[10px] font-bold text-blue-900 mr-1 uppercase">Format Teks:</span>
+                    <button type="button" @click="applyTextFormat('pertanyaan_html', 'b')" class="px-2 py-0.5 bg-white hover:bg-blue-100 text-blue-900 border border-blue-300 rounded font-bold text-xs shadow-xs" title="Tebal (Bold)"><strong>B</strong></button>
+                    <button type="button" @click="applyTextFormat('pertanyaan_html', 'i')" class="px-2 py-0.5 bg-white hover:bg-blue-100 text-blue-900 border border-blue-300 rounded font-serif italic text-xs shadow-xs" title="Miring (Italic)"><em>I</em></button>
+                    <button type="button" @click="applyTextFormat('pertanyaan_html', 'u')" class="px-2 py-0.5 bg-white hover:bg-blue-100 text-blue-900 border border-blue-300 rounded underline text-xs shadow-xs" title="Garis Bawah (Underline)"><u>U</u></button>
+                    <button type="button" @click="applyTextFormat('pertanyaan_html', 'quote')" class="px-2 py-0.5 bg-white hover:bg-blue-100 text-blue-900 border border-blue-300 rounded text-xs font-semibold shadow-xs" title="Tanda Petik">“ ”</button>
+                    <button type="button" @click="applyTextFormat('pertanyaan_html', 'br')" class="px-2 py-0.5 bg-white hover:bg-blue-100 text-blue-900 border border-blue-300 rounded text-xs font-semibold shadow-xs" title="Ganti Baris">⏎ Ganti Baris</button>
+                  </div>
+
+                  <!-- Target Selector -->
+                  <div class="flex items-center gap-1.5">
+                    <label class="text-[11px] font-bold text-gray-600">Target Rumus:</label>
+                    <select v-model="activeTargetField" class="text-xs font-bold border border-blue-300 rounded-md py-0.5 px-2 bg-white text-blue-900">
+                      <option value="pertanyaan_html">Pokok Pertanyaan</option>
+                      <option value="stimulus_html">Stimulus / Wacana</option>
+                      <option value="opt_A">Opsi A</option>
+                      <option value="opt_B">Opsi B</option>
+                      <option value="opt_C">Opsi C</option>
+                      <option value="opt_D">Opsi D</option>
+                    </select>
+                  </div>
                 </div>
 
-                <!-- Baris 1: Tombol Bangun Rumus (Pecahan, Pangkat, Akar) -->
+                <!-- Baris 2: Pembuat Rumus Matematika Visual (Modal Interaktif) -->
                 <div class="flex flex-wrap items-center gap-1.5">
+                  <span class="text-[10px] font-bold text-blue-900 mr-1 uppercase">Rumus Visual:</span>
                   <button 
                     type="button" 
                     @click="openFormulaModal('fraction')" 
-                    class="px-2.5 py-1 bg-white hover:bg-blue-100 text-blue-900 border border-blue-300 rounded font-bold text-xs shadow-sm flex items-center gap-1"
+                    class="px-2.5 py-1 bg-white hover:bg-blue-100 text-blue-900 border border-blue-300 rounded font-bold text-xs shadow-xs flex items-center gap-1"
                   >
-                    <span class="font-serif">½</span>
+                    <span class="font-serif">½ / 2½</span>
                     <span>Pecahan</span>
                   </button>
                   <button 
                     type="button" 
                     @click="openFormulaModal('power')" 
-                    class="px-2.5 py-1 bg-white hover:bg-blue-100 text-blue-900 border border-blue-300 rounded font-bold text-xs shadow-sm flex items-center gap-1"
+                    class="px-2.5 py-1 bg-white hover:bg-blue-100 text-blue-900 border border-blue-300 rounded font-bold text-xs shadow-xs flex items-center gap-1"
                   >
                     <span class="font-serif">xⁿ</span>
                     <span>Pangkat</span>
                   </button>
                   <button 
                     type="button" 
-                    @click="openFormulaModal('sqrt')" 
-                    class="px-2.5 py-1 bg-white hover:bg-blue-100 text-blue-900 border border-blue-300 rounded font-bold text-xs shadow-sm flex items-center gap-1"
+                    @click="openFormulaModal('subscript')" 
+                    class="px-2.5 py-1 bg-white hover:bg-blue-100 text-blue-900 border border-blue-300 rounded font-bold text-xs shadow-xs flex items-center gap-1"
                   >
-                    <span class="font-serif">√x</span>
+                    <span class="font-serif">xₙ</span>
+                    <span>Indeks (Uₙ)</span>
+                  </button>
+                  <button 
+                    type="button" 
+                    @click="openFormulaModal('sqrt')" 
+                    class="px-2.5 py-1 bg-white hover:bg-blue-100 text-blue-900 border border-blue-300 rounded font-bold text-xs shadow-xs flex items-center gap-1"
+                  >
+                    <span class="font-serif">√x / ∛x</span>
                     <span>Akar</span>
+                  </button>
+                  <button 
+                    type="button" 
+                    @click="openFormulaModal('spldv')" 
+                    class="px-2.5 py-1 bg-white hover:bg-blue-100 text-blue-900 border border-blue-300 rounded font-bold text-xs shadow-xs flex items-center gap-1"
+                  >
+                    <span class="font-mono">{</span>
+                    <span>SPLDV</span>
                   </button>
                 </div>
 
-                <!-- Baris 2: Simbol Cepat Matematika & Geometri -->
-                <div class="flex flex-wrap items-center gap-1 pt-1 border-t border-blue-200/60">
-                  <span class="text-[10px] text-blue-700 font-bold mr-1">Simbol:</span>
+                <!-- Baris 3: Simbol Cepat Matematika & Geometri (1-Klik) -->
+                <div class="flex flex-wrap items-center gap-1 pt-1.5 border-t border-blue-200/60">
+                  <span class="text-[10px] text-blue-700 font-bold mr-1">Simbol 1-Klik:</span>
                   <button 
                     v-for="sym in mathSymbols" 
                     :key="sym.char"
                     type="button"
                     @click="insertSymbol(sym.char)"
-                    class="w-7 h-7 bg-white hover:bg-blue-600 hover:text-white text-gray-800 border border-gray-300 rounded font-bold text-xs flex items-center justify-center transition-colors shadow-sm"
+                    class="min-w-[28px] h-7 px-1.5 bg-white hover:bg-blue-600 hover:text-white text-gray-800 border border-gray-300 rounded font-bold text-xs flex items-center justify-center transition-colors shadow-xs"
                     :title="sym.label"
                   >
                     {{ sym.char }}
@@ -370,6 +443,7 @@
                   required 
                   class="w-full border border-gray-300 rounded-lg p-2.5 text-xs text-gray-800 focus:ring-blue-500 focus:border-blue-500 bg-white leading-relaxed" 
                   placeholder="Ketikkan kalimat pertanyaan di sini..."
+                  @focus="activeTargetField = 'pertanyaan_html'"
                 ></textarea>
               </div>
 
@@ -407,22 +481,50 @@
               <div v-if="formSoal.tipe_soal === '1'" class="space-y-3">
                 <div class="flex items-center justify-between">
                   <label class="block text-xs font-bold text-gray-700 uppercase">Pilihan Jawaban (Klik bulatan hijau pada Kunci Jawaban)</label>
-                  <span class="text-xs text-green-700 font-bold">Kunci: Opsi {{ formSoal.kunci_tipe_1 }}</span>
+                  <span class="text-xs text-green-700 font-bold">Kunci Terpilih: Opsi {{ formSoal.kunci_tipe_1 }}</span>
                 </div>
                 
-                <div v-for="opt in formSoal.options_pg" :key="opt.id" class="flex items-center gap-3 bg-gray-50/60 p-2 rounded-lg border border-gray-200">
-                  <span class="w-6 font-bold text-gray-800 text-sm text-center">{{ opt.id }}.</span>
-                  <input 
-                    v-model="opt.text" 
-                    type="text" 
-                    class="flex-1 border border-gray-300 rounded-lg p-2 text-xs bg-white" 
-                    :placeholder="'Teks jawaban opsi ' + opt.id"
-                  />
-                  
-                  <label class="flex items-center gap-1.5 cursor-pointer text-xs font-bold text-green-700 bg-white px-3 py-1.5 rounded-md border border-green-300 hover:bg-green-50 shadow-sm">
-                    <input type="radio" v-model="formSoal.kunci_tipe_1" :value="opt.id" class="text-green-600 focus:ring-green-500 w-4 h-4 cursor-pointer" />
-                    <span>Kunci</span>
-                  </label>
+                <div v-for="opt in formSoal.options_pg" :key="opt.id" class="flex flex-col sm:flex-row sm:items-center gap-2 bg-gray-50/70 p-2.5 rounded-lg border border-gray-200">
+                  <div class="flex items-center gap-2 flex-1">
+                    <span class="w-6 font-bold text-gray-800 text-sm text-center">{{ opt.id }}.</span>
+                    <input 
+                      v-model="opt.text" 
+                      type="text" 
+                      class="flex-1 border border-gray-300 rounded-lg p-2 text-xs bg-white font-medium focus:ring-blue-500 focus:border-blue-500" 
+                      :placeholder="'Teks jawaban opsi ' + opt.id"
+                      @focus="activeTargetField = 'opt_' + opt.id"
+                    />
+                  </div>
+
+                  <div class="flex items-center gap-1 justify-end pl-8 sm:pl-0">
+                    <!-- Tombol Rumus ke Opsi Ini -->
+                    <button 
+                      type="button" 
+                      @click="openFormulaModal('power', 'opt_' + opt.id)" 
+                      class="px-2 py-1 bg-white hover:bg-blue-50 text-blue-700 border border-blue-200 rounded text-[11px] font-bold shadow-xs flex items-center gap-0.5"
+                      title="Sisipkan Rumus ke Opsi Ini"
+                    >
+                      <span>f(x) Rumus</span>
+                    </button>
+
+                    <!-- Tombol Simbol Cepat ke Opsi Ini -->
+                    <button 
+                      v-for="s in ['²', '³', '×', '÷', '%']" 
+                      :key="s"
+                      type="button" 
+                      @click="insertSymbolToTarget(s, 'opt_' + opt.id)"
+                      class="w-6 h-6 bg-white hover:bg-gray-100 text-gray-700 border border-gray-300 rounded font-bold text-[11px] flex items-center justify-center shadow-xs"
+                      :title="'Sisipkan ' + s"
+                    >
+                      {{ s }}
+                    </button>
+
+                    <!-- Radio Kunci Jawaban -->
+                    <label class="flex items-center gap-1.5 cursor-pointer text-xs font-bold text-green-700 bg-white px-3 py-1 rounded-md border border-green-300 hover:bg-green-50 shadow-sm ml-1.5">
+                      <input type="radio" v-model="formSoal.kunci_tipe_1" :value="opt.id" class="text-green-600 focus:ring-green-500 w-4 h-4 cursor-pointer" />
+                      <span>Kunci</span>
+                    </label>
+                  </div>
                 </div>
               </div>
 
@@ -433,19 +535,47 @@
                   <span class="text-xs text-purple-700 font-bold">Kunci Terpilih: {{ formSoal.kunci_tipe_2.join(', ') || 'Belum dipilih' }}</span>
                 </div>
 
-                <div v-for="opt in formSoal.options_pg" :key="opt.id" class="flex items-center gap-3 bg-gray-50/60 p-2 rounded-lg border border-gray-200">
-                  <span class="w-6 font-bold text-gray-800 text-sm text-center">{{ opt.id }}.</span>
-                  <input 
-                    v-model="opt.text" 
-                    type="text" 
-                    class="flex-1 border border-gray-300 rounded-lg p-2 text-xs bg-white" 
-                    :placeholder="'Teks pernyataan opsi ' + opt.id"
-                  />
-                  
-                  <label class="flex items-center gap-1.5 cursor-pointer text-xs font-bold text-purple-700 bg-white px-3 py-1.5 rounded-md border border-purple-300 hover:bg-purple-50 shadow-sm">
-                    <input type="checkbox" v-model="formSoal.kunci_tipe_2" :value="opt.id" class="text-purple-600 rounded focus:ring-purple-500 w-4 h-4 cursor-pointer" />
-                    <span>Kunci</span>
-                  </label>
+                <div v-for="opt in formSoal.options_pg" :key="opt.id" class="flex flex-col sm:flex-row sm:items-center gap-2 bg-gray-50/70 p-2.5 rounded-lg border border-gray-200">
+                  <div class="flex items-center gap-2 flex-1">
+                    <span class="w-6 font-bold text-gray-800 text-sm text-center">{{ opt.id }}.</span>
+                    <input 
+                      v-model="opt.text" 
+                      type="text" 
+                      class="flex-1 border border-gray-300 rounded-lg p-2 text-xs bg-white font-medium focus:ring-blue-500 focus:border-blue-500" 
+                      :placeholder="'Teks pernyataan opsi ' + opt.id"
+                      @focus="activeTargetField = 'opt_' + opt.id"
+                    />
+                  </div>
+
+                  <div class="flex items-center gap-1 justify-end pl-8 sm:pl-0">
+                    <!-- Tombol Rumus ke Opsi Ini -->
+                    <button 
+                      type="button" 
+                      @click="openFormulaModal('power', 'opt_' + opt.id)" 
+                      class="px-2 py-1 bg-white hover:bg-purple-50 text-purple-700 border border-purple-200 rounded text-[11px] font-bold shadow-xs flex items-center gap-0.5"
+                      title="Sisipkan Rumus ke Opsi Ini"
+                    >
+                      <span>f(x) Rumus</span>
+                    </button>
+
+                    <!-- Tombol Simbol Cepat ke Opsi Ini -->
+                    <button 
+                      v-for="s in ['²', '³', '×', '÷', '%']" 
+                      :key="s"
+                      type="button" 
+                      @click="insertSymbolToTarget(s, 'opt_' + opt.id)"
+                      class="w-6 h-6 bg-white hover:bg-gray-100 text-gray-700 border border-gray-300 rounded font-bold text-[11px] flex items-center justify-center shadow-xs"
+                      :title="'Sisipkan ' + s"
+                    >
+                      {{ s }}
+                    </button>
+
+                    <!-- Checkbox Kunci Jawaban -->
+                    <label class="flex items-center gap-1.5 cursor-pointer text-xs font-bold text-purple-700 bg-white px-3 py-1 rounded-md border border-purple-300 hover:bg-purple-50 shadow-sm ml-1.5">
+                      <input type="checkbox" v-model="formSoal.kunci_tipe_2" :value="opt.id" class="text-purple-600 rounded focus:ring-purple-500 w-4 h-4 cursor-pointer" />
+                      <span>Kunci</span>
+                    </label>
+                  </div>
                 </div>
               </div>
 
@@ -634,53 +764,179 @@
     <!-- MODAL POPUP ALAT BANTU RUMUS MATEMATIKA (INTERAKTIF)     -->
     <!-- ======================================================== -->
     <div v-if="activeFormulaModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div class="bg-white rounded-2xl max-w-sm w-full p-5 shadow-2xl space-y-4">
-        <div class="flex items-center justify-between pb-2 border-b">
-          <h3 class="text-sm font-bold text-gray-800 flex items-center gap-1.5">
-            <span class="w-2.5 h-2.5 rounded-full bg-blue-600"></span>
-            <span>{{ formulaModalTitle }}</span>
-          </h3>
-          <button @click="activeFormulaModal = null" class="text-gray-400 hover:text-gray-600">✕</button>
+      <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4">
+        <!-- Header Modal -->
+        <div class="flex items-center justify-between pb-3 border-b">
+          <div class="flex items-center gap-2">
+            <span class="w-3 h-3 rounded-full bg-blue-600"></span>
+            <h3 class="text-sm font-bold text-gray-800">{{ formulaModalTitle }}</h3>
+          </div>
+          <button @click="activeFormulaModal = null" class="text-gray-400 hover:text-gray-600 p-1">✕</button>
         </div>
 
-        <!-- 1. Form Pecahan -->
+        <!-- Target Selector -->
+        <div class="flex items-center justify-between bg-blue-50/50 p-2.5 rounded-lg border border-blue-200 text-xs">
+          <span class="font-bold text-gray-700">Target Penyisipan:</span>
+          <select v-model="activeTargetField" class="font-bold text-blue-900 border border-blue-300 rounded px-2 py-1 bg-white">
+            <option value="pertanyaan_html">Pokok Pertanyaan</option>
+            <option value="stimulus_html">Stimulus / Wacana</option>
+            <option value="opt_A">Pilihan Opsi A</option>
+            <option value="opt_B">Pilihan Opsi B</option>
+            <option value="opt_C">Pilihan Opsi C</option>
+            <option value="opt_D">Pilihan Opsi D</option>
+          </select>
+        </div>
+
+        <!-- Formula Type Switcher Tab -->
+        <div class="grid grid-cols-5 gap-1 bg-gray-100 p-1 rounded-lg text-xs font-bold text-center">
+          <button 
+            type="button" 
+            @click="openFormulaModal('fraction')" 
+            class="py-1.5 rounded transition-all"
+            :class="activeFormulaModal === 'fraction' ? 'bg-white text-blue-700 shadow-sm' : 'text-gray-600 hover:text-gray-900'"
+          >
+            ½ Pecahan
+          </button>
+          <button 
+            type="button" 
+            @click="openFormulaModal('power')" 
+            class="py-1.5 rounded transition-all"
+            :class="activeFormulaModal === 'power' ? 'bg-white text-blue-700 shadow-sm' : 'text-gray-600 hover:text-gray-900'"
+          >
+            xⁿ Pangkat
+          </button>
+          <button 
+            type="button" 
+            @click="openFormulaModal('subscript')" 
+            class="py-1.5 rounded transition-all"
+            :class="activeFormulaModal === 'subscript' ? 'bg-white text-blue-700 shadow-sm' : 'text-gray-600 hover:text-gray-900'"
+          >
+            xₙ Indeks
+          </button>
+          <button 
+            type="button" 
+            @click="openFormulaModal('sqrt')" 
+            class="py-1.5 rounded transition-all"
+            :class="activeFormulaModal === 'sqrt' ? 'bg-white text-blue-700 shadow-sm' : 'text-gray-600 hover:text-gray-900'"
+          >
+            √x Akar
+          </button>
+          <button 
+            type="button" 
+            @click="openFormulaModal('spldv')" 
+            class="py-1.5 rounded transition-all"
+            :class="activeFormulaModal === 'spldv' ? 'bg-white text-blue-700 shadow-sm' : 'text-gray-600 hover:text-gray-900'"
+          >
+            { SPLDV
+          </button>
+        </div>
+
+        <!-- FORM INPUTS BERDASARKAN TIPE -->
+        <!-- 1. Pecahan -->
         <div v-if="activeFormulaModal === 'fraction'" class="space-y-3">
-          <div>
-            <label class="block text-xs font-bold text-gray-600 mb-1">Angka Pembilang (Atas):</label>
-            <input v-model="formulaInputs.numerator" type="text" placeholder="Contoh: 3" class="w-full border border-gray-300 rounded-lg p-2 text-xs font-bold bg-white" />
+          <div class="flex items-center gap-4 text-xs font-bold text-gray-700 pb-1">
+            <label class="flex items-center gap-1.5 cursor-pointer">
+              <input type="radio" v-model="formulaInputs.fractionType" value="biasa" class="text-blue-600" />
+              <span>Pecahan Biasa (a/b)</span>
+            </label>
+            <label class="flex items-center gap-1.5 cursor-pointer">
+              <input type="radio" v-model="formulaInputs.fractionType" value="campuran" class="text-blue-600" />
+              <span>Pecahan Campuran (a b/c)</span>
+            </label>
           </div>
-          <div>
-            <label class="block text-xs font-bold text-gray-600 mb-1">Angka Penyebut (Bawah):</label>
-            <input v-model="formulaInputs.denominator" type="text" placeholder="Contoh: 4" class="w-full border border-gray-300 rounded-lg p-2 text-xs font-bold bg-white" />
+
+          <div class="grid gap-2.5" :class="formulaInputs.fractionType === 'campuran' ? 'grid-cols-3' : 'grid-cols-2'">
+            <div v-if="formulaInputs.fractionType === 'campuran'">
+              <label class="block text-[11px] font-bold text-gray-600 mb-1">Bil. Bulat (Depan):</label>
+              <input v-model="formulaInputs.whole" type="text" placeholder="Contoh: 2" class="w-full border border-gray-300 rounded-lg p-2 text-xs font-bold bg-white text-center focus:ring-blue-500" />
+            </div>
+            <div>
+              <label class="block text-[11px] font-bold text-gray-600 mb-1">Pembilang (Atas):</label>
+              <input v-model="formulaInputs.numerator" type="text" placeholder="Contoh: 3" class="w-full border border-gray-300 rounded-lg p-2 text-xs font-bold bg-white text-center focus:ring-blue-500" />
+            </div>
+            <div>
+              <label class="block text-[11px] font-bold text-gray-600 mb-1">Penyebut (Bawah):</label>
+              <input v-model="formulaInputs.denominator" type="text" placeholder="Contoh: 4" class="w-full border border-gray-300 rounded-lg p-2 text-xs font-bold bg-white text-center focus:ring-blue-500" />
+            </div>
           </div>
         </div>
 
-        <!-- 2. Form Pangkat -->
+        <!-- 2. Pangkat -->
         <div v-else-if="activeFormulaModal === 'power'" class="space-y-3">
-          <div>
-            <label class="block text-xs font-bold text-gray-600 mb-1">Bilangan Pokok:</label>
-            <input v-model="formulaInputs.base" type="text" placeholder="Contoh: 7 atau x" class="w-full border border-gray-300 rounded-lg p-2 text-xs font-bold bg-white" />
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-[11px] font-bold text-gray-600 mb-1">Bilangan Pokok (Basis):</label>
+              <input v-model="formulaInputs.base" type="text" placeholder="Contoh: 7 atau x" class="w-full border border-gray-300 rounded-lg p-2 text-xs font-bold bg-white focus:ring-blue-500" />
+            </div>
+            <div>
+              <label class="block text-[11px] font-bold text-gray-600 mb-1">Angka Pangkat (Eksponen):</label>
+              <input v-model="formulaInputs.exponent" type="text" placeholder="Contoh: -3, 2, 4" class="w-full border border-gray-300 rounded-lg p-2 text-xs font-bold bg-white focus:ring-blue-500" />
+            </div>
           </div>
-          <div>
-            <label class="block text-xs font-bold text-gray-600 mb-1">Angka Pangkat / Eksponen:</label>
-            <input v-model="formulaInputs.exponent" type="text" placeholder="Contoh: -3 atau 2" class="w-full border border-gray-300 rounded-lg p-2 text-xs font-bold bg-white" />
+          <div class="flex items-center gap-1.5 text-xs">
+            <span class="text-[10px] text-gray-400 font-bold">Pintasan Cepat:</span>
+            <button v-for="p in ['2', '3', '-1', '-2', '-3', '-4', '-9']" :key="p" type="button" @click="formulaInputs.exponent = p" class="px-2 py-0.5 bg-gray-100 hover:bg-blue-100 rounded text-[11px] font-bold text-gray-700">{{ p }}</button>
           </div>
         </div>
 
-        <!-- 3. Form Akar -->
+        <!-- 3. Indeks / Subskrip -->
+        <div v-else-if="activeFormulaModal === 'subscript'" class="space-y-3">
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-[11px] font-bold text-gray-600 mb-1">Simbol Pokok:</label>
+              <input v-model="formulaInputs.base" type="text" placeholder="Contoh: U, S, x" class="w-full border border-gray-300 rounded-lg p-2 text-xs font-bold bg-white focus:ring-blue-500" />
+            </div>
+            <div>
+              <label class="block text-[11px] font-bold text-gray-600 mb-1">Indeks Bawah (Subskrip):</label>
+              <input v-model="formulaInputs.subscript" type="text" placeholder="Contoh: n, 1, 20" class="w-full border border-gray-300 rounded-lg p-2 text-xs font-bold bg-white focus:ring-blue-500" />
+            </div>
+          </div>
+          <div class="flex items-center gap-1.5 text-xs">
+            <span class="text-[10px] text-gray-400 font-bold">Pintasan Cepat:</span>
+            <button v-for="s in ['n', '1', '2', '20', '10']" :key="s" type="button" @click="formulaInputs.subscript = s" class="px-2 py-0.5 bg-gray-100 hover:bg-blue-100 rounded text-[11px] font-bold text-gray-700">{{ s }}</button>
+          </div>
+        </div>
+
+        <!-- 4. Bentuk Akar -->
         <div v-else-if="activeFormulaModal === 'sqrt'" class="space-y-3">
-          <div>
-            <label class="block text-xs font-bold text-gray-600 mb-1">Nilai di Dalam Akar:</label>
-            <input v-model="formulaInputs.sqrtValue" type="text" placeholder="Contoh: 25 atau 75" class="w-full border border-gray-300 rounded-lg p-2 text-xs font-bold bg-white" />
+          <div class="grid grid-cols-3 gap-3">
+            <div>
+              <label class="block text-[11px] font-bold text-gray-600 mb-1">Derajat Akar:</label>
+              <input v-model="formulaInputs.sqrtDegree" type="text" placeholder="Kosong = √" class="w-full border border-gray-300 rounded-lg p-2 text-xs font-bold bg-white text-center focus:ring-blue-500" />
+              <span class="text-[9px] text-gray-400 block mt-0.5">Isi 3 untuk ∛</span>
+            </div>
+            <div class="col-span-2">
+              <label class="block text-[11px] font-bold text-gray-600 mb-1">Nilai di Dalam Akar:</label>
+              <input v-model="formulaInputs.sqrtValue" type="text" placeholder="Contoh: 75 atau 125" class="w-full border border-gray-300 rounded-lg p-2 text-xs font-bold bg-white focus:ring-blue-500" />
+            </div>
           </div>
         </div>
 
+        <!-- 5. SPLDV -->
+        <div v-else-if="activeFormulaModal === 'spldv'" class="space-y-3">
+          <div>
+            <label class="block text-[11px] font-bold text-gray-600 mb-1">Persamaan Baris 1:</label>
+            <input v-model="formulaInputs.spldvLine1" type="text" placeholder="Contoh: 2x + y = 13" class="w-full border border-gray-300 rounded-lg p-2 text-xs font-bold bg-white focus:ring-blue-500" />
+          </div>
+          <div>
+            <label class="block text-[11px] font-bold text-gray-600 mb-1">Persamaan Baris 2:</label>
+            <input v-model="formulaInputs.spldvLine2" type="text" placeholder="Contoh: x - 2y = 4" class="w-full border border-gray-300 rounded-lg p-2 text-xs font-bold bg-white focus:ring-blue-500" />
+          </div>
+        </div>
+
+        <!-- INSTANT LIVE PREVIEW DALAM MODAL -->
+        <div class="bg-blue-50/60 p-3 rounded-xl border border-blue-200 text-center space-y-1">
+          <span class="text-[10px] font-bold text-blue-700 uppercase tracking-wider block">Pratinjau Rumus yang Akan Disisipkan:</span>
+          <div class="min-h-[44px] flex items-center justify-center text-lg text-blue-900" v-html="modalFormulaPreview"></div>
+        </div>
+
+        <!-- Tombol Aksi -->
         <div class="flex gap-2 pt-2 border-t">
-          <button @click="activeFormulaModal = null" class="w-1/2 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold rounded-lg text-xs">
+          <button @click="activeFormulaModal = null" class="w-1/2 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold rounded-xl text-xs transition-colors">
             Batal
           </button>
-          <button @click="insertBuiltFormula" class="w-1/2 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg text-xs">
-            Sisipkan Rumus
+          <button @click="insertBuiltFormula" class="w-1/2 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-xs transition-colors shadow">
+            Sisipkan Rumus Ini
           </button>
         </div>
       </div>
@@ -732,6 +988,51 @@
       </div>
     </div>
 
+    <!-- CUSTOM MODAL: TAMBAH PAKET SOAL BARU -->
+    <div v-if="showAddPackageModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+      <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl space-y-4">
+        <div class="flex items-center justify-between pb-2 border-b">
+          <h3 class="text-sm font-bold text-gray-800 flex items-center gap-1.5">
+            <span class="w-2.5 h-2.5 rounded-full bg-blue-600"></span>
+            <span>Tambah Paket Soal Baru</span>
+          </h3>
+          <button @click="showAddPackageModal = false" class="text-gray-400 hover:text-gray-600">✕</button>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Nama Paket</label>
+          <input 
+            v-model="newPackageName" 
+            type="text" 
+            placeholder="Contoh: Paket 2, Paket Susulan, Paket 3" 
+            class="w-full border border-gray-300 rounded-lg p-2.5 text-xs font-bold bg-white focus:ring-blue-500" 
+            @keyup.enter="confirmAddPackage"
+          />
+          <div class="flex items-center gap-1.5 mt-2 flex-wrap">
+            <span class="text-[10px] text-gray-400 font-bold">Pilihan Cepat:</span>
+            <button 
+              v-for="sug in suggestedPackageNames" 
+              :key="sug"
+              type="button" 
+              @click="newPackageName = sug" 
+              class="px-2 py-0.5 bg-gray-100 hover:bg-blue-100 rounded text-[11px] font-bold text-gray-700"
+            >
+              {{ sug }}
+            </button>
+          </div>
+        </div>
+
+        <div class="flex gap-2 pt-2 border-t">
+          <button @click="showAddPackageModal = false" class="w-1/2 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold rounded-lg text-xs">
+            Batal
+          </button>
+          <button @click="confirmAddPackage" class="w-1/2 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg text-xs shadow">
+            Buat Paket
+          </button>
+        </div>
+      </div>
+    </div>
+
     <!-- CUSTOM TOAST NOTIFICATION -->
     <div v-if="toastMsg" class="fixed bottom-6 right-6 z-50 bg-gray-900/95 text-white px-5 py-3 rounded-xl shadow-2xl flex items-center gap-3 text-xs font-semibold animate-fade-in">
       <span class="w-2 h-2 rounded-full bg-blue-400"></span>
@@ -744,9 +1045,10 @@
 import { ref, reactive, computed, onMounted } from 'vue'
 import CBTHeader from '../components/CBTHeader.vue'
 import CBTQuestionItem from '../components/CBTQuestionItem.vue'
-import { loginPenulis, getSoalList, deleteSoalByNomor, deleteEntirePackage } from '../services/apiService.js'
+import { loginPenulis, getAvailablePackages, getSoalList, deleteSoalByNomor, deleteEntirePackage } from '../services/apiService.js'
 import { supabase } from '../supabase.js'
 import mammoth from 'mammoth'
+import { convertLatexToMarkup } from 'mathlive'
 
 // State Penulis & Login
 const currentPenulis = ref(null)
@@ -756,10 +1058,62 @@ const showPassword = ref(false)
 const loginError = ref('')
 const toastMsg = ref('')
 
-// State Tabs & Paket
+// State Tabs & Paket Dinamis
 const activeTab = ref('editor')
 const activePaket = ref('Paket 1')
+const packageList = ref([])
+const showAddPackageModal = ref(false)
+const newPackageName = ref('')
 const soalList = ref([])
+
+const suggestedPackageNames = computed(() => {
+  const nextNum = packageList.value.length + 1
+  return [`Paket ${nextNum}`, 'Paket Susulan', 'Paket Pengayaan']
+})
+
+function openAddPackageModal() {
+  const nextNum = packageList.value.length + 1
+  newPackageName.value = `Paket ${nextNum}`
+  showAddPackageModal.value = true
+}
+
+function confirmAddPackage() {
+  const name = newPackageName.value.trim()
+  if (!name) {
+    showToast('Silakan ketikkan nama paket.')
+    return
+  }
+  if (!packageList.value.includes(name)) {
+    packageList.value.push(name)
+  }
+  activePaket.value = name
+  showAddPackageModal.value = false
+  newPackageName.value = ''
+  soalList.value = []
+  initNewQuestion()
+  showToast(`Paket "${name}" siap ditulis!`)
+}
+
+async function refreshPackageList() {
+  if (!currentPenulis.value) return
+  const pkgs = await getAvailablePackages(currentPenulis.value.jenjang, currentPenulis.value.mapel)
+  if (pkgs && pkgs.length > 0) {
+    packageList.value = pkgs
+    if (!packageList.value.includes(activePaket.value)) {
+      activePaket.value = packageList.value[0]
+    }
+  } else {
+    packageList.value = []
+    if (!activePaket.value) {
+      activePaket.value = 'Paket 1'
+    }
+  }
+}
+
+// Target Field Fokus untuk Penyisipan Rumus / Simbol
+const stimulusTextareaRef = ref(null)
+const pertanyaanInputRef = ref(null)
+const activeTargetField = ref('pertanyaan_html')
 
 // Modals Konfirmasi
 const showDeleteSingleConfirm = ref(false)
@@ -767,41 +1121,94 @@ const showResetPackageConfirm = ref(false)
 const targetQuestionToDelete = ref(null)
 
 // Formula Builder Modal
-const activeFormulaModal = ref(null) // 'fraction', 'power', 'sqrt'
+const activeFormulaModal = ref(null) // 'fraction', 'power', 'subscript', 'sqrt', 'spldv'
 const formulaInputs = reactive({
-  numerator: '',
-  denominator: '',
-  base: '',
-  exponent: '',
-  sqrtValue: ''
+  fractionType: 'biasa',
+  whole: '',
+  numerator: '1',
+  denominator: '2',
+  base: 'x',
+  exponent: '2',
+  subscript: 'n',
+  sqrtDegree: '',
+  sqrtValue: 'x',
+  spldvLine1: '2x + y = 13',
+  spldvLine2: 'x - 2y = 4'
 })
 
 const formulaModalTitle = computed(() => {
   switch (activeFormulaModal.value) {
-    case 'fraction': return 'Sisipkan Pecahan'
-    case 'power': return 'Sisipkan Bilangan Berpangkat'
+    case 'fraction': return 'Sisipkan Pecahan (Biasa / Campuran)'
+    case 'power': return 'Sisipkan Bilangan Berpangkat / Eksponen'
+    case 'subscript': return 'Sisipkan Indeks Bawah / Subskrip'
     case 'sqrt': return 'Sisipkan Bentuk Akar'
-    default: return 'Alat Bantu Rumus'
+    case 'spldv': return 'Sisipkan Sistem Persamaan (SPLDV)'
+    default: return 'Alat Bantu Rumus Matematika'
+  }
+})
+
+// Pratinjau LaTeX Rumus Otomatis
+const modalFormulaLatex = computed(() => {
+  if (activeFormulaModal.value === 'fraction') {
+    const num = formulaInputs.numerator.trim() || '1'
+    const den = formulaInputs.denominator.trim() || '2'
+    if (formulaInputs.fractionType === 'campuran' && formulaInputs.whole.trim()) {
+      return `${formulaInputs.whole.trim()}\\frac{${num}}{${den}}`
+    }
+    return `\\frac{${num}}{${den}}`
+  } else if (activeFormulaModal.value === 'power') {
+    const b = formulaInputs.base.trim() || 'x'
+    const exp = formulaInputs.exponent.trim() || '2'
+    return `${b}^{${exp}}`
+  } else if (activeFormulaModal.value === 'subscript') {
+    const b = formulaInputs.base.trim() || 'U'
+    const s = formulaInputs.subscript.trim() || 'n'
+    return `${b}_{${s}}`
+  } else if (activeFormulaModal.value === 'sqrt') {
+    const v = formulaInputs.sqrtValue.trim() || 'x'
+    if (formulaInputs.sqrtDegree.trim()) {
+      return `\\sqrt[${formulaInputs.sqrtDegree.trim()}]{${v}}`
+    }
+    return `\\sqrt{${v}}`
+  } else if (activeFormulaModal.value === 'spldv') {
+    const l1 = formulaInputs.spldvLine1.trim() || '2x + y = 13'
+    const l2 = formulaInputs.spldvLine2.trim() || 'x - 2y = 4'
+    return `\\begin{cases} ${l1} \\\\ ${l2} \\end{cases}`
+  }
+  return ''
+})
+
+const modalFormulaPreview = computed(() => {
+  if (!modalFormulaLatex.value) return '<span class="text-gray-400 text-xs">Belum ada rumus</span>'
+  try {
+    return convertLatexToMarkup(modalFormulaLatex.value)
+  } catch (e) {
+    return `<span class="font-mono text-xs text-gray-500">${modalFormulaLatex.value}</span>`
   }
 })
 
 // Simbol-Simbol Cepat Matematika & Geometri (SD & SMP)
 const mathSymbols = [
+  { char: '²', label: 'Pangkat Dua / Persegi (m²)' },
+  { char: '³', label: 'Pangkat Tiga / Kubik (cm³)' },
   { char: '×', label: 'Kali' },
   { char: '÷', label: 'Bagi' },
   { char: '±', label: 'Plus Minus' },
   { char: '≤', label: 'Kurang Dari Sama Dengan' },
   { char: '≥', label: 'Lebih Dari Sama Dengan' },
   { char: '≠', label: 'Tidak Sama Dengan' },
+  { char: '≈', label: 'Hampir Sama Dengan / Taksiran' },
   { char: '°', label: 'Derajat' },
   { char: 'π', label: 'Pi' },
   { char: '∠', label: 'Sudut' },
+  { char: '△', label: 'Segitiga' },
+  { char: '⊥', label: 'Tegak Lurus' },
+  { char: '//', label: 'Garis Sejajar' },
   { char: '%', label: 'Persen' }
 ]
 
 // Editor Form
 const isEditing = ref(false)
-const pertanyaanInputRef = ref(null)
 const formSoal = reactive({
   nomor_soal: 1,
   tipe_soal: '1',
@@ -896,6 +1303,7 @@ async function switchPaket(p) {
 
 async function loadSoalList() {
   if (!currentPenulis.value) return
+  await refreshPackageList()
   soalList.value = await getSoalList(currentPenulis.value.jenjang, currentPenulis.value.mapel, activePaket.value)
   if (soalList.value.length > 0 && !isEditing.value) {
     loadQuestionIntoForm(soalList.value[0])
@@ -979,41 +1387,110 @@ function handleImageUpload(e, targetField) {
   reader.readAsDataURL(file)
 }
 
+// Format Teks Literasi (Tebal, Miring, Garis Bawah, Kutipan Dialog, Ganti Baris, Judul)
+function applyTextFormat(targetFieldName, tag) {
+  const el = targetFieldName === 'stimulus_html' ? stimulusTextareaRef.value : pertanyaanInputRef.value
+  let currentVal = formSoal[targetFieldName] || ''
+
+  let start = el ? el.selectionStart : currentVal.length
+  let end = el ? el.selectionEnd : currentVal.length
+  let selectedText = currentVal.substring(start, end)
+
+  let replacement = ''
+  if (tag === 'b') {
+    replacement = `<strong>${selectedText || 'teks tebal'}</strong>`
+  } else if (tag === 'i') {
+    replacement = `<em>${selectedText || 'teks miring'}</em>`
+  } else if (tag === 'u') {
+    replacement = `<u>${selectedText || 'teks garis bawah'}</u>`
+  } else if (tag === 'quote') {
+    replacement = `“${selectedText || 'teks kutipan dialog'}”`
+  } else if (tag === 'br') {
+    replacement = `<br/>\n`
+  } else if (tag === 'title') {
+    replacement = `<p class="font-bold text-center">${selectedText || 'Judul Wacana / Cerita'}</p>\n`
+  }
+
+  formSoal[targetFieldName] = currentVal.substring(0, start) + replacement + currentVal.substring(end)
+
+  if (el) {
+    setTimeout(() => {
+      el.focus()
+      el.setSelectionRange(start + replacement.length, start + replacement.length)
+    }, 50)
+  }
+}
+
 // Alat Bantu Rumus Matematika Popover
-function openFormulaModal(type) {
+function openFormulaModal(type, targetField = null) {
+  if (targetField) {
+    activeTargetField.value = targetField
+  }
   activeFormulaModal.value = type
-  formulaInputs.numerator = ''
-  formulaInputs.denominator = ''
-  formulaInputs.base = ''
-  formulaInputs.exponent = ''
-  formulaInputs.sqrtValue = ''
+  if (type === 'fraction') {
+    formulaInputs.fractionType = 'biasa'
+    formulaInputs.whole = ''
+    formulaInputs.numerator = '1'
+    formulaInputs.denominator = '2'
+  } else if (type === 'power') {
+    formulaInputs.base = 'x'
+    formulaInputs.exponent = '2'
+  } else if (type === 'subscript') {
+    formulaInputs.base = 'U'
+    formulaInputs.subscript = 'n'
+  } else if (type === 'sqrt') {
+    formulaInputs.sqrtDegree = ''
+    formulaInputs.sqrtValue = 'x'
+  } else if (type === 'spldv') {
+    formulaInputs.spldvLine1 = '2x + y = 13'
+    formulaInputs.spldvLine2 = 'x - 2y = 4'
+  }
+}
+
+function insertToTarget(content) {
+  if (activeTargetField.value === 'stimulus_html') {
+    formSoal.stimulus_html += ` ${content} `
+  } else if (activeTargetField.value && activeTargetField.value.startsWith('opt_')) {
+    const optId = activeTargetField.value.replace('opt_', '')
+    const opt = formSoal.options_pg.find(o => o.id === optId)
+    if (opt) {
+      opt.text += opt.text ? ` ${content}` : content
+    }
+  } else {
+    formSoal.pertanyaan_html += ` ${content} `
+  }
 }
 
 function insertBuiltFormula() {
-  let latex = ''
-  if (activeFormulaModal.value === 'fraction') {
-    const num = formulaInputs.numerator.trim() || '1'
-    const den = formulaInputs.denominator.trim() || '2'
-    latex = `\\frac{${num}}{${den}}`
-  } else if (activeFormulaModal.value === 'power') {
-    const base = formulaInputs.base.trim() || 'x'
-    const exp = formulaInputs.exponent.trim() || '2'
-    latex = `${base}^{${exp}}`
-  } else if (activeFormulaModal.value === 'sqrt') {
-    const val = formulaInputs.sqrtValue.trim() || 'x'
-    latex = `\\sqrt{${val}}`
+  const latex = modalFormulaLatex.value
+  if (!latex) {
+    activeFormulaModal.value = null
+    return
   }
 
-  if (latex) {
-    formSoal.pertanyaan_html += ` <span class="math-inline">${latex}</span> `
-    showToast('Rumus matematika berhasil disisipkan.')
-  }
+  const token = `<span class="math-inline">${latex}</span>`
+  insertToTarget(token)
+  showToast('Rumus matematika berhasil disisipkan.')
   activeFormulaModal.value = null
 }
 
-function insertSymbol(sym) {
-  formSoal.pertanyaan_html += ` ${sym} `
+function insertSymbolToTarget(sym, target) {
+  if (target === 'stimulus_html') {
+    formSoal.stimulus_html += `${sym}`
+  } else if (target && target.startsWith('opt_')) {
+    const optId = target.replace('opt_', '')
+    const opt = formSoal.options_pg.find(o => o.id === optId)
+    if (opt) {
+      opt.text += opt.text ? ` ${sym}` : sym
+    }
+  } else {
+    formSoal.pertanyaan_html += `${sym}`
+  }
   showToast(`Simbol ${sym} disisipkan.`)
+}
+
+function insertSymbol(sym) {
+  insertSymbolToTarget(sym, activeTargetField.value)
 }
 
 // Helpers Tabel Matriks
