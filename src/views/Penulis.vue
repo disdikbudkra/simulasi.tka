@@ -198,7 +198,7 @@
         <div class="flex flex-wrap items-center justify-between gap-3 bg-white p-4 rounded-xl border border-gray-200">
           <div class="flex items-center gap-2">
             <button 
-              @click="initNewQuestion"
+              @click="initNewQuestion()"
               class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg text-xs shadow flex items-center transition-colors"
             >
               <span>+ Tambah Butir Soal Baru</span>
@@ -1449,10 +1449,17 @@ async function loadSoalList(autoLoadFirst = true) {
 
 function initNewQuestion(customNomor = null) {
   isEditing.value = false
-  if (customNomor !== null && customNomor !== undefined) {
-    formSoal.nomor_soal = Number(customNomor)
+  const parsedNomor = Number(customNomor)
+  if (
+    customNomor !== null && 
+    customNomor !== undefined && 
+    typeof customNomor !== 'object' && 
+    !isNaN(parsedNomor) && 
+    parsedNomor > 0
+  ) {
+    formSoal.nomor_soal = parsedNomor
   } else {
-    const highestNomor = soalList.value.reduce((max, q) => Math.max(max, Number(q.nomor_soal) || 0), 0)
+    const highestNomor = (soalList.value || []).reduce((max, q) => Math.max(max, Number(q.nomor_soal) || 0), 0)
     formSoal.nomor_soal = highestNomor + 1
   }
   formSoal.tipe_soal = '1'
