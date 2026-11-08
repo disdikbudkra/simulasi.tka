@@ -113,10 +113,9 @@
             <button
               type="button"
               @click="openAddPackageModal"
-              class="px-2.5 py-1 text-xs font-bold rounded bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200 transition-colors flex items-center gap-1 ml-1"
+              class="px-2.5 py-1 text-xs font-bold rounded bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200 transition-colors flex items-center ml-1"
               title="Tambah Paket Baru"
             >
-              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
               <span>+ Paket Baru</span>
             </button>
           </div>
@@ -197,9 +196,8 @@
           <div class="flex items-center gap-2">
             <button 
               @click="initNewQuestion"
-              class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg text-xs shadow flex items-center gap-1.5 transition-colors"
+              class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg text-xs shadow flex items-center transition-colors"
             >
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
               <span>+ Tambah Butir Soal Baru</span>
             </button>
             <span class="text-xs text-gray-500 font-medium">Paket Aktif: <strong>{{ activePaket }}</strong> ({{ soalList.length }} Butir Terdaftar)</span>

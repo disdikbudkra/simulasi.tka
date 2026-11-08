@@ -134,52 +134,70 @@
       <!-- ========================================== -->
       <section v-else-if="currentStep === 1" class="flex-1 flex items-center justify-center p-4 sm:p-6">
         <div class="max-w-md w-full bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
-          <div class="bg-[#326698] p-5 text-white flex items-center justify-between">
+          <div class="p-8 sm:p-10 space-y-6">
+            
+            <!-- Heading Pusmendik Asli -->
             <div>
-              <h2 class="text-lg font-bold">LOGIN SIMULASI SISWA</h2>
-              <p class="text-xs text-blue-100">{{ selectedJenjang }} - {{ selectedMapel }} ({{ selectedPaket }})</p>
+              <h2 class="text-xl font-bold text-gray-900 tracking-tight">Selamat Datang</h2>
+              <p class="text-xs text-gray-500 mt-1 leading-relaxed">
+                Silakan login dengan menggunakan username dan password yang anda miliki
+              </p>
             </div>
-            <button @click="goToStep(0)" class="text-xs text-blue-200 hover:text-white underline">Ubah Paket</button>
-          </div>
 
-          <div class="p-6 sm:p-8 space-y-5">
-            <!-- Info Box Token Dinamis Pusmendik Style -->
-            <div class="bg-amber-50 border border-amber-200 rounded-xl p-4 text-center">
-              <span class="text-xs font-semibold text-amber-800 uppercase tracking-wider block">Token Ujian Aktif Saat Ini:</span>
-              <div class="text-3xl font-extrabold tracking-widest text-amber-900 mt-1 select-all font-mono">
-                {{ settings.current_token || 'KRA26' }}
+            <form @submit.prevent="handleStudentLogin" class="space-y-6 pt-2">
+              <!-- Input Username dengan Ikon Pusmendik -->
+              <div class="relative flex items-center border-b border-gray-300 focus-within:border-blue-600 transition-colors pb-1">
+                <span class="text-gray-700 mr-3">
+                  <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/></svg>
+                </span>
+                <input 
+                  v-model="inputStudentUsername" 
+                  type="text" 
+                  placeholder="Username" 
+                  class="w-full text-sm text-gray-800 placeholder-gray-400 bg-transparent focus:outline-none py-1"
+                />
               </div>
-              <span class="text-[11px] text-amber-700 mt-1 block">Token ini diperbarui otomatis setiap 1 jam</span>
+
+              <!-- Input Password dengan Ikon Gembok & Mata Pusmendik -->
+              <div class="relative flex items-center border-b border-gray-300 focus-within:border-blue-600 transition-colors pb-1">
+                <span class="text-gray-700 mr-3">
+                  <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
+                </span>
+                <input 
+                  v-model="inputStudentPassword" 
+                  :type="showStudentPassword ? 'text' : 'password'" 
+                  placeholder="Password" 
+                  class="w-full text-sm text-gray-800 placeholder-gray-400 bg-transparent focus:outline-none py-1 pr-8"
+                />
+                <button 
+                  type="button" 
+                  @click="showStudentPassword = !showStudentPassword"
+                  class="absolute right-0 text-gray-500 hover:text-gray-700 focus:outline-none"
+                >
+                  <!-- Mata Terbuka -->
+                  <svg v-if="!showStudentPassword" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                  <!-- Mata Tertutup -->
+                  <svg v-else class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l18 18"></path></svg>
+                </button>
+              </div>
+
+              <!-- Tombol Login Melengkung Pusmendik -->
+              <div class="pt-3">
+                <button
+                  type="submit"
+                  class="w-full py-3 bg-[#1d7bf2] hover:bg-blue-600 text-white font-bold rounded-full shadow-md transition-all text-sm tracking-wide"
+                >
+                  Login
+                </button>
+              </div>
+            </form>
+
+            <div class="text-center pt-2">
+              <button @click="goToStep(0)" class="text-xs text-blue-600 hover:underline">
+                ← Kembali / Ganti Paket ({{ selectedJenjang }} {{ selectedMapel }} - {{ selectedPaket }})
+              </button>
             </div>
 
-            <!-- Dummy Username & Password -->
-            <div>
-              <label class="block text-xs font-semibold text-gray-600 mb-1">Username Siswa</label>
-              <input 
-                type="text" 
-                readonly 
-                :value="dummyUsername" 
-                class="w-full bg-gray-50 border border-gray-300 rounded-lg p-2.5 text-sm font-mono text-gray-700 cursor-not-allowed"
-              />
-            </div>
-
-            <div>
-              <label class="block text-xs font-semibold text-gray-600 mb-1">Password</label>
-              <input 
-                type="password" 
-                readonly 
-                value="********" 
-                class="w-full bg-gray-50 border border-gray-300 rounded-lg p-2.5 text-sm font-mono text-gray-700 cursor-not-allowed"
-              />
-            </div>
-
-            <button
-              @click="goToStep(2)"
-              class="w-full py-3 bg-[#0d6efd] hover:bg-blue-700 text-white font-bold rounded-xl shadow-md transition-all flex items-center justify-center gap-2"
-            >
-              <span>LOG IN</span>
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"></path></svg>
-            </button>
           </div>
         </div>
       </section>
@@ -244,7 +262,6 @@
                   v-model="studentData.nama_siswa"
                   type="text" 
                   placeholder="Ketikkan nama Peserta"
-                  required
                   class="w-full border-0 border-b border-gray-300 focus:ring-0 focus:border-blue-600 px-0 py-1.5 text-sm font-medium text-gray-800 placeholder-gray-400 bg-transparent"
                 />
               </div>
@@ -779,13 +796,23 @@ watch([selectedJenjang, selectedMapel], () => {
 })
 
 // Step 1: Login
+const inputStudentUsername = ref('')
+const inputStudentPassword = ref('')
+const showStudentPassword = ref(false)
 const dummyUsername = ref('dladnc')
+
+function handleStudentLogin() {
+  const user = inputStudentUsername.value.trim() || 'dladnc'
+  dummyUsername.value = user
+  studentData.nama_siswa = ''
+  goToStep(2)
+}
 
 // Step 2: Form Data Siswa
 const studentData = reactive({
   npsn: '20312015',
   nama_sekolah: 'SMP NEGERI 1 KARANGANYAR',
-  nama_siswa: 'adniadnla',
+  nama_siswa: '',
   nisn: '',
   tgl: 15,
   bln: 'Juli',
@@ -894,6 +921,10 @@ function handleKonfirmasiData() {
   if (actual !== expected) {
     tokenError.value = true
     return
+  }
+
+  if (!studentData.nama_siswa || !studentData.nama_siswa.trim()) {
+    studentData.nama_siswa = dummyUsername.value || 'PESERTA TKA'
   }
 
   goToStep(3)
