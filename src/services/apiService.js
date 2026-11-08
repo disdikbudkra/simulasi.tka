@@ -127,22 +127,55 @@ export async function getSoalList(jenjang, mapel, paket) {
 
     if (error) throw error
 
-    if (data && data.length > 0) {
-      return data
-    }
+    // Kembalikan data dari database langsung (walaupun kosong [] setelah dihapus)
+    return data || []
   } catch (err) {
-    console.warn('Gagal memuat soal dari Supabase, memuat bibit lokal:', err)
-  }
-
-  // Fallback data lokal
-  if (jenjang === 'SMP' && mapel === 'Matematika') {
-    if (paket === 'Paket 2') {
-      return SMP_MATEMATIKA_PAKET_2
+    console.warn('Gagal memuat soal dari Supabase (offline), memuat bibit lokal:', err)
+    if (jenjang === 'SMP' && mapel === 'Matematika') {
+      if (paket === 'Paket 2') {
+        return SMP_MATEMATIKA_PAKET_2
+      }
+      return SMP_MATEMATIKA_PAKET_1
     }
-    return SMP_MATEMATIKA_PAKET_1
+    return []
   }
+}
 
-  return []
+// Hapus 1 Butir Soal Tertentu
+export async function deleteSoalByNomor(jenjang, mapel, paket, nomor_soal) {
+  try {
+    const { error } = await supabase
+      .from('soal_bank')
+      .delete()
+      .eq('jenjang', jenjang)
+      .eq('mapel', mapel)
+      .eq('paket', paket)
+      .eq('nomor_soal', nomor_soal)
+
+    if (error) throw error
+    return true
+  } catch (err) {
+    console.error('Error deleting single question:', err)
+    throw err
+  }
+}
+
+// Hapus Seluruh Soal dalam 1 Paket
+export async function deleteEntirePackage(jenjang, mapel, paket) {
+  try {
+    const { error } = await supabase
+      .from('soal_bank')
+      .delete()
+      .eq('jenjang', jenjang)
+      .eq('mapel', mapel)
+      .eq('paket', paket)
+
+    if (error) throw error
+    return true
+  } catch (err) {
+    console.error('Error deleting entire package:', err)
+    throw err
+  }
 }
 
 // 4. Simpan Hasil Ujian Siswa (dengan Rincian Butir Soal)

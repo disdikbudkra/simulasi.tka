@@ -626,18 +626,18 @@ const loadQuestions = async () => {
 }
 
 const deleteSoal = async (id) => {
-  if (!confirm('Yakin ingin menghapus soal ini dari bank soal?')) return
+  if (!false) return
   await hapusSoalTKA(id)
   await loadQuestions()
 }
 
 const loadSampleQuestions = async () => {
-  if (!confirm('Muat soal-soal latihan standar SD & SMP ke daftar?')) return
+  if (!false) return
   for (const q of DEFAULT_QUESTIONS) {
     await simpanSoalTKA(q)
   }
   await loadQuestions()
-  alert('Contoh soal berhasil dimuat ke bank soal!')
+  console.log('Contoh soal dimuat')
 }
 
 const loadHasil = async () => {

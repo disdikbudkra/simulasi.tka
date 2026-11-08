@@ -10,16 +10,16 @@
           <div class="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-2">
             <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
           </div>
-          <h2 class="text-xl font-bold tracking-wide">PORTAL MARSHAL (ADMIN)</h2>
+          <h2 class="text-xl font-bold tracking-wide">PORTAL MARSHAL</h2>
           <p class="text-xs text-amber-100 mt-1">Dinas Pendidikan dan Kebudayaan Kab. Karanganyar</p>
         </div>
 
         <form @submit.prevent="handleLogin" class="p-6 sm:p-8 space-y-4">
-          <div v-if="authError" class="p-3 bg-red-50 border border-red-200 rounded-lg text-xs text-red-700">
+          <div v-if="authError" class="p-3 bg-red-50 border border-red-200 rounded-lg text-xs text-red-700 font-medium">
             {{ authError }}
           </div>
 
-          <div v-if="resetSuccessMsg" class="p-3 bg-green-50 border border-green-200 rounded-lg text-xs text-green-700">
+          <div v-if="resetSuccessMsg" class="p-3 bg-green-50 border border-green-200 rounded-lg text-xs text-green-700 font-medium">
             {{ resetSuccessMsg }}
           </div>
 
@@ -29,24 +29,35 @@
               v-model="loginEmail" 
               type="email" 
               required 
-              placeholder="disdik.karanganyar@gmail.com"
-              class="w-full border-gray-300 rounded-lg p-2.5 text-sm focus:ring-amber-500 focus:border-amber-500"
+              placeholder="Masukkan email resmi admin"
+              class="w-full border-gray-300 rounded-lg p-2.5 text-sm focus:ring-amber-500 focus:border-amber-500 bg-white"
             />
           </div>
 
           <div>
             <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Kata Sandi</label>
-            <input 
-              v-model="loginPassword" 
-              type="password" 
-              required 
-              placeholder="••••••••"
-              class="w-full border-gray-300 rounded-lg p-2.5 text-sm focus:ring-amber-500 focus:border-amber-500"
-            />
+            <div class="relative">
+              <input 
+                v-model="loginPassword" 
+                :type="showLoginPassword ? 'text' : 'password'" 
+                required 
+                placeholder="Masukkan kata sandi"
+                class="w-full border-gray-300 rounded-lg p-2.5 text-sm focus:ring-amber-500 focus:border-amber-500 pr-10 bg-white"
+              />
+              <button 
+                type="button" 
+                @click="showLoginPassword = !showLoginPassword"
+                class="absolute right-3 top-2.5 text-gray-400 hover:text-gray-600 focus:outline-none"
+              >
+                <!-- Ikon Mata Terbuka -->
+                <svg v-if="!showLoginPassword" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                <!-- Ikon Mata Tertutup -->
+                <svg v-else class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l18 18"></path></svg>
+              </button>
+            </div>
           </div>
 
-          <div class="flex items-center justify-between text-xs pt-1">
-            <span class="text-gray-500">Default: disdik.karanganyar@gmail.com</span>
+          <div class="flex items-center justify-end text-xs pt-1">
             <button 
               type="button" 
               @click="handleForgotPassword"
@@ -225,9 +236,9 @@
             v-model="filterNpsn" 
             type="text" 
             placeholder="Cari NPSN / Sekolah..."
-            class="border-gray-300 rounded-lg p-2 text-xs focus:ring-blue-500 focus:border-blue-500" 
+            class="border-gray-300 rounded-lg p-2 text-xs focus:ring-blue-500 focus:border-blue-500 bg-white" 
           />
-          <select v-model="filterJenjang" class="border-gray-300 rounded-lg p-2 text-xs">
+          <select v-model="filterJenjang" class="border-gray-300 rounded-lg p-2 text-xs bg-white">
             <option value="">Semua Jenjang</option>
             <option value="SD">Jenjang SD</option>
             <option value="SMP">Jenjang SMP</option>
@@ -321,7 +332,7 @@
                 <td class="py-2.5 px-3 font-semibold text-gray-800">{{ acc.mapel }}</td>
                 <td class="py-2.5 px-3 text-gray-500">{{ acc.asal_sekolah || '-' }}</td>
                 <td class="py-2.5 px-3 text-center">
-                  <button @click="deletePenulis(acc.id)" class="text-red-600 hover:text-red-800 font-bold">Hapus</button>
+                  <button @click="confirmDeletePenulis(acc)" class="text-red-600 hover:text-red-800 font-bold">Hapus</button>
                 </td>
               </tr>
             </tbody>
@@ -331,8 +342,8 @@
 
     </div>
 
-    <!-- MODAL TAMBAH PENULIS -->
-    <div v-if="showAddPenulisModal" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+    <!-- CUSTOM MODAL: TAMBAH PENULIS -->
+    <div v-if="showAddPenulisModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
       <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl">
         <h3 class="text-base font-bold text-gray-800 mb-4">Tambah Guru Penulis Soal</h3>
         <form @submit.prevent="submitAddPenulis" class="space-y-3 text-xs">
@@ -369,15 +380,38 @@
             <input v-model="newPenulis.password_plain" type="text" required class="w-full border-gray-300 rounded-lg p-2 font-mono" placeholder="PasswordLogin123" />
           </div>
           <div class="flex justify-end gap-2 pt-3">
-            <button type="button" @click="showAddPenulisModal = false" class="px-4 py-2 bg-gray-100 rounded-lg font-bold">Batal</button>
-            <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-lg font-bold">Simpan Akun</button>
+            <button type="button" @click="showAddPenulisModal = false" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg font-bold">Batal</button>
+            <button type="submit" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-bold">Simpan Akun</button>
           </div>
         </form>
       </div>
     </div>
 
-    <!-- MODAL SETEL KATA SANDI BARU (DARI EMAIL RESET) -->
-    <div v-if="showResetModal" class="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4">
+    <!-- CUSTOM MODAL: KONFIRMASI HAPUS PENULIS (BUKAN BROWSER ALERT) -->
+    <div v-if="accountToDelete" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+      <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl text-center space-y-4">
+        <div class="w-12 h-12 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+        </div>
+        <div>
+          <h3 class="text-base font-bold text-gray-800">Hapus Akun Penulis?</h3>
+          <p class="text-xs text-gray-500 mt-1">
+            Akun <strong>{{ accountToDelete.nama_guru }}</strong> ({{ accountToDelete.username }}) akan dihapus secara permanen dari sistem.
+          </p>
+        </div>
+        <div class="flex gap-2 pt-2">
+          <button @click="accountToDelete = null" class="w-1/2 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold rounded-lg text-xs">
+            Batal
+          </button>
+          <button @click="executeDeletePenulis" class="w-1/2 py-2 bg-red-600 hover:bg-red-700 text-white font-bold rounded-lg text-xs">
+            Ya, Hapus
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- CUSTOM MODAL: SETEL KATA SANDI BARU (DARI EMAIL RESET) -->
+    <div v-if="showResetModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
       <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl">
         <div class="text-center mb-4">
           <div class="w-12 h-12 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center mx-auto mb-2">
@@ -409,6 +443,12 @@
         </form>
       </div>
     </div>
+
+    <!-- CUSTOM TOAST NOTIFICATION -->
+    <div v-if="toastMsg" class="fixed bottom-6 right-6 z-50 bg-gray-900/95 text-white px-5 py-3 rounded-xl shadow-2xl flex items-center gap-3 text-xs font-semibold animate-fade-in">
+      <span class="w-2 h-2 rounded-full bg-green-400"></span>
+      <span>{{ toastMsg }}</span>
+    </div>
   </div>
 </template>
 
@@ -427,16 +467,18 @@ import {
 } from '../services/apiService.js'
 import * as XLSX from 'xlsx'
 
-// Auth State
+// Auth State (Kosong secara default tanpa prefill)
 const isLoggedIn = ref(false)
 const userEmail = ref('')
-const loginEmail = ref('disdik.karanganyar@gmail.com')
+const loginEmail = ref('')
 const loginPassword = ref('')
+const showLoginPassword = ref(false)
 const isLoading = ref(false)
 const authError = ref('')
 const resetSuccessMsg = ref('')
 const showResetModal = ref(false)
 const newPasswordInput = ref('')
+const toastMsg = ref('')
 
 // Settings
 const settings = ref({
@@ -455,6 +497,7 @@ const filterJenjang = ref('')
 // Penulis
 const penulisList = ref([])
 const showAddPenulisModal = ref(false)
+const accountToDelete = ref(null)
 const newPenulis = reactive({
   nama_guru: '',
   asal_sekolah: '',
@@ -487,6 +530,13 @@ async function initDashboard() {
   await loadPenulis()
 }
 
+function showToast(msg) {
+  toastMsg.value = msg
+  setTimeout(() => {
+    toastMsg.value = ''
+  }, 3500)
+}
+
 // Login
 async function handleLogin() {
   isLoading.value = true
@@ -505,7 +555,7 @@ async function handleLogin() {
     userEmail.value = data.user.email
     await initDashboard()
   } catch (err) {
-    authError.value = 'Gagal masuk: Email atau kata sandi admin salah.'
+    authError.value = 'Gagal masuk: Email atau kata sandi salah. Silakan periksa kembali.'
   } finally {
     isLoading.value = false
   }
@@ -513,7 +563,12 @@ async function handleLogin() {
 
 // Forgot Password Flow
 async function handleForgotPassword() {
-  const targetEmail = loginEmail.value.trim() || 'disdik.karanganyar@gmail.com'
+  const targetEmail = loginEmail.value.trim()
+  if (!targetEmail) {
+    authError.value = 'Ketikkan alamat email admin terlebih dahulu pada kolom email di atas.'
+    return
+  }
+
   isLoading.value = true
   authError.value = ''
   resetSuccessMsg.value = ''
@@ -536,11 +591,13 @@ async function handleForgotPassword() {
 async function handleLogout() {
   await supabase.auth.signOut()
   isLoggedIn.value = false
+  loginEmail.value = ''
+  loginPassword.value = ''
 }
 
 async function submitNewPassword() {
   if (!newPasswordInput.value || newPasswordInput.value.length < 6) {
-    alert('Kata sandi minimal 6 karakter.')
+    authError.value = 'Kata sandi minimal 6 karakter.'
     return
   }
   try {
@@ -548,12 +605,12 @@ async function submitNewPassword() {
       password: newPasswordInput.value
     })
     if (error) throw error
-    alert('Kata sandi berhasil diperbarui! Anda sekarang sudah masuk ke Dashboard.')
+    showToast('Kata sandi berhasil diperbarui! Selamat datang di Dashboard.')
     showResetModal.value = false
     isLoggedIn.value = true
     await initDashboard()
   } catch (err) {
-    alert('Gagal memperbarui kata sandi: ' + err.message)
+    authError.value = 'Gagal memperbarui kata sandi: ' + err.message
   }
 }
 
@@ -561,6 +618,7 @@ async function submitNewPassword() {
 async function toggleSetting(field) {
   settings.value[field] = !settings.value[field]
   await updateAppSettings({ [field]: settings.value[field] })
+  showToast(`Pengaturan ${field} berhasil diperbarui.`)
 }
 
 // Generate Token Baru
@@ -568,6 +626,7 @@ async function generateNewToken() {
   const t = generateHourlyToken()
   settings.value.current_token = t
   await updateAppSettings({ current_token: t, token_updated_at: new Date().toISOString() })
+  showToast(`Token ujian baru berhasil dibuat: ${t}`)
 }
 
 // Load Rekap
@@ -604,6 +663,7 @@ function exportToExcel() {
   const workbook = XLSX.utils.book_new()
   XLSX.utils.book_append_sheet(workbook, worksheet, 'Hasil Simulasi TKA')
   XLSX.writeFile(workbook, `Rekap_Hasil_TKA_Karanganyar_${new Date().toISOString().slice(0, 10)}.xlsx`)
+  showToast('File Excel rekapitulasi nilai berhasil diunduh.')
 }
 
 // Load Penulis
@@ -620,15 +680,25 @@ async function submitAddPenulis() {
     newPenulis.username = ''
     newPenulis.password_plain = ''
     await loadPenulis()
+    showToast('Akun guru penulis baru berhasil ditambahkan!')
   } catch (e) {
-    alert('Gagal menambah akun: Username mungkin sudah digunakan.')
+    authError.value = 'Gagal menambah akun: Username mungkin sudah digunakan.'
   }
 }
 
-async function deletePenulis(id) {
-  if (confirm('Yakin ingin menghapus akun penulis ini?')) {
-    await deletePenulisAccount(id)
+function confirmDeletePenulis(acc) {
+  accountToDelete.value = acc
+}
+
+async function executeDeletePenulis() {
+  if (!accountToDelete.value) return
+  try {
+    await deletePenulisAccount(accountToDelete.value.id)
+    showToast(`Akun ${accountToDelete.value.nama_guru} berhasil dihapus.`)
+    accountToDelete.value = null
     await loadPenulis()
+  } catch (e) {
+    showToast('Gagal menghapus akun penulis.')
   }
 }
 

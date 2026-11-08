@@ -1,7 +1,7 @@
 <template>
-  <div class="min-h-screen bg-[#f3f6fa] flex flex-col font-sans" :style="{ fontSize: fontScaleStyle }">
+  <div class="min-h-screen bg-[#f3f6fa] flex flex-col font-sans select-none">
     <!-- Header Pusmendik Resmi Disdikbud Karanganyar -->
-    <CBTHeader />
+    <CBTHeader :student-identity="studentHeaderIdentity" />
 
     <!-- Notifikasi Pemeliharaan Jika SD & SMP Keduanya Dimatikan -->
     <div v-if="!settings.sd_active && !settings.smp_active" class="flex-1 flex items-center justify-center p-6">
@@ -76,7 +76,7 @@
               </select>
             </div>
 
-            <!-- Paket Soal -->
+            <!-- Pilihan Paket -->
             <div>
               <label class="block text-sm font-semibold text-gray-700 mb-2">Pilihan Paket Ujian</label>
               <div class="grid grid-cols-2 gap-4">
@@ -154,7 +154,7 @@
 
             <button
               @click="goToStep(2)"
-              class="w-full py-3 bg-[#326698] hover:bg-[#28537d] text-white font-bold rounded-xl shadow-md transition-all flex items-center justify-center gap-2"
+              class="w-full py-3 bg-[#0d6efd] hover:bg-blue-700 text-white font-bold rounded-xl shadow-md transition-all flex items-center justify-center gap-2"
             >
               <span>LOG IN</span>
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"></path></svg>
@@ -163,141 +163,146 @@
         </div>
       </section>
 
-      <!-- ========================================== -->
-      <!-- STEP 2: KONFIRMASI DATA PESERTA (NPSN)    -->
-      <!-- ========================================== -->
-      <section v-else-if="currentStep === 2" class="flex-1 flex items-center justify-center p-4 sm:p-6">
-        <div class="max-w-2xl w-full bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
-          <div class="bg-gradient-to-r from-[#326698] to-[#4a7fb8] p-5 text-white flex items-center justify-between">
-            <h2 class="text-base sm:text-lg font-bold">KONFIRMASI DATA PESERTA</h2>
-            <span class="text-xs bg-white/20 px-2.5 py-1 rounded-full font-medium">Langkah 2 dari 4</span>
+      <!-- ======================================================== -->
+      <!-- STEP 2: KONFIRMASI DATA PESERTA (IDENTIK SCREENSHOT 5)   -->
+      <!-- ======================================================== -->
+      <section v-else-if="currentStep === 2" class="flex-1 flex flex-col items-center justify-center p-4 sm:p-8 max-w-6xl mx-auto w-full">
+        
+        <div class="w-full grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+          
+          <!-- SISI KIRI: TOKEN CARD DENGAN REFRESH PILL (SESUAI GAMBAR 5) -->
+          <div class="lg:col-span-4 bg-white rounded-xl shadow-md border border-gray-100 p-4 flex items-center justify-between">
+            <div class="text-sm font-bold text-gray-800">
+              Token : <span class="font-mono font-black text-gray-900 tracking-wider text-base ml-1">{{ settings.current_token || '377HW8' }}</span>
+            </div>
+            <button 
+              @click="refreshActiveToken" 
+              type="button"
+              class="px-3.5 py-1 bg-[#0d6efd] hover:bg-blue-700 text-white text-xs font-bold rounded-full shadow transition-colors flex items-center gap-1"
+            >
+              Refresh
+            </button>
           </div>
 
-          <form @submit.prevent="handleKonfirmasiData" class="p-6 sm:p-8 space-y-4">
-            <!-- NPSN Sekolah dengan Auto Fetch Live Internet -->
-            <div>
-              <label class="block text-xs font-bold text-gray-700 uppercase mb-1">
-                NPSN Sekolah (8 Digit) <span class="text-red-500">*</span>
-              </label>
-              <div class="relative">
-                <input
-                  v-model="studentData.npsn"
-                  @input="handleNpsnInput"
-                  type="text"
-                  maxlength="8"
-                  placeholder="Contoh: 20312015"
-                  required
-                  class="w-full border-gray-300 rounded-lg p-2.5 text-sm font-mono focus:ring-blue-500 focus:border-blue-500 pr-10"
-                />
-                <div v-if="isSearchingNpsn" class="absolute right-3 top-2.5 text-blue-600">
-                  <svg class="animate-spin h-5 w-5" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg>
+          <!-- SISI KANAN: FLOATING CARD KONFIRMASI DATA PESERTA -->
+          <div class="lg:col-span-8 bg-white rounded-2xl shadow-xl border border-gray-100 p-6 sm:p-8">
+            <h2 class="text-xl font-bold text-gray-800 mb-5">Konfirmasi data Peserta</h2>
+
+            <form @submit.prevent="handleKonfirmasiData" class="space-y-4">
+              
+              <!-- 1. Username (Read-Only) -->
+              <div class="space-y-1">
+                <label class="block text-xs text-gray-500 font-medium">username</label>
+                <div class="text-sm font-bold text-gray-800 font-mono">{{ dummyUsername }}</div>
+              </div>
+
+              <!-- 2. Nama Peserta Display -->
+              <div class="space-y-1">
+                <label class="block text-xs text-gray-500 font-medium">Nama Peserta</label>
+                <div class="text-sm font-bold text-gray-800">{{ dummyUsername }} - PESERTA TKA</div>
+              </div>
+
+              <!-- 3. Jenis Kelamin -->
+              <div class="space-y-1">
+                <label class="block text-xs text-gray-500 font-medium">Jenis Kelamin</label>
+                <div class="text-sm font-medium text-gray-800">Laki-Laki</div>
+              </div>
+
+              <!-- 4. Mata Ujian -->
+              <div class="space-y-1">
+                <label class="block text-xs text-gray-500 font-medium">Mata Ujian</label>
+                <div class="text-sm font-medium text-gray-800">
+                  {{ selectedMapel }} - {{ selectedJenjang }} Sederajat ({{ selectedPaket }})
                 </div>
               </div>
-              <span v-if="isSearchingNpsn" class="text-[11px] text-blue-600 mt-1 block">
-                Sedang mencari nama sekolah melalui internet...
-              </span>
-            </div>
 
-            <!-- Nama Sekolah (Auto-filled atau input manual) -->
-            <div>
-              <label class="block text-xs font-bold text-gray-700 uppercase mb-1">
-                Nama Sekolah Asal <span class="text-red-500">*</span>
-              </label>
-              <input
-                v-model="studentData.nama_sekolah"
-                type="text"
-                placeholder="Nama sekolah akan otomatis terisi atau ketik manual"
-                required
-                class="w-full border-gray-300 rounded-lg p-2.5 text-sm focus:ring-blue-500 focus:border-blue-500 bg-white"
-              />
-            </div>
-
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <!-- Nama Peserta -->
-              <div>
-                <label class="block text-xs font-bold text-gray-700 uppercase mb-1">
-                  Nama Lengkap Siswa <span class="text-red-500">*</span>
-                </label>
-                <input
+              <!-- 5. Nama Peserta Input Field (Underlined Sesuai Gambar 5) -->
+              <div class="pt-2">
+                <label class="block text-xs text-gray-500 font-medium mb-1">Nama Peserta</label>
+                <input 
                   v-model="studentData.nama_siswa"
-                  type="text"
-                  placeholder="Masukkan nama lengkap"
+                  type="text" 
+                  placeholder="Ketikkan nama Peserta"
                   required
-                  class="w-full border-gray-300 rounded-lg p-2.5 text-sm focus:ring-blue-500 focus:border-blue-500"
+                  class="w-full border-0 border-b border-gray-300 focus:ring-0 focus:border-blue-600 px-0 py-1.5 text-sm font-medium text-gray-800 placeholder-gray-400 bg-transparent"
                 />
               </div>
 
-              <!-- NISN -->
-              <div>
-                <label class="block text-xs font-bold text-gray-700 uppercase mb-1">
-                  NISN (10 Digit)
-                </label>
-                <input
-                  v-model="studentData.nisn"
-                  type="text"
-                  maxlength="10"
-                  placeholder="Contoh: 0098765432"
-                  class="w-full border-gray-300 rounded-lg p-2.5 text-sm font-mono focus:ring-blue-500 focus:border-blue-500"
+              <!-- 6. NPSN Sekolah (Auto Fetch Asal Sekolah) -->
+              <div class="pt-1">
+                <label class="block text-xs text-gray-500 font-medium mb-1">NPSN Sekolah (8 Digit)</label>
+                <div class="flex gap-2">
+                  <input 
+                    v-model="studentData.npsn"
+                    @input="handleNpsnInput"
+                    type="text" 
+                    maxlength="8"
+                    placeholder="Contoh: 20312015"
+                    required
+                    class="w-40 border border-gray-300 rounded-lg p-2 text-xs font-mono font-bold text-gray-800"
+                  />
+                  <input 
+                    v-model="studentData.nama_sekolah"
+                    type="text" 
+                    placeholder="Nama Sekolah Asal"
+                    required
+                    class="flex-1 border border-gray-300 rounded-lg p-2 text-xs text-gray-800 bg-gray-50"
+                  />
+                </div>
+              </div>
+
+              <!-- 7. Tanggal Lahir (3 Kotak Abu-Abu Berjajar: Hari, Bulan, Tahun) -->
+              <div class="pt-2">
+                <label class="block text-xs text-gray-500 font-medium mb-1.5">Tanggal Lahir</label>
+                <div class="grid grid-cols-3 gap-3">
+                  <div class="bg-gray-100 rounded-md p-1 border border-gray-200">
+                    <select v-model="studentData.tgl" class="w-full bg-transparent border-0 text-xs text-gray-700 py-1.5 px-2 focus:ring-0">
+                      <option v-for="d in 31" :key="d" :value="d">{{ d }}</option>
+                    </select>
+                  </div>
+                  <div class="bg-gray-100 rounded-md p-1 border border-gray-200">
+                    <select v-model="studentData.bln" class="w-full bg-transparent border-0 text-xs text-gray-700 py-1.5 px-2 focus:ring-0">
+                      <option v-for="m in bulanList" :key="m" :value="m">{{ m }}</option>
+                    </select>
+                  </div>
+                  <div class="bg-gray-100 rounded-md p-1 border border-gray-200">
+                    <select v-model="studentData.thn" class="w-full bg-transparent border-0 text-xs text-gray-700 py-1.5 px-2 focus:ring-0">
+                      <option v-for="y in [2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016]" :key="y" :value="y">{{ y }}</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 8. Token (Label Biru Sesuai Gambar 5) -->
+              <div class="pt-2">
+                <label class="block text-xs font-bold text-blue-600 mb-1">Token</label>
+                <input 
+                  v-model="inputToken"
+                  type="text" 
+                  placeholder="Ketikkan token di sini"
+                  required
+                  class="w-full border-0 border-b border-gray-300 focus:ring-0 focus:border-blue-600 px-0 py-1.5 text-sm font-mono tracking-wider uppercase text-gray-800 placeholder-gray-400 bg-transparent"
                 />
+                <span v-if="tokenError" class="text-xs text-red-600 font-semibold mt-1 block">
+                  Token yang Anda masukkan salah atau sudah berganti! Silakan periksa token di sebelah kiri.
+                </span>
               </div>
-            </div>
 
-            <!-- Tanggal Lahir -->
-            <div class="grid grid-cols-3 gap-3">
-              <div>
-                <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Tgl Lahir</label>
-                <select v-model="studentData.tgl" class="w-full border-gray-300 rounded-lg p-2.5 text-sm">
-                  <option v-for="d in 31" :key="d" :value="d">{{ d }}</option>
-                </select>
+              <!-- 9. Tombol Submit (Biru Pill Sesuai Gambar 5) -->
+              <div class="pt-6">
+                <button
+                  type="submit"
+                  class="w-full py-2.5 px-6 bg-[#0d6efd] hover:bg-blue-700 text-white font-bold rounded-full shadow text-sm transition-all"
+                >
+                  Submit
+                </button>
               </div>
-              <div>
-                <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Bulan</label>
-                <select v-model="studentData.bln" class="w-full border-gray-300 rounded-lg p-2.5 text-sm">
-                  <option v-for="(m, i) in bulanList" :key="i" :value="m">{{ m }}</option>
-                </select>
-              </div>
-              <div>
-                <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Tahun</label>
-                <select v-model="studentData.thn" class="w-full border-gray-300 rounded-lg p-2.5 text-sm">
-                  <option v-for="y in [2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016]" :key="y" :value="y">{{ y }}</option>
-                </select>
-              </div>
-            </div>
 
-            <!-- Token Ujian -->
-            <div class="pt-2">
-              <label class="block text-xs font-bold text-gray-700 uppercase mb-1">
-                Token Ujian <span class="text-red-500">*</span>
-              </label>
-              <input
-                v-model="inputToken"
-                type="text"
-                placeholder="Ketik token dari layar login"
-                required
-                class="w-full border-gray-300 rounded-lg p-2.5 text-sm font-mono tracking-widest uppercase focus:ring-blue-500 focus:border-blue-500"
-              />
-              <span v-if="tokenError" class="text-xs text-red-600 font-semibold mt-1 block">
-                Token yang Anda masukkan salah atau sudah berganti!
-              </span>
-            </div>
+            </form>
+          </div>
 
-            <div class="pt-4 flex gap-3">
-              <button
-                type="button"
-                @click="goToStep(1)"
-                class="w-1/3 py-2.5 px-4 border border-gray-300 text-gray-700 font-semibold rounded-lg hover:bg-gray-50 text-sm"
-              >
-                Kembali
-              </button>
-              <button
-                type="submit"
-                class="w-2/3 py-2.5 px-4 bg-[#326698] hover:bg-[#28537d] text-white font-bold rounded-lg shadow text-sm"
-              >
-                SUBMIT DATA
-              </button>
-            </div>
-          </form>
         </div>
+
       </section>
 
       <!-- ========================================== -->
@@ -341,13 +346,13 @@
             <div class="pt-4 flex gap-3">
               <button
                 @click="goToStep(2)"
-                class="w-1/3 py-3 border border-gray-300 text-gray-700 font-semibold rounded-xl hover:bg-gray-50 text-sm"
+                class="w-1/3 py-2.5 border border-gray-300 text-gray-700 font-semibold rounded-full hover:bg-gray-50 text-sm"
               >
-                Batal
+                Kembali
               </button>
               <button
                 @click="startExam"
-                class="w-2/3 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl shadow-lg transition-all text-sm flex items-center justify-center gap-2"
+                class="w-2/3 py-2.5 bg-[#0d6efd] hover:bg-blue-700 text-white font-bold rounded-full shadow-lg transition-all text-sm flex items-center justify-center gap-2"
               >
                 <span>MULAI MENGERJAKAN</span>
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
@@ -357,102 +362,152 @@
         </div>
       </section>
 
-      <!-- ========================================== -->
-      <!-- STEP 4: RUANG UJIAN CBT (IDENTIK PUSMENDIK)-->
-      <!-- ========================================== -->
-      <section v-else-if="currentStep === 4" class="flex-1 flex flex-col p-4 sm:p-6 max-w-7xl mx-auto w-full">
-        <!-- CBT Action Header -->
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 px-5 py-3.5 mb-5 flex flex-wrap items-center justify-between gap-3">
-          <!-- Font Size Scaler: A- / A / A+ -->
-          <div class="flex items-center space-x-1 bg-gray-100 p-1 rounded-lg border border-gray-200">
-            <span class="text-xs font-bold text-gray-500 px-2">Ukuran Font:</span>
-            <button 
-              @click="fontScale = 0.85" 
-              class="px-2.5 py-1 text-xs font-bold rounded transition-colors"
-              :class="fontScale === 0.85 ? 'bg-white shadow text-blue-600' : 'text-gray-600 hover:bg-white/60'"
-            >A-</button>
-            <button 
-              @click="fontScale = 1.0" 
-              class="px-2.5 py-1 text-sm font-bold rounded transition-colors"
-              :class="fontScale === 1.0 ? 'bg-white shadow text-blue-600' : 'text-gray-600 hover:bg-white/60'"
-            >A</button>
-            <button 
-              @click="fontScale = 1.2" 
-              class="px-2.5 py-1 text-base font-bold rounded transition-colors"
-              :class="fontScale === 1.2 ? 'bg-white shadow text-blue-600' : 'text-gray-600 hover:bg-white/60'"
-            >A+</button>
+      <!-- ======================================================== -->
+      <!-- STEP 4: RUANG UJIAN CBT (PERSIS SCREENSHOT 2, 3, 4, 7, 8)-->
+      <!-- ======================================================== -->
+      <section v-else-if="currentStep === 4" class="flex-1 flex flex-col p-3 sm:p-6 max-w-7xl mx-auto w-full">
+        
+        <!-- MAIN CBT CONTAINER CARD -->
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-5 sm:p-7 flex-1 flex flex-col justify-between">
+          
+          <div>
+            <!-- CBT HEADER BAR DALAM CARD (SESUAI SCREENSHOT PUSMENDIK) -->
+            <div class="flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-gray-200">
+              
+              <!-- SISI KIRI: SOAL NOMOR X + UKURAN FONT A A A -->
+              <div>
+                <div class="text-lg sm:text-xl font-bold text-gray-900">
+                  Soal nomor {{ currentQuestion ? currentQuestion.nomor_soal : currentIndex + 1 }}
+                </div>
+                <div class="flex items-center gap-1.5 text-xs text-gray-700 mt-1">
+                  <span>Ukuran font soal:</span>
+                  <button 
+                    type="button"
+                    @click="fontSizeLevel = 'sm'" 
+                    class="px-1 text-xs transition-all"
+                    :class="fontSizeLevel === 'sm' ? 'font-black underline border-b-2 border-black' : 'text-gray-500 hover:text-black'"
+                  >
+                    A
+                  </button>
+                  <button 
+                    type="button"
+                    @click="fontSizeLevel = 'md'" 
+                    class="px-1 text-sm transition-all"
+                    :class="fontSizeLevel === 'md' ? 'font-black underline border-b-2 border-black' : 'text-gray-500 hover:text-black'"
+                  >
+                    A
+                  </button>
+                  <button 
+                    type="button"
+                    @click="fontSizeLevel = 'lg'" 
+                    class="px-1 text-base transition-all"
+                    :class="fontSizeLevel === 'lg' ? 'font-black underline border-b-2 border-black' : 'text-gray-500 hover:text-black'"
+                  >
+                    A
+                  </button>
+                </div>
+              </div>
+
+              <!-- SISI KANAN: 3 TOMBOL PILL + LABEL MATA UJIAN (SESUAI GAMBAR 2, 3, 4) -->
+              <div class="flex flex-col items-end gap-1.5">
+                <div class="flex items-center gap-2">
+                  <button 
+                    type="button"
+                    @click="showInfoModal = true"
+                    class="px-3.5 py-1 bg-[#0d6efd] hover:bg-blue-700 text-white font-bold text-xs rounded-full shadow-sm transition-colors uppercase tracking-wider"
+                  >
+                    INFORMASI SOAL
+                  </button>
+                  
+                  <div class="px-3 py-1 bg-white border border-gray-300 rounded-full text-xs font-mono font-bold text-gray-800 shadow-sm">
+                    Sisa Waktu : {{ timerFormatted }}
+                  </div>
+
+                  <button 
+                    type="button"
+                    @click="showDaftarSoal = true"
+                    class="px-3.5 py-1 bg-[#0d6efd] hover:bg-blue-700 text-white font-bold text-xs rounded-full shadow-sm transition-colors flex items-center gap-1.5"
+                  >
+                    <span>Daftar Soal</span>
+                    <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M4 4h4v4H4zm6 0h4v4h-4zm6 0h4v4h-4zM4 10h4v4H4zm6 0h4v4h-4zm6 0h4v4h-4zM4 16h4v4H4zm6 0h4v4h-4zm6 0h4v4h-4z"/>
+                    </svg>
+                  </button>
+                </div>
+
+                <div class="text-xs font-semibold text-gray-700 text-right">
+                  {{ selectedMapel }} - {{ selectedJenjang }} Sederajat ({{ selectedPaket }})
+                </div>
+              </div>
+
+            </div>
+
+            <!-- CBT QUESTION BODY -->
+            <div v-if="currentQuestion" class="pt-5">
+              <CBTQuestionItem 
+                :question="currentQuestion"
+                v-model="userAnswers[currentQuestion.nomor_soal]"
+                :font-size-level="fontSizeLevel"
+              />
+            </div>
+            <div v-else class="text-center py-16 text-gray-400 text-sm">
+              Memuat butir soal...
+            </div>
           </div>
 
-          <!-- Timer Countdown Pusmendik Style -->
-          <div class="flex items-center gap-2 bg-blue-50 border border-blue-200 px-4 py-1.5 rounded-lg text-blue-900 font-mono font-bold text-base sm:text-lg">
-            <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-            <span>Sisa Waktu: {{ timerFormatted }}</span>
+          <!-- CBT BOTTOM NAVIGATION BAR (PERSIS SCREENSHOT PUSMENDIK) -->
+          <div class="pt-8 flex flex-wrap items-center justify-between gap-4 border-t border-gray-100 mt-6">
+            
+            <!-- 1. Tombol Merah: Soal Sebelumnya -->
+            <button
+              type="button"
+              :disabled="currentIndex === 0"
+              @click="prevQuestion"
+              class="px-5 py-2 rounded-full font-bold text-xs sm:text-sm text-white shadow transition-all flex items-center gap-1.5"
+              :class="currentIndex === 0 ? 'bg-gray-300 cursor-not-allowed text-gray-500' : 'bg-[#dc3545] hover:bg-red-700'"
+            >
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+              <span>Soal sebelumnya</span>
+            </button>
+
+            <!-- 2. Tombol Kuning: Ragu-Ragu -->
+            <label class="flex items-center gap-2 cursor-pointer bg-[#ffc107] hover:bg-yellow-400 px-6 py-2 rounded-full text-gray-900 font-bold text-xs sm:text-sm shadow border border-yellow-500 select-none transition-colors">
+              <input 
+                type="checkbox" 
+                :checked="raguRagu[currentQuestion?.nomor_soal]" 
+                @change="toggleRaguRagu"
+                class="w-4 h-4 text-amber-600 rounded border-gray-400 focus:ring-0 cursor-pointer" 
+              />
+              <span>Ragu-ragu</span>
+            </label>
+
+            <!-- 3. Tombol Biru: Soal Berikutnya / Selesai Tes -->
+            <button
+              v-if="currentIndex < questions.length - 1"
+              type="button"
+              @click="nextQuestion"
+              class="px-5 py-2 rounded-full font-bold text-xs sm:text-sm bg-[#0d6efd] hover:bg-blue-700 text-white shadow transition-all flex items-center gap-1.5"
+            >
+              <span>Soal berikutnya</span>
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+            </button>
+            <button
+              v-else
+              type="button"
+              @click="showConfirmFinishModal = true"
+              class="px-6 py-2 rounded-full font-bold text-xs sm:text-sm bg-[#0d6efd] hover:bg-blue-700 text-white shadow transition-all flex items-center gap-1.5"
+            >
+              <span>Selesai Tes</span>
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+            </button>
+
           </div>
 
-          <!-- Tombol Daftar Soal Modal -->
-          <button 
-            @click="showDaftarSoal = true"
-            class="bg-[#326698] hover:bg-[#28537d] text-white text-xs sm:text-sm font-bold px-4 py-2 rounded-lg shadow-sm flex items-center gap-2"
-          >
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"></path></svg>
-            <span>DAFTAR SOAL ({{ countAnswered }}/{{ questions.length }})</span>
-          </button>
         </div>
 
-        <!-- Render Current Question Item -->
-        <div v-if="currentQuestion" class="flex-1">
-          <CBTQuestionItem 
-            :question="currentQuestion"
-            v-model="userAnswers[currentQuestion.nomor_soal]"
-          />
-        </div>
-
-        <!-- CBT Footer Navigation Bar -->
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 px-6 py-4 mt-6 flex flex-wrap items-center justify-between gap-4">
-          <!-- Tombol Soal Sebelumnya -->
-          <button
-            :disabled="currentIndex === 0"
-            @click="prevQuestion"
-            class="py-2.5 px-5 rounded-lg font-bold text-xs sm:text-sm transition-all flex items-center gap-2"
-            :class="currentIndex === 0 ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-gray-200 hover:bg-gray-300 text-gray-800'"
-          >
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
-            <span>Soal Sebelumnya</span>
-          </button>
-
-          <!-- Checkbox Ragu-Ragu (Kuning) -->
-          <label class="flex items-center gap-2 cursor-pointer bg-amber-50 border border-amber-300 px-4 py-2 rounded-lg text-amber-900 font-semibold text-xs sm:text-sm">
-            <input 
-              type="checkbox" 
-              :checked="raguRagu[currentQuestion?.nomor_soal]" 
-              @change="toggleRaguRagu"
-              class="w-4 h-4 text-amber-600 rounded border-amber-400 focus:ring-amber-500" 
-            />
-            <span>Ragu-Ragu</span>
-          </label>
-
-          <!-- Tombol Soal Berikutnya atau Selesai -->
-          <button
-            v-if="currentIndex < questions.length - 1"
-            @click="nextQuestion"
-            class="py-2.5 px-6 rounded-lg font-bold text-xs sm:text-sm bg-[#326698] hover:bg-[#28537d] text-white shadow transition-all flex items-center gap-2"
-          >
-            <span>Soal Berikutnya</span>
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7m0 0l-7 7m7-7H3"></path></svg>
-          </button>
-          <button
-            v-else
-            @click="goToStep(5)"
-            class="py-2.5 px-6 rounded-lg font-bold text-xs sm:text-sm bg-red-600 hover:bg-red-700 text-white shadow transition-all flex items-center gap-2"
-          >
-            <span>Selesai Tes</span>
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-          </button>
-        </div>
-
-        <!-- MODAL DAFTAR SOAL (PUSMENDIK POP-UP GRID) -->
+        <!-- CUSTOM MODAL: DAFTAR SOAL GRID -->
         <div v-if="showDaftarSoal" class="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4">
-          <div class="bg-white rounded-2xl max-w-xl w-full p-6 shadow-2xl overflow-hidden">
+          <div class="bg-white rounded-2xl max-w-xl w-full p-6 shadow-2xl overflow-hidden animate-fade-in">
             <div class="flex items-center justify-between pb-3 border-b">
               <h3 class="text-base font-bold text-gray-800">Daftar Nomor Soal</h3>
               <button @click="showDaftarSoal = false" class="text-gray-400 hover:text-gray-600">
@@ -487,43 +542,55 @@
             </div>
           </div>
         </div>
-      </section>
 
-      <!-- ========================================== -->
-      <!-- STEP 5: KONFIRMASI SELESAI UJIAN           -->
-      <!-- ========================================== -->
-      <section v-else-if="currentStep === 5" class="flex-1 flex items-center justify-center p-4 sm:p-6">
-        <div class="max-w-md w-full bg-white rounded-2xl shadow-xl border border-gray-100 p-6 sm:p-8 text-center space-y-5">
-          <div class="w-16 h-16 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto">
-            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
-          </div>
-
-          <h2 class="text-xl font-bold text-gray-800">Konfirmasi Selesai Ujian</h2>
-          
-          <p class="text-sm text-gray-600 leading-relaxed">
-            Apakah Anda yakin ingin mengakhiri tes ini? Anda telah menjawab 
-            <strong class="text-blue-700">{{ countAnswered }}</strong> dari <strong>{{ questions.length }}</strong> soal.
-          </p>
-
-          <div v-if="countRaguRagu > 0" class="p-3 bg-amber-50 border border-amber-200 rounded-lg text-xs text-amber-800 font-medium">
-            Perhatian: Masih ada {{ countRaguRagu }} soal dengan status ragu-ragu.
-          </div>
-
-          <div class="flex gap-3 pt-2">
-            <button
-              @click="goToStep(4)"
-              class="w-1/2 py-2.5 px-4 border border-gray-300 text-gray-700 font-semibold rounded-lg hover:bg-gray-50 text-sm"
-            >
-              Kembali ke Soal
-            </button>
-            <button
-              @click="finishExam"
-              class="w-1/2 py-2.5 px-4 bg-red-600 hover:bg-red-700 text-white font-bold rounded-lg shadow text-sm"
-            >
-              YA, SELESAI
-            </button>
+        <!-- CUSTOM MODAL: INFORMASI SOAL -->
+        <div v-if="showInfoModal" class="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4">
+          <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4 animate-fade-in">
+            <div class="flex items-center justify-between pb-2 border-b">
+              <h3 class="text-base font-bold text-gray-800">Informasi Tes & Petunjuk</h3>
+              <button @click="showInfoModal = false" class="text-gray-400 hover:text-gray-600">✕</button>
+            </div>
+            <div class="text-xs text-gray-600 space-y-2 leading-relaxed">
+              <p>• <strong>Mata Ujian:</strong> {{ selectedMapel }} ({{ selectedJenjang }} {{ selectedPaket }})</p>
+              <p>• <strong>Total Soal:</strong> {{ questions.length }} Butir Soal</p>
+              <p>• <strong>Alokasi Waktu:</strong> 60 Menit</p>
+              <p>• <strong>Petunjuk Jawaban:</strong> Pilihan lingkaran untuk pilihan tunggal, kotak centang untuk pilihan kompleks lebih dari satu, dan matriks baris untuk Benar/Salah.</p>
+              <p>• <strong>Ukuran Huruf:</strong> Gunakan tombol <strong>A A A</strong> pada pojok kiri atas untuk mengatur ukuran huruf teks dan rumus soal.</p>
+            </div>
+            <div class="pt-2 flex justify-end">
+              <button @click="showInfoModal = false" class="px-5 py-2 bg-[#0d6efd] text-white font-bold rounded-lg text-xs">
+                Mengerti
+              </button>
+            </div>
           </div>
         </div>
+
+        <!-- CUSTOM MODAL: KONFIRMASI SELESAI UJIAN (PENGGANTI BROWSER DIALOG) -->
+        <div v-if="showConfirmFinishModal" class="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4">
+          <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl text-center space-y-4 animate-fade-in">
+            <div class="w-12 h-12 bg-blue-100 text-[#0d6efd] rounded-full flex items-center justify-center mx-auto">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            </div>
+            <div>
+              <h3 class="text-base font-bold text-gray-800">Konfirmasi Selesai Ujian?</h3>
+              <p class="text-xs text-gray-500 mt-1">
+                Anda telah menjawab <strong class="text-blue-700">{{ countAnswered }}</strong> dari <strong>{{ questions.length }}</strong> butir soal.
+              </p>
+              <div v-if="countRaguRagu > 0" class="mt-2 p-2 bg-amber-50 border border-amber-200 rounded text-[11px] text-amber-800 font-medium">
+                Peringatan: Masih terdapat {{ countRaguRagu }} soal dengan status ragu-ragu.
+              </div>
+            </div>
+            <div class="flex gap-2 pt-2">
+              <button @click="showConfirmFinishModal = false" class="w-1/2 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold rounded-lg text-xs">
+                Batal
+              </button>
+              <button @click="confirmFinishExam" class="w-1/2 py-2 bg-[#0d6efd] hover:bg-blue-700 text-white font-bold rounded-lg text-xs">
+                Ya, Selesai
+              </button>
+            </div>
+          </div>
+        </div>
+
       </section>
 
       <!-- ========================================== -->
@@ -635,6 +702,12 @@
       </section>
 
     </main>
+
+    <!-- CUSTOM TOAST NOTIFICATION -->
+    <div v-if="toastMsg" class="fixed bottom-6 right-6 z-50 bg-gray-900/95 text-white px-5 py-3 rounded-xl shadow-2xl flex items-center gap-3 text-xs font-semibold animate-fade-in">
+      <span class="w-2 h-2 rounded-full bg-blue-400"></span>
+      <span>{{ toastMsg }}</span>
+    </div>
   </div>
 </template>
 
@@ -651,22 +724,22 @@ const settings = ref({
   smp_active: true,
   show_kunci: false,
   show_pdf: true,
-  current_token: 'KRA26'
+  current_token: '377HW8'
 })
 
-const currentStep = ref(0) // 0: Pilih, 1: Login, 2: Data, 3: Konfirmasi, 4: Ujian, 5: Konfirmasi Selesai, 6: Hasil
+const currentStep = ref(0) // 0: Pilih, 1: Login, 2: Data, 3: Konfirmasi, 4: Ujian, 6: Hasil
 const selectedJenjang = ref('SMP')
 const selectedMapel = ref('Matematika')
 const selectedPaket = ref('Paket 1')
 
 // Step 1: Login
-const dummyUsername = ref('SISWA_' + Math.floor(1000 + Math.random() * 9000))
+const dummyUsername = ref('dladnc')
 
 // Step 2: Form Data Siswa
 const studentData = reactive({
-  npsn: '',
-  nama_sekolah: '',
-  nama_siswa: '',
+  npsn: '20312015',
+  nama_sekolah: 'SMP NEGERI 1 KARANGANYAR',
+  nama_siswa: 'adniadnla',
   nisn: '',
   tgl: 15,
   bln: 'Juli',
@@ -685,6 +758,12 @@ const currentIndex = ref(0)
 const userAnswers = reactive({})
 const raguRagu = reactive({})
 const showDaftarSoal = ref(false)
+const showInfoModal = ref(false)
+const showConfirmFinishModal = ref(false)
+const toastMsg = ref('')
+
+// Font Scaling: 'sm', 'md', 'lg'
+const fontSizeLevel = ref('md')
 
 // Timer (60 Menit = 3600 Detik)
 const timeRemaining = ref(3600)
@@ -692,21 +771,25 @@ let timerInterval = null
 const startTime = ref(0)
 const durasiPengerjaan = ref(0)
 
-// Font Scaling
-const fontScale = ref(1.0)
-const fontScaleStyle = computed(() => `${fontScale.value * 100}%`)
-
 // Hasil & Skor
 const scoreResult = reactive({
   jumlahBenar: 0,
   detailAnswers: []
 })
 
+// Header Identity Display (sesuai screenshot: username - adniadnla 🎓)
+const studentHeaderIdentity = computed(() => {
+  if (currentStep.value >= 2) {
+    const nama = studentData.nama_siswa ? studentData.nama_siswa : 'PESERTA TKA'
+    return `${dummyUsername.value} - ${nama}`
+  }
+  return 'Aplikasi Ujian CBT TKA'
+})
+
 // Lifecycle
 onMounted(async () => {
   settings.value = await getAppSettings()
   
-  // Jika SD tidak aktif tapi SMP aktif, default ke SMP
   if (!settings.value.smp_active && settings.value.sd_active) {
     selectedJenjang.value = 'SD'
   }
@@ -716,10 +799,22 @@ onUnmounted(() => {
   if (timerInterval) clearInterval(timerInterval)
 })
 
+function showToast(msg) {
+  toastMsg.value = msg
+  setTimeout(() => {
+    toastMsg.value = ''
+  }, 3500)
+}
+
 // Methods Navigasi Step
 function goToStep(step) {
   currentStep.value = step
   window.scrollTo({ top: 0, behavior: 'smooth' })
+}
+
+async function refreshActiveToken() {
+  settings.value = await getAppSettings()
+  showToast('Token ujian telah diperbarui: ' + (settings.value.current_token || 'KRA26'))
 }
 
 // Auto Lookup NPSN
@@ -732,6 +827,7 @@ function handleNpsnInput() {
       const res = await lookupNpsn(val)
       if (res && res.nama_sekolah) {
         studentData.nama_sekolah = res.nama_sekolah
+        showToast('Sekolah ditemukan: ' + res.nama_sekolah)
       }
       isSearchingNpsn.value = false
     }, 500)
@@ -754,8 +850,12 @@ function handleKonfirmasiData() {
 
 // Start Exam
 async function startExam() {
-  // Load bank soal sesuai pilihan
   questions.value = await getSoalList(selectedJenjang.value, selectedMapel.value, selectedPaket.value)
+  if (questions.value.length === 0) {
+    showToast('Belum ada butir soal yang diunggah untuk paket ini.')
+    return
+  }
+
   currentIndex.value = 0
   timeRemaining.value = 3600
   startTime.value = Date.now()
@@ -766,9 +866,8 @@ async function startExam() {
     if (timeRemaining.value > 0) {
       timeRemaining.value--
     } else {
-      // Waktu habis, otomatis selesai
       clearInterval(timerInterval)
-      finishExam()
+      confirmFinishExam()
     }
   }, 1000)
 
@@ -804,11 +903,12 @@ function toggleRaguRagu() {
   raguRagu[no] = !raguRagu[no]
 }
 
-// Timer Formatter mm:ss
+// Timer Formatter hh:mm:ss (sesuai format screenshot: 01:14:40)
 const timerFormatted = computed(() => {
-  const m = Math.floor(timeRemaining.value / 60)
+  const h = Math.floor(timeRemaining.value / 3600)
+  const m = Math.floor((timeRemaining.value % 3600) / 60)
   const s = timeRemaining.value % 60
-  return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`
+  return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`
 })
 
 // Counter Status Jawaban
@@ -852,7 +952,8 @@ function getQuestionGridClass(nomor, idx) {
 }
 
 // Selesai Ujian & Penilaian Poin Parsial
-async function finishExam() {
+async function confirmFinishExam() {
+  showConfirmFinishModal.value = false
   if (timerInterval) clearInterval(timerInterval)
   durasiPengerjaan.value = Math.floor((Date.now() - startTime.value) / 1000)
 
@@ -866,13 +967,11 @@ async function finishExam() {
     let isCorrect = false
 
     if (q.tipe_soal === '1') {
-      // PG Tunggal
       if (userAns && userAns === keyData.jawaban) {
         poin = 1.0
         isCorrect = true
       }
     } else if (q.tipe_soal === '2') {
-      // PG Kompleks (MCMA) - Poin Parsial Per Pilihan
       const correctArr = Array.isArray(keyData.jawaban) ? keyData.jawaban : [keyData.jawaban]
       const userArr = Array.isArray(userAns) ? userAns : []
       const bobot = keyData.bobot_per_opsi || (1 / correctArr.length)
@@ -882,13 +981,12 @@ async function finishExam() {
         if (correctArr.includes(opt)) {
           matchCount++
         } else {
-          matchCount -= 0.5 // penalti salah
+          matchCount -= 0.5
         }
       }
       poin = Math.max(0, Math.min(1.0, matchCount * bobot))
       isCorrect = poin >= 0.99
     } else if (q.tipe_soal === '3') {
-      // Tabel Benar/Salah - Poin Parsial Per Baris
       const keyMap = keyData.jawaban || {}
       const rows = Object.keys(keyMap)
       const bobot = keyData.bobot_per_baris || (1 / (rows.length || 1))
@@ -904,7 +1002,6 @@ async function finishExam() {
       poin = Math.min(1.0, benarCount * bobot)
       isCorrect = poin >= 0.99
     } else if (q.tipe_soal === '5') {
-      // Menjodohkan (Matching) - Poin Parsial Per Pasangan
       const pairs = keyData.pairs || {}
       const leftKeys = Object.keys(pairs)
       const bobot = keyData.bobot_per_pasang || (1 / (leftKeys.length || 1))
@@ -937,19 +1034,23 @@ async function finishExam() {
   scoreResult.detailAnswers = details
 
   // Simpan ke Supabase
-  await submitHasilUjian({
-    npsn: studentData.npsn,
-    nama_sekolah: studentData.nama_sekolah,
-    nama_siswa: studentData.nama_siswa,
-    nisn: studentData.nisn,
-    jenjang: selectedJenjang.value,
-    mapel: selectedMapel.value,
-    paket: selectedPaket.value,
-    jumlah_benar: scoreResult.jumlahBenar,
-    total_soal: questions.value.length,
-    durasi_detik: durasiPengerjaan.value,
-    rincian_jawaban: details
-  })
+  try {
+    await submitHasilUjian({
+      npsn: studentData.npsn,
+      nama_sekolah: studentData.nama_sekolah,
+      nama_siswa: studentData.nama_siswa,
+      nisn: studentData.nisn,
+      jenjang: selectedJenjang.value,
+      mapel: selectedMapel.value,
+      paket: selectedPaket.value,
+      jumlah_benar: scoreResult.jumlahBenar,
+      total_soal: questions.value.length,
+      durasi_detik: durasiPengerjaan.value,
+      rincian_jawaban: details
+    })
+  } catch (err) {
+    console.error('Gagal mencatat hasil ke Supabase:', err)
+  }
 
   // Unduh otomatis Lembar Hasil PDF
   if (settings.value.show_pdf) {

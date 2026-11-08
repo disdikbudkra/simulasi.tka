@@ -15,7 +15,7 @@
         </div>
 
         <form @submit.prevent="handleLogin" class="p-6 sm:p-8 space-y-4">
-          <div v-if="loginError" class="p-3 bg-red-50 border border-red-200 rounded-lg text-xs text-red-700">
+          <div v-if="loginError" class="p-3 bg-red-50 border border-red-200 rounded-lg text-xs text-red-700 font-medium">
             {{ loginError }}
           </div>
 
@@ -25,24 +25,36 @@
               v-model="inputUsername" 
               type="text" 
               required 
-              placeholder="Contoh: penulis.smp.mat"
-              class="w-full border-gray-300 rounded-lg p-2.5 text-sm font-mono focus:ring-blue-500 focus:border-blue-500"
+              placeholder="Masukkan username penulis"
+              class="w-full border-gray-300 rounded-lg p-2.5 text-sm font-mono focus:ring-blue-500 focus:border-blue-500 bg-white"
             />
           </div>
 
           <div>
             <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Kata Sandi</label>
-            <input 
-              v-model="inputPassword" 
-              type="password" 
-              required 
-              placeholder="••••••••"
-              class="w-full border-gray-300 rounded-lg p-2.5 text-sm focus:ring-blue-500 focus:border-blue-500"
-            />
+            <div class="relative">
+              <input 
+                v-model="inputPassword" 
+                :type="showPassword ? 'text' : 'password'" 
+                required 
+                placeholder="Masukkan kata sandi"
+                class="w-full border-gray-300 rounded-lg p-2.5 text-sm focus:ring-blue-500 focus:border-blue-500 pr-10 bg-white"
+              />
+              <button 
+                type="button" 
+                @click="showPassword = !showPassword"
+                class="absolute right-3 top-2.5 text-gray-400 hover:text-gray-600 focus:outline-none"
+              >
+                <!-- Ikon Mata Terbuka -->
+                <svg v-if="!showPassword" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                <!-- Ikon Mata Tertutup -->
+                <svg v-else class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l18 18"></path></svg>
+              </button>
+            </div>
           </div>
 
           <div class="text-[11px] text-gray-500 bg-gray-50 p-3 rounded-lg border">
-            * Akun penulis soal dikelola langsung oleh Proktor Dinas (Marshal). Hubungi Marshal jika belum memiliki akun.
+            * Akun penulis soal dikelola oleh Proktor Dinas (Marshal). Hubungi Marshal jika belum memiliki akun.
           </div>
 
           <button
@@ -69,7 +81,7 @@
               {{ currentPenulis.nama_guru }} ({{ currentPenulis.mapel }})
             </h2>
           </div>
-          <p class="text-xs text-gray-500 mt-0.5">{{ currentPenulis.asal_sekolah || 'Disdikbud Karanganyar' }} • Hak Akses Terkunci: {{ currentPenulis.jenjang }} - {{ currentPenulis.mapel }}</p>
+          <p class="text-xs text-gray-500 mt-0.5">{{ currentPenulis.asal_sekolah || 'Disdikbud Karanganyar' }} • Hak Akses: {{ currentPenulis.jenjang }} - {{ currentPenulis.mapel }}</p>
         </div>
 
         <div class="flex items-center gap-3">
@@ -128,7 +140,7 @@
           </div>
           <h3 class="text-lg font-bold text-gray-800">Unggah File Naskah Soal Microsoft Word (.docx)</h3>
           <p class="text-xs text-gray-500 leading-relaxed">
-            Sistem kami secara otomatis mengekstrak seluruh teks butir soal, rumus matematika, kunci jawaban, dan <strong>semua gambar</strong> dari file Word Anda langsung ke database tanpa perlu mengunggah gambar satu per satu.
+            Sistem secara otomatis mengekstrak seluruh teks butir soal, rumus matematika, kunci jawaban, dan <strong>semua gambar</strong> dari file Word Anda langsung ke database tanpa perlu mengunggah gambar satu per satu.
           </p>
 
           <!-- Dropzone -->
@@ -173,9 +185,9 @@
             <span class="text-xs text-gray-500 font-medium">Total: {{ soalList.length }} Soal Terdaftar</span>
           </div>
 
-          <!-- Tombol Bahaya: Reset Seluruh Paket -->
+          <!-- Tombol Hapus Seluruh Paket -->
           <button 
-            @click="resetEntirePackage"
+            @click="showResetPackageConfirm = true"
             class="px-3.5 py-1.5 bg-red-50 hover:bg-red-100 text-red-700 font-bold rounded-lg text-xs border border-red-200 flex items-center gap-1.5 transition-colors"
           >
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
@@ -192,9 +204,22 @@
               <h3 class="text-base font-bold text-gray-800">
                 {{ isEditing ? 'Edit Soal Nomor ' + formSoal.nomor_soal : 'Buat Soal Nomor ' + formSoal.nomor_soal }}
               </h3>
-              <span class="text-xs bg-blue-100 text-blue-800 font-bold px-2.5 py-1 rounded">
-                {{ currentPenulis.jenjang }} - {{ currentPenulis.mapel }}
-              </span>
+              
+              <!-- Tombol Hapus Butir Soal Ini (Hanya muncul saat mengedit) -->
+              <div class="flex items-center gap-2">
+                <button
+                  v-if="isEditing"
+                  @click="promptDeleteCurrent"
+                  type="button"
+                  class="px-3 py-1 bg-red-50 hover:bg-red-100 text-red-700 border border-red-200 rounded-md text-xs font-bold transition-colors flex items-center gap-1"
+                >
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                  <span>Hapus Soal Ini</span>
+                </button>
+                <span class="text-xs bg-blue-100 text-blue-800 font-bold px-2.5 py-1 rounded">
+                  {{ currentPenulis.jenjang }} - {{ currentPenulis.mapel }}
+                </span>
+              </div>
             </div>
 
             <!-- Nomor & Tipe Soal -->
@@ -206,13 +231,13 @@
                   type="number" 
                   min="1" 
                   required 
-                  class="w-full border-gray-300 rounded-lg p-2 text-sm font-bold focus:ring-blue-500 focus:border-blue-500" 
+                  class="w-full border-gray-300 rounded-lg p-2 text-sm font-bold focus:ring-blue-500 focus:border-blue-500 bg-white" 
                 />
               </div>
 
               <div>
                 <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Bentuk / Tipe Soal</label>
-                <select v-model="formSoal.tipe_soal" class="w-full border-gray-300 rounded-lg p-2 text-xs font-semibold focus:ring-blue-500 focus:border-blue-500">
+                <select v-model="formSoal.tipe_soal" class="w-full border-gray-300 rounded-lg p-2 text-xs font-semibold focus:ring-blue-500 focus:border-blue-500 bg-white">
                   <option value="1">1. Pilihan Ganda Biasa</option>
                   <option value="2">2. Pilihan Ganda Kompleks (MCMA)</option>
                   <option value="3">3. Tabel Matriks Benar/Salah</option>
@@ -223,7 +248,7 @@
 
             <!-- Virtual Toolbar MathLive (Rumus Cepat) -->
             <div class="bg-blue-50/60 p-3 rounded-xl border border-blue-100 space-y-1.5">
-              <span class="text-[11px] font-bold text-blue-900 block">Sisipkan Simbol Rumus Matematika (LaTeX):</span>
+              <span class="text-[11px] font-bold text-blue-900 block">Sisipkan Rumus Matematika (LaTeX):</span>
               <div class="flex flex-wrap gap-1.5">
                 <button type="button" @click="insertMathFormula('\\frac{a}{b}')" class="px-2 py-1 bg-white border border-blue-200 rounded text-xs font-mono font-bold hover:bg-blue-100">Pecahan \frac{a}{b}</button>
                 <button type="button" @click="insertMathFormula('\\sqrt{x}')" class="px-2 py-1 bg-white border border-blue-200 rounded text-xs font-mono font-bold hover:bg-blue-100">Akar \sqrt{x}</button>
@@ -238,16 +263,16 @@
             <div>
               <div class="flex items-center justify-between mb-1">
                 <label class="block text-xs font-bold text-gray-700 uppercase">
-                  Informasi / Wacana Soal (Opsional)
+                  Wacana / Cerita Soal (Kolom Kiri)
                 </label>
                 <span class="text-[10px] text-blue-600 font-semibold">Bisa Paste Gambar (Ctrl+V)</span>
               </div>
               <textarea 
                 v-model="formSoal.stimulus_html"
-                rows="3"
+                rows="4"
                 placeholder="Tuliskan cerita/wacana pengantar soal di sini. Anda juga bisa langsung menempel gambar (Ctrl+V)..."
                 @paste="handlePasteImage($event, 'stimulus')"
-                class="w-full border-gray-300 rounded-lg p-2.5 text-xs font-mono focus:ring-blue-500 focus:border-blue-500"
+                class="w-full border-gray-300 rounded-lg p-2.5 text-xs font-sans focus:ring-blue-500 focus:border-blue-500 bg-white"
               ></textarea>
             </div>
 
@@ -265,7 +290,7 @@
                 required
                 placeholder="Tuliskan kalimat pertanyaan di sini..."
                 @paste="handlePasteImage($event, 'pertanyaan')"
-                class="w-full border-gray-300 rounded-lg p-2.5 text-xs font-mono focus:ring-blue-500 focus:border-blue-500"
+                class="w-full border-gray-300 rounded-lg p-2.5 text-xs font-sans focus:ring-blue-500 focus:border-blue-500 bg-white"
               ></textarea>
             </div>
 
@@ -280,7 +305,7 @@
                 <input 
                   v-model="opt.text" 
                   type="text" 
-                  class="flex-1 border-gray-300 rounded-lg p-2 text-xs" 
+                  class="flex-1 border-gray-300 rounded-lg p-2 text-xs bg-white" 
                   :placeholder="'Teks Opsi ' + opt.id"
                 />
                 
@@ -303,8 +328,8 @@
               <label class="block text-xs font-bold text-gray-700 uppercase">Baris Pernyataan Benar/Salah</label>
               <div v-for="(row, idx) in formSoal.options_table" :key="row.id" class="flex items-center gap-2">
                 <span class="text-xs font-bold text-gray-500 w-4">{{ idx + 1 }}.</span>
-                <input v-model="row.pernyataan" type="text" class="flex-1 border-gray-300 rounded-lg p-2 text-xs" :placeholder="'Pernyataan baris ' + (idx + 1)" />
-                <select v-model="formSoal.kunci_table[row.id]" class="border-gray-300 rounded-lg p-2 text-xs font-bold">
+                <input v-model="row.pernyataan" type="text" class="flex-1 border-gray-300 rounded-lg p-2 text-xs bg-white" :placeholder="'Pernyataan baris ' + (idx + 1)" />
+                <select v-model="formSoal.kunci_table[row.id]" class="border-gray-300 rounded-lg p-2 text-xs font-bold bg-white">
                   <option value="B">Benar</option>
                   <option value="S">Salah</option>
                 </select>
@@ -316,10 +341,10 @@
               <label class="block text-xs font-bold text-gray-700 uppercase">Pasangan Menjodohkan</label>
               
               <div class="space-y-2">
-                <span class="text-[11px] font-bold text-gray-600 block">Kolom Kiri (Pertanyaan / Premis):</span>
+                <span class="text-[11px] font-bold text-gray-600 block">Kolom Kiri (Premis):</span>
                 <div v-for="l in formSoal.matching_left" :key="l.id" class="flex items-center gap-2">
                   <span class="font-bold text-xs text-blue-700 w-8">{{ l.id }}</span>
-                  <input v-model="l.text" type="text" class="flex-1 border-gray-300 rounded-lg p-2 text-xs" :placeholder="'Premis kiri ' + l.id" />
+                  <input v-model="l.text" type="text" class="flex-1 border-gray-300 rounded-lg p-2 text-xs bg-white" :placeholder="'Premis kiri ' + l.id" />
                 </div>
               </div>
 
@@ -327,7 +352,7 @@
                 <span class="text-[11px] font-bold text-gray-600 block">Kolom Kanan (Pilihan Pasangan):</span>
                 <div v-for="r in formSoal.matching_right" :key="r.id" class="flex items-center gap-2">
                   <span class="font-bold text-xs text-green-700 w-8">{{ r.id }}</span>
-                  <input v-model="r.text" type="text" class="flex-1 border-gray-300 rounded-lg p-2 text-xs" :placeholder="'Pilihan kanan ' + r.id" />
+                  <input v-model="r.text" type="text" class="flex-1 border-gray-300 rounded-lg p-2 text-xs bg-white" :placeholder="'Pilihan kanan ' + r.id" />
                 </div>
               </div>
 
@@ -335,7 +360,7 @@
                 <span class="text-[11px] font-bold text-gray-700 block">Kunci Pasangan:</span>
                 <div v-for="l in formSoal.matching_left" :key="l.id" class="flex items-center justify-between text-xs">
                   <span class="font-bold">{{ l.id }}: {{ l.text || '-' }}</span>
-                  <select v-model="formSoal.kunci_matching[l.id]" class="border-gray-300 rounded p-1 text-xs">
+                  <select v-model="formSoal.kunci_matching[l.id]" class="border-gray-300 rounded p-1 text-xs bg-white">
                     <option v-for="r in formSoal.matching_right" :key="r.id" :value="r.id">{{ r.id }}: {{ r.text }}</option>
                   </select>
                 </div>
@@ -360,7 +385,7 @@
             <div class="flex items-center justify-between px-2">
               <span class="text-xs font-bold text-gray-500 uppercase tracking-wider flex items-center gap-1.5">
                 <span class="w-2.5 h-2.5 rounded-full bg-green-500 animate-pulse"></span>
-                Live CBT Preview (Tampilan di Layar Siswa)
+                Live CBT Preview (Tampilan Asli Siswa)
               </span>
             </div>
 
@@ -372,15 +397,30 @@
 
             <!-- Daftar Butir Soal Terdaftar -->
             <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-5 mt-6">
-              <h4 class="text-sm font-bold text-gray-800 mb-3">Daftar Soal {{ activePaket }} Terdaftar</h4>
-              <div class="grid grid-cols-5 sm:grid-cols-6 gap-2">
+              <div class="flex items-center justify-between mb-3">
+                <h4 class="text-sm font-bold text-gray-800">Daftar Soal {{ activePaket }} Terdaftar ({{ soalList.length }})</h4>
+              </div>
+
+              <div v-if="soalList.length === 0" class="text-center py-6 text-gray-400 text-xs">
+                Belum ada soal pada paket ini. Buat butir soal baru atau import file Word.
+              </div>
+
+              <div v-else class="grid grid-cols-5 sm:grid-cols-6 gap-2">
                 <div 
                   v-for="q in soalList" 
                   :key="q.nomor_soal"
-                  class="p-2 border rounded-lg text-center cursor-pointer transition-all hover:border-blue-500"
-                  :class="formSoal.nomor_soal === q.nomor_soal ? 'border-blue-600 bg-blue-50 font-bold' : 'border-gray-200'"
+                  class="relative group p-2 border rounded-lg text-center cursor-pointer transition-all hover:border-blue-500"
+                  :class="formSoal.nomor_soal === q.nomor_soal && isEditing ? 'border-blue-600 bg-blue-50 font-bold ring-2 ring-blue-400' : 'border-gray-200 bg-white'"
                   @click="loadQuestionIntoForm(q)"
                 >
+                  <button
+                    type="button"
+                    @click.stop="confirmDeleteSpecificQuestion(q)"
+                    title="Hapus butir soal ini"
+                    class="absolute -top-1.5 -right-1.5 w-5 h-5 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center text-[10px] shadow opacity-0 group-hover:opacity-100 transition-opacity z-10"
+                  >
+                    ✕
+                  </button>
                   <div class="text-xs font-bold text-gray-800">No. {{ q.nomor_soal }}</div>
                   <div class="text-[10px] text-gray-500">Tipe {{ q.tipe_soal }}</div>
                 </div>
@@ -393,6 +433,58 @@
       </div>
 
     </div>
+
+    <!-- CUSTOM MODAL: KONFIRMASI HAPUS 1 BUTIR SOAL -->
+    <div v-if="showDeleteSingleConfirm" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+      <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl text-center space-y-4">
+        <div class="w-12 h-12 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+        </div>
+        <div>
+          <h3 class="text-base font-bold text-gray-800">Hapus Soal Nomor {{ targetQuestionToDelete?.nomor_soal || formSoal.nomor_soal }}?</h3>
+          <p class="text-xs text-gray-500 mt-1">
+            Butir soal ini akan dihapus secara permanen dari {{ activePaket }} ({{ currentPenulis?.jenjang }} {{ currentPenulis?.mapel }}).
+          </p>
+        </div>
+        <div class="flex gap-2 pt-2">
+          <button @click="showDeleteSingleConfirm = false" class="w-1/2 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold rounded-lg text-xs">
+            Batal
+          </button>
+          <button @click="executeDeleteSingle" class="w-1/2 py-2 bg-red-600 hover:bg-red-700 text-white font-bold rounded-lg text-xs">
+            Ya, Hapus
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- CUSTOM MODAL: KONFIRMASI HAPUS SELURUH PAKET SOAL -->
+    <div v-if="showResetPackageConfirm" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+      <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl text-center space-y-4">
+        <div class="w-12 h-12 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+        </div>
+        <div>
+          <h3 class="text-base font-bold text-gray-800">Hapus Seluruh Soal {{ activePaket }}?</h3>
+          <p class="text-xs text-red-600 font-semibold mt-1">
+            PERINGATAN: Semua {{ soalList.length }} butir soal pada {{ activePaket }} akan dibersihkan dari database untuk diisi ulang.
+          </p>
+        </div>
+        <div class="flex gap-2 pt-2">
+          <button @click="showResetPackageConfirm = false" class="w-1/2 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold rounded-lg text-xs">
+            Batal
+          </button>
+          <button @click="executeResetPackage" class="w-1/2 py-2 bg-red-600 hover:bg-red-700 text-white font-bold rounded-lg text-xs">
+            Ya, Hapus Semua
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- CUSTOM TOAST NOTIFICATION -->
+    <div v-if="toastMsg" class="fixed bottom-6 right-6 z-50 bg-gray-900/95 text-white px-5 py-3 rounded-xl shadow-2xl flex items-center gap-3 text-xs font-semibold animate-fade-in">
+      <span class="w-2 h-2 rounded-full bg-blue-400"></span>
+      <span>{{ toastMsg }}</span>
+    </div>
   </div>
 </template>
 
@@ -401,19 +493,26 @@ import { ref, reactive, computed, onMounted } from 'vue'
 import CBTHeader from '../components/CBTHeader.vue'
 import CBTQuestionItem from '../components/CBTQuestionItem.vue'
 import { supabase } from '../supabase.js'
-import { loginPenulis, getSoalList } from '../services/apiService.js'
+import { loginPenulis, getSoalList, deleteSoalByNomor, deleteEntirePackage } from '../services/apiService.js'
 import mammoth from 'mammoth'
 
-// State Auth Penulis
+// State Auth Penulis (Kosong secara default tanpa prefill)
 const currentPenulis = ref(null)
-const inputUsername = ref('penulis.smp.mat')
-const inputPassword = ref('GuruKra2026')
+const inputUsername = ref('')
+const inputPassword = ref('')
+const showPassword = ref(false)
 const loginError = ref('')
+const toastMsg = ref('')
 
 // Tabs
-const activeTab = ref('editor') // 'editor' | 'upload'
+const activeTab = ref('editor')
 const activePaket = ref('Paket 1')
 const soalList = ref([])
+
+// Modals
+const showDeleteSingleConfirm = ref(false)
+const showResetPackageConfirm = ref(false)
+const targetQuestionToDelete = ref(null)
 
 // Editor Form
 const isEditing = ref(false)
@@ -459,7 +558,6 @@ const previewDummyAnswer = ref(null)
 const uploadStatus = ref('')
 
 onMounted(async () => {
-  // Check local saved session
   const saved = localStorage.getItem('penulis_session')
   if (saved) {
     try {
@@ -471,13 +569,25 @@ onMounted(async () => {
   }
 })
 
+function showToast(msg) {
+  toastMsg.value = msg
+  setTimeout(() => {
+    toastMsg.value = ''
+  }, 3500)
+}
+
 async function handleLogin() {
   loginError.value = ''
+  if (!inputUsername.value || !inputPassword.value) {
+    loginError.value = 'Silakan masukkan username dan kata sandi.'
+    return
+  }
   const acc = await loginPenulis(inputUsername.value, inputPassword.value)
   if (acc) {
     currentPenulis.value = acc
     localStorage.setItem('penulis_session', JSON.stringify(acc))
     await loadSoalList()
+    showToast(`Selamat datang, ${acc.nama_guru}!`)
   } else {
     loginError.value = 'Username atau kata sandi penulis tidak ditemukan.'
   }
@@ -486,6 +596,8 @@ async function handleLogin() {
 function logoutPenulis() {
   currentPenulis.value = null
   localStorage.removeItem('penulis_session')
+  inputUsername.value = ''
+  inputPassword.value = ''
 }
 
 async function switchPaket(p) {
@@ -499,6 +611,8 @@ async function loadSoalList() {
   soalList.value = await getSoalList(currentPenulis.value.jenjang, currentPenulis.value.mapel, activePaket.value)
   if (soalList.value.length > 0 && !isEditing.value) {
     loadQuestionIntoForm(soalList.value[0])
+  } else if (soalList.value.length === 0) {
+    initNewQuestion()
   }
 }
 
@@ -555,7 +669,7 @@ function handlePasteImage(e, targetField) {
       const reader = new FileReader()
       reader.onload = (event) => {
         const base64 = event.target.result
-        const imgTag = `<div class="my-2 text-center"><img src="${base64}" class="max-h-60 mx-auto rounded shadow border" /></div>`
+        const imgTag = `<div class="my-3 text-center"><img src="${base64}" class="max-w-full mx-auto rounded shadow-sm border" /></div>`
         if (targetField === 'stimulus') {
           formSoal.stimulus_html += imgTag
         } else {
@@ -607,31 +721,57 @@ async function saveQuestion() {
     .upsert(payload, { onConflict: 'jenjang,mapel,paket,nomor_soal' })
 
   if (error) {
-    alert('Gagal menyimpan butir soal: ' + error.message)
+    showToast('Gagal menyimpan butir soal: ' + error.message)
   } else {
-    alert(`Soal Nomor ${formSoal.nomor_soal} berhasil disimpan!`)
+    showToast(`Soal Nomor ${formSoal.nomor_soal} berhasil disimpan!`)
     await loadSoalList()
   }
 }
 
-// Reset Seluruh Paket Soal
-async function resetEntirePackage() {
-  const confirmMsg = prompt(`PERINGATAN: Anda akan menghapus SELURUH butir soal ${activePaket.value} (${currentPenulis.value.jenjang} - ${currentPenulis.value.mapel}). Ketik "HAPUS" untuk konfirmasi:`)
-  if (confirmMsg === 'HAPUS') {
-    const { error } = await supabase
-      .from('soal_bank')
-      .delete()
-      .eq('jenjang', currentPenulis.value.jenjang)
-      .eq('mapel', currentPenulis.value.mapel)
-      .eq('paket', activePaket.value)
+// 1. HAPUS 1 BUTIR SOAL TERTENTU
+function promptDeleteCurrent() {
+  targetQuestionToDelete.value = { nomor_soal: formSoal.nomor_soal }
+  showDeleteSingleConfirm.value = true
+}
 
-    if (error) {
-      alert('Gagal mereset soal: ' + error.message)
-    } else {
-      alert(`Seluruh soal ${activePaket.value} berhasil dihapus. Anda dapat mengunggah atau membuat soal baru.`)
-      await loadSoalList()
-      initNewQuestion()
-    }
+function confirmDeleteSpecificQuestion(q) {
+  targetQuestionToDelete.value = q
+  showDeleteSingleConfirm.value = true
+}
+
+async function executeDeleteSingle() {
+  const nomor = targetQuestionToDelete.value ? targetQuestionToDelete.value.nomor_soal : formSoal.nomor_soal
+  try {
+    await deleteSoalByNomor(
+      currentPenulis.value.jenjang,
+      currentPenulis.value.mapel,
+      activePaket.value,
+      nomor
+    )
+    showDeleteSingleConfirm.value = false
+    targetQuestionToDelete.value = null
+    showToast(`Soal Nomor ${nomor} berhasil dihapus dari database.`)
+    await loadSoalList()
+    initNewQuestion()
+  } catch (err) {
+    showToast('Gagal menghapus soal: ' + err.message)
+  }
+}
+
+// 2. HAPUS SELURUH PAKET SOAL
+async function executeResetPackage() {
+  try {
+    await deleteEntirePackage(
+      currentPenulis.value.jenjang,
+      currentPenulis.value.mapel,
+      activePaket.value
+    )
+    showResetPackageConfirm.value = false
+    showToast(`Seluruh soal ${activePaket.value} berhasil dihapus dari database.`)
+    await loadSoalList()
+    initNewQuestion()
+  } catch (err) {
+    showToast('Gagal mereset paket: ' + err.message)
   }
 }
 
@@ -652,7 +792,7 @@ async function processDocxFile(file) {
     const arrayBuffer = await file.arrayBuffer()
     const result = await mammoth.convertToHtml({ arrayBuffer })
     uploadStatus.value = `Berhasil mengekstrak naskah soal! Mengonversi ${result.value.length} karakter dokumen.`
-    alert('File Word berhasil diekstrak! Tinjau soal pada menu Studio Penulisan.')
+    showToast('Naskah Word berhasil diekstrak! Tinjau soal pada menu Studio Penulisan.')
     activeTab.value = 'editor'
   } catch (err) {
     uploadStatus.value = 'Gagal memproses file Word: ' + err.message
